@@ -31,3 +31,5 @@ Một quầy xôi, một nhân viên; chưa nhiều nghề/chuỗi/công ty, bos
 ## Việc tiếp theo
 
 Hoàn tất kiểm tra hồ sơ demo riêng (`?demo=1`), chọn nữ và di chuyển; chế độ này không thay thế dữ liệu chính. Sau đó cân bằng một ca bán, thêm cấu hình nghề, tối ưu tải Phaser và mở rộng ngoại hình NPC. Không dùng tài liệu kế hoạch để tuyên bố hệ thống chưa có đã hoàn thành.
+
+Hồ sơ demo riêng đã được thêm để kiểm tra onboarding mà không đặt lại dữ liệu chính; `mobile-preview.html` là trang QA thay kích thước iframe. Kiểm tra viewport cần ghi kết quả thực tế sau triển khai.

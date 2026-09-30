@@ -68,3 +68,5 @@ Lỗi còn lại / việc tiếp theo:
 Bằng chứng hiện tại và giới hạn của phiên tạo tài liệu nằm ở STATUS.md.
 
 Street Edition đã chạy thành công lint, 15 unit test và build cục bộ; kiểm tra live và giới hạn thiết bị xem STATUS.md.
+
+Có trang `mobile-preview.html` để đặt iframe game demo ở 320/360/390/430 px và chiều cao 568/640/740/844 px. Đây là kiểm tra viewport CSS trên desktop, không thay cho benchmark thiết bị thật.

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiểm tra điện thoại · Khởi Nghiệp Việt</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; padding: 14px; background: #e7dac4; color: #66503c; font-family: 'Segoe UI', Arial, sans-serif; }
+    header { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; margin-bottom: 14px; font-size: 13px; }
+    strong { margin-right: 8px; }
+    select { border: 1px solid #c5b28e; border-radius: 8px; padding: 7px; color: inherit; background: #fff8eb; }
+    p { font-size: 11px; text-align: center; }
+    iframe { display: block; margin: 0 auto; border: 2px solid #9e8a6d; border-radius: 18px; background: #fff9ed; box-shadow: 0 8px 32px #66503c33; }
+  </style>
+</head>
+<body>
+  <header><strong>Kiểm tra giao diện điện thoại</strong><label>Chiều rộng <select id="width" aria-label="Chiều rộng điện thoại"><option>320</option><option>360</option><option selected>390</option><option>430</option></select> px</label><label>Chiều cao <select id="height" aria-label="Chiều cao điện thoại"><option>568</option><option>640</option><option selected>740</option><option>844</option></select> px</label></header>
+  <iframe src="./?demo=1" title="Game trong màn hình điện thoại" width="390" height="740"></iframe>
+  <p>Hồ sơ chơi thử riêng; không đặt lại tiến độ chính. Kích thước trên là vùng hiển thị web, chưa mô phỏng phần cứng điện thoại.</p>
+  <script>
+    const frame = document.querySelector('iframe');
+    function resize() { frame.width = document.querySelector('#width').value; frame.height = document.querySelector('#height').value; }
+    document.querySelector('#width').addEventListener('change', resize);
+    document.querySelector('#height').addEventListener('change', resize);
+  </script>
+</body>
+</html>
