@@ -82,7 +82,8 @@ export function generateLifeSituation(
   const location = pick(locations, state)
   const need = pick(needs, state)
   const twist = pick(twists, state)
-  const moment = pick(moments, state)
+  const originalMoment = pick(moments, state)
+  const moment = context.minuteOfDay >= 720 ? 'trong nhịp chiều của khu phố' : originalMoment
   const icon = context.weather === 'rain' ? '🌧️' : pick(['🌻', '🍚', '💬', '🚲', '☀️', '🏡'], state)
   const id = `d${context.day}-${context.minuteOfDay}-${state.seed.toString(36)}`
 
@@ -92,7 +93,7 @@ export function generateLifeSituation(
     situation: {
       id,
       title: `${need.title}: ${name}`,
-      description: `${name}, ${role}, ghé qua ${location} ${moment}. Họ ${need.detail} ${twist}`,
+      description: `${name}, ${role}, ghé qua ${location} ${moment}. Họ ${context.minuteOfDay >= 720 ? need.detail.replaceAll('bữa sáng','món ăn hoặc đồ uống') : need.detail} ${twist}`,
       character: name,
       role,
       location,

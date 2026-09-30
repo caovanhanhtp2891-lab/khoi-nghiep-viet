@@ -20,3 +20,5 @@ Khi thêm asset: ghi nguồn, kích thước, frame layout, origin, key preload,
 ## NPC vector riêng (100 nhân vật)
 
 `public/assets/npcs-v2/npc-001.svg`…`npc-100.svg`: 100 sheet 480×200, 4 frame 120×200, alpha tự nhiên của SVG. Hình vector tạo từ mã gốc trong kho, không dùng imagegen hoặc hình người chơi để nhân bản NPC. Phaser preload theo id; animation 6fps; origin (0.5,0.94), display 130×217 trước scale theo tuổi. React `NpcPortrait` dùng background 400% 100%. Tái tạo `pnpm assets:npcs`; test kiểm tra SVG khớp renderer. Xem [NPC_SYSTEM.md](NPC_SYSTEM.md) để sửa nghề, mũ, mặt và vật dụng. Asset lịch sử giữ nguyên.
+
+Phần quầy Phaser đã thêm đồ bán xôi/bánh mì/trà sữa và visual upgrade (mái che rộng, tủ, viền biển). Tạo bằng Graphics trong MainScene, không thêm raster hoặc nguồn tải ngoài.

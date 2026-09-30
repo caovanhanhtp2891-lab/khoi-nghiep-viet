@@ -1,3 +1,5 @@
+import { CAREER_IDS, career } from './careers'
+import { freshDayStats } from './accounting'
 import { getNpc } from './npcCatalog'
 import { MILESTONES, UPGRADES, dailyOrders } from './neighborhood'
 import { createInitialSnapshot } from '../store/initialState'
@@ -13,12 +15,13 @@ function validSituation(value: unknown): boolean {
 
 /** Validate unknown historical payloads before allowing autosave to replace them. */
 export function migrateSnapshot(raw: unknown): GameSnapshot {
-  if (!record(raw) || !(typeof raw.version === 'number' && [1, 2, 3, 4].includes(raw.version))) throw new Error('Phiên bản dữ liệu không được hỗ trợ')
+  if (!record(raw) || !(typeof raw.version === 'number' && [1, 2, 3, 4, 5].includes(raw.version))) throw new Error('Phiên bản dữ liệu không được hỗ trợ')
   const defaults = createInitialSnapshot()
   for (const group of ['player', 'world', 'business', 'dayStats', 'lifetime'] as const) {
     const source = raw[group]
     if (!record(source)) throw new Error(`Dữ liệu ${group} không hợp lệ`)
     for (const [key, value] of Object.entries(defaults[group])) {
+      if (Number(raw.version) < 5 && ((group === 'business' && key === 'careerId') || (group === 'dayStats' && ['cashOpening','stockPurchases','capitalPurchases','recoveries','communityRewards','careerIds'].includes(key)))) continue
       if (group === 'player' && ['gender', 'position'].includes(key) && Number(raw.version) < 3) continue
       const actual = source[key]
       if (typeof value === 'number' && (typeof actual !== 'number' || !Number.isFinite(actual))) throw new Error(`Số liệu ${group}.${key} không hợp lệ`)
@@ -35,7 +38,7 @@ export function migrateSnapshot(raw: unknown): GameSnapshot {
   if (raw.version !== 1 && (!record(raw.story) || !Array.isArray(raw.story.history) || ![raw.story.lastSituationAt, raw.story.resolvedToday].every((v) => typeof v === 'number' && Number.isFinite(v)) || !(raw.story.activeSituation === null || validSituation(raw.story.activeSituation)) || !raw.story.history.every(validSituation))) throw new Error('Dữ liệu tình huống không hợp lệ')
   if (Number(raw.version) >= 3 && (!['male', 'female'].includes(String(player.gender)) || !record(player.position) || ![player.position.x, player.position.y].every((v) => typeof v === 'number' && Number.isFinite(v)))) throw new Error('Nhân vật không hợp lệ')
   const result = {
-    ...defaults, ...raw, version: 4,
+    ...defaults, ...raw, version: 5,
     player: { ...defaults.player, ...player },
     world: { ...defaults.world, ...world },
     story: { ...defaults.story, ...(record(raw.story) ? raw.story : {}) },
@@ -43,7 +46,7 @@ export function migrateSnapshot(raw: unknown): GameSnapshot {
     chatSeq: typeof raw.chatSeq === 'number' && Number.isFinite(raw.chatSeq) ? raw.chatSeq : 0,
     notices: [], noticeSeq: typeof raw.noticeSeq === 'number' && Number.isFinite(raw.noticeSeq) ? raw.noticeSeq : 0,
   } as GameSnapshot
-  if (raw.version === 4) {
+  if (Number(raw.version) >= 4) {
     const n = raw.neighborhood
     if (!record(n) || !record(n.relationships) || !Array.isArray(n.completedOrders) || !Array.isArray(n.upgrades) || !Array.isArray(n.claimedMilestones) || typeof n.deliveries !== 'number' || !Number.isSafeInteger(n.deliveries) || n.deliveries < 0) throw new Error('Tiến trình khu phố không hợp lệ')
     for (const [id, r] of Object.entries(n.relationships)) {
@@ -53,16 +56,40 @@ export function migrateSnapshot(raw: unknown): GameSnapshot {
     if (n.activeOrder !== null) {
       const order=n.activeOrder
       if (!record(order) || typeof order.day!=='number' || !Number.isSafeInteger(order.day) || order.day<1 || order.day>Number(world.day)) throw new Error('Đơn cư dân không hợp lệ')
-      const offer=dailyOrders(order.day).find(o=>o.id===order.id)
+      const orderCareer = raw.version === 5 ? order.careerId : 'xoi'
+      if (!CAREER_IDS.includes(orderCareer as GameSnapshot['business']['careerId'])) throw new Error('Nghề của đơn không hợp lệ')
+      const offer=dailyOrders(order.day, orderCareer as GameSnapshot['business']['careerId']).find(o=>o.id===order.id)
       if (!offer || offer.npcId!==order.npcId || offer.quantity!==order.quantity || offer.unitPrice!==order.unitPrice || ![order.acceptedAt,order.dueAt].every(v=>typeof v==='number' && Number.isFinite(v)) || Number(order.dueAt)!==Number(order.acceptedAt)+120 || Number(order.acceptedAt)<order.day*1440 || Number(order.acceptedAt)>order.day*1440+1439 || n.completedOrders.includes(order.id)) throw new Error('Đơn cư dân không hợp lệ')
     }
     result.neighborhood = structuredClone(n) as unknown as GameSnapshot['neighborhood']
+    if (raw.version === 4 && result.neighborhood.activeOrder) result.neighborhood.activeOrder.careerId = 'xoi'
     result.neighborhood.upgrades = [...new Set(result.neighborhood.upgrades)]
     result.neighborhood.claimedMilestones = [...new Set(result.neighborhood.claimedMilestones)]
   } else result.neighborhood = defaults.neighborhood
+  if (raw.version === 5) {
+    if (!CAREER_IDS.includes(result.business.careerId)) throw new Error('Nghề kinh doanh không hợp lệ')
+    const config = career(result.business.careerId)
+    if (result.business.unitCost !== config.unitCost || result.business.price < config.minPrice || result.business.price > config.maxPrice || (result.neighborhood.activeOrder && result.neighborhood.activeOrder.careerId !== result.business.careerId)) throw new Error('Cấu hình sản phẩm không hợp lệ')
+    if (!validDayStats(result.dayStats) || !Array.isArray(raw.reports) || raw.reports.length > 30) throw new Error('Sổ kinh doanh không hợp lệ')
+    let previousDay = 0
+    for (const report of raw.reports) {
+      if (!record(report) || !validDayStats(report) || !Number.isSafeInteger(report.day) || Number(report.day) <= previousDay || Number(report.day) >= result.world.day || !['sunny','cloudy','rain','hot'].includes(String(report.weather)) || ![report.rent,report.payroll,report.profit,report.cashClosing].every(v=>typeof v==='number' && Number.isFinite(v)) || Number(report.rent)<0 || Number(report.payroll)<0 || report.profit !== Number(report.revenue)-Number(report.cogs)-Number(report.expenses)-Number(report.rent)-Number(report.payroll)) throw new Error('Báo cáo ngày không hợp lệ')
+      previousDay = Number(report.day)
+    }
+  } else {
+    result.business = { ...result.business, careerId: 'xoi' }
+    const old = raw.dayStats as GameSnapshot['dayStats']
+    result.dayStats = { ...freshDayStats(null, 'xoi'), revenue: old.revenue, cogs: old.cogs, expenses: old.expenses, customers: old.customers, lostCustomers: old.lostCustomers }
+    result.reports = []
+  }
   // Old corrupted Vietnamese text cannot be restored by changing its encoding.
   if (result.story.activeSituation?.title.includes('?')) result.story.activeSituation = null
   result.story.history = result.story.history.filter((v) => !v.title.includes('?')).slice(-8)
   result.player.position = { x: Math.min(0.92, Math.max(0.08, result.player.position.x)), y: Math.min(0.79, Math.max(0.64, result.player.position.y)) }
   return structuredClone(result)
+}
+
+function validDayStats(value: unknown): boolean {
+ if (!record(value) || !['revenue','cogs','expenses','customers','lostCustomers','stockPurchases','capitalPurchases','recoveries','communityRewards'].every(k=>typeof value[k]==='number' && Number.isFinite(value[k]) && Number(value[k])>=0)) return false
+ return (value.cashOpening===null || (typeof value.cashOpening==='number' && Number.isFinite(value.cashOpening))) && Array.isArray(value.careerIds) && value.careerIds.length>0 && value.careerIds.length<=3 && value.careerIds.every(id=>CAREER_IDS.includes(id))
 }

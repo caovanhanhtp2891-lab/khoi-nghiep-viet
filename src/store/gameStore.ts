@@ -1,10 +1,9 @@
+import { CAREER_IDS, career, businessForCareer, switchQuote, STARTER_QUANTITY, isTradingHour, tradingHours, minuteLabel, type CareerId } from '../domain/careers'
 import { create } from 'zustand'
 import {
-  BOOTH_SETUP_COST,
   MARKETING_COST,
   RECRUITMENT_COST,
   RESTOCK_QUANTITY,
-  STARTER_STOCK_COST,
   type AvatarStyle,
   type Gender,
   type GameNotice,
@@ -30,6 +29,8 @@ export interface GameActions {
   cancelOrder: () => void
   buyUpgrade: (id: UpgradeId) => void
   claimMilestone: (id: string) => void
+  chooseCareer: (id: CareerId) => void
+  finishDay: () => void
   buyFirstBooth: () => void
   toggleBusiness: () => void
   restock: () => void
@@ -88,6 +89,7 @@ export function snapshotFromStore(state: GameStore): GameSnapshot {
     chat: state.chat,
     chatSeq: state.chatSeq,
     neighborhood: state.neighborhood,
+    reports: state.reports,
   })
 }
 
@@ -143,7 +145,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   acceptOrder: (id) => {
     const state = get()
-    const offer = dailyOrders(state.world.day).find(o => o.id === id)
+    const offer = dailyOrders(state.world.day, state.business.careerId).find(o => o.id === id)
     if (!state.onboarded || !state.business.owned || !offer || state.neighborhood.activeOrder || state.neighborhood.completedOrders.includes(id)) return
     const at = absoluteMinute(state)
     set({ neighborhood: { ...state.neighborhood, activeOrder: { ...offer, acceptedAt: at, dueAt: at + 120 } }, ...appendNotice(state, 'Đã nhận đơn. Chuẩn bị đủ hàng trong 120 phút game.', 'info') })
@@ -152,7 +154,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   completeOrder: () => {
     const state = get()
     const order = state.neighborhood.activeOrder
-    if (!order || state.neighborhood.completedOrders.includes(order.id)) return
+    if (!order || order.careerId !== state.business.careerId || state.neighborhood.completedOrders.includes(order.id)) return
     if (absoluteMinute(state) > order.dueAt || state.world.day !== order.day) {
       set(appendNotice(state, 'Đơn đã hết hạn. Hủy đơn để nhận đơn khác.', 'warning')); return
     }
@@ -169,7 +171,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       player: { ...state.player, money: state.player.money + revenue, xp, level: Math.max(state.player.level, 1 + Math.floor(xp / 350)) },
       dayStats: { ...state.dayStats, revenue: state.dayStats.revenue + revenue, cogs: state.dayStats.cogs + cogs, customers: state.dayStats.customers + order.quantity },
       lifetime: { ...state.lifetime, revenue: state.lifetime.revenue + revenue, customers: state.lifetime.customers + order.quantity },
-      ...appendNotice(state, `Đã giao ${order.quantity} phần cho ${getNpc(order.npcId)?.name}. +${revenue.toLocaleString('vi-VN')}đ`, 'success'),
+      ...appendNotice(state, `Đã giao ${order.quantity} ${career(state.business.careerId).unit} cho ${getNpc(order.npcId)?.name}. +${revenue.toLocaleString('vi-VN')}đ`, 'success'),
     })
     gameEvents.emit('simulation:update', snapshotFromStore(get()))
     gameEvents.emit('sale', { count: order.quantity, revenue })
@@ -197,23 +199,62 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const xp = state.player.xp + milestone.xp
     set({
       neighborhood: { ...state.neighborhood, claimedMilestones: [...state.neighborhood.claimedMilestones, id] },
+      dayStats: { ...state.dayStats, communityRewards: state.dayStats.communityRewards + milestone.money },
       player: { ...state.player, money: state.player.money + milestone.money, xp, level: Math.max(state.player.level, 1 + Math.floor(xp / 350)) },
       ...appendNotice(state, `Hoàn thành “${milestone.title}”: +${milestone.money.toLocaleString('vi-VN')}đ, +${milestone.xp} XP.`, 'success'),
     })
   },
 
+  chooseCareer: (id) => {
+    const state = get()
+    if (!CAREER_IDS.includes(id) || id === state.business.careerId) return
+    if (!state.business.owned) {
+      set({ business: businessForCareer(id, state.business), dayStats: { ...state.dayStats, careerIds: [id] } })
+      gameEvents.emit('simulation:update', snapshotFromStore(get())); return
+    }
+    if (state.business.open || state.neighborhood.activeOrder || state.story.activeSituation) {
+      set(appendNotice(state, 'Đóng quầy và hoàn thành hoặc hủy đơn, xử lý tình huống trước khi đổi nghề.', 'warning')); return
+    }
+    const quote = switchQuote(state.business, id)
+    if (state.player.money < quote.net) { set(appendNotice(state, 'Chưa đủ vốn để đổi nghề.', 'warning')); return }
+    const nextBusiness = businessForCareer(id, state.business)
+    nextBusiness.owned = true
+    nextBusiness.inventory = STARTER_QUANTITY
+    nextBusiness.maxInventory += state.neighborhood.upgrades.includes('storage') ? 30 : 0
+    set({
+      business: nextBusiness,
+      player: { ...state.player, money: state.player.money - quote.net },
+      dayStats: { ...state.dayStats, capitalPurchases: state.dayStats.capitalPurchases + quote.setup, stockPurchases: state.dayStats.stockPurchases + quote.stock, recoveries: state.dayStats.recoveries + quote.equipmentCredit + quote.stockCredit, careerIds: [...new Set([...state.dayStats.careerIds, id])] },
+      ...appendNotice(state, `Đã đổi sang ${career(id).label.toLocaleLowerCase('vi')}. Có ${STARTER_QUANTITY} ${career(id).unit} nguyên liệu mới.`, 'success'),
+    })
+    gameEvents.emit('simulation:update', snapshotFromStore(get()))
+  },
+
+  finishDay: () => {
+    const state = get()
+    if (!state.onboarded || !state.business.owned) return
+    if (state.neighborhood.activeOrder || state.story.activeSituation) { set(appendNotice(state, 'Hoàn thành hoặc hủy đơn và xử lý tình huống trước khi kết thúc ngày.', 'warning')); return }
+    const next = simulateTick({ ...snapshotFromStore(state), business: { ...state.business, open: false } }, 1440 - state.world.minuteOfDay).next
+    next.world = { ...next.world, minuteOfDay: 330, paused: state.world.paused }
+    set({ ...next, ...appendNotice(next, `Ngày ${state.world.day} đã quyết toán. Báo cáo đã lưu trong Kinh doanh.`, 'success') })
+    gameEvents.emit('simulation:update', snapshotFromStore(get()))
+  },
+
   buyFirstBooth: () => {
     const state = get()
-    const totalCost = BOOTH_SETUP_COST + STARTER_STOCK_COST
+    const config = career(state.business.careerId)
+    const stockCost = STARTER_QUANTITY * config.unitCost
+    const totalCost = config.setup + stockCost
     if (state.business.owned || state.player.money < totalCost) return
 
     set({
       player: { ...state.player, money: state.player.money - totalCost },
       business: { ...state.business, owned: true, inventory: RESTOCK_QUANTITY },
+      dayStats: { ...state.dayStats, capitalPurchases: state.dayStats.capitalPurchases + config.setup, stockPurchases: state.dayStats.stockPurchases + stockCost },
       tutorialStep: Math.max(state.tutorialStep, 2),
       ...appendNotice(
         state,
-        'Quầy Xôi Sáng 18 đã sẵn sàng. Mở bán để đón khách!',
+        `Quầy ${state.business.name} đã sẵn sàng. Mở bán trong ca ${tradingHours(state.business.careerId)}.`,
         'success',
       ),
     })
@@ -228,6 +269,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return
     }
 
+    if (!state.business.open && !isTradingHour(state.business.careerId, state.world.minuteOfDay)) {
+      set(appendNotice(state, `Chưa trong ca bán. Giờ của nghề này: ${tradingHours(state.business.careerId)}.`, 'warning')); return
+    }
     const open = !state.business.open
     set({
       business: { ...state.business, open },
@@ -251,14 +295,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({
       player: { ...state.player, money: state.player.money - cost },
       business: { ...state.business, inventory: state.business.inventory + quantity },
-      ...appendNotice(state, `Đã nhập ${quantity} phần nguyên liệu mới.`, 'success'),
+      dayStats: { ...state.dayStats, stockPurchases: state.dayStats.stockPurchases + cost },
+      ...appendNotice(state, `Đã nhập ${quantity} ${career(state.business.careerId).unit} nguyên liệu mới.`, 'success'),
     })
     gameEvents.emit('simulation:update', snapshotFromStore(get()))
   },
 
   changePrice: (delta) => {
     const state = get()
-    const price = clamp(state.business.price + delta, 12_000, 35_000)
+    if (!Number.isFinite(delta)) return
+    const config = career(state.business.careerId)
+    const price = clamp(state.business.price + delta, config.minPrice, config.maxPrice)
     set({ business: { ...state.business, price } })
     gameEvents.emit('simulation:update', snapshotFromStore(get()))
   },
@@ -279,7 +326,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       dayStats: { ...state.dayStats, expenses: state.dayStats.expenses + RECRUITMENT_COST },
       ...appendNotice(
         state,
-        'Chị Mai đã gia nhập. Công suất phục vụ tăng từ 2 lên 5 khách mỗi lượt.',
+        `${state.business.employeeName} đã gia nhập. Công suất tăng từ ${career(state.business.careerId).capacity} lên ${career(state.business.careerId).employeeCapacity} mỗi lượt.`,
         'success',
       ),
     })
@@ -326,7 +373,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (result.autoClosed) {
       next = {
         ...next,
-        ...appendNotice(next, '10:00 — quầy tự động đóng sau ca sáng.', 'info'),
+        ...appendNotice(next, `${minuteLabel(career(state.business.careerId).close)} — quầy tự động đóng khi hết ca.`, 'info'),
       }
     }
     if (result.newDay) {

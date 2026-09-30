@@ -92,7 +92,7 @@ describe('neighborhood economy and residents',()=>{
   const old=structuredClone(createInitialSnapshot()) as unknown as Record<string,unknown>
   old.version=3;delete old.neighborhood
   ;(old.player as Record<string,unknown>).money=123456
-  expect(migrateSnapshot(old)).toMatchObject({version:4,player:{money:123456},neighborhood:{relationships:{},activeOrder:null}})
+  expect(migrateSnapshot(old)).toMatchObject({version:5,player:{money:123456},neighborhood:{relationships:{},activeOrder:null}})
  })
  it('rejects invalid v4 relationships, rewards and forged delivery prices',()=>{
   const order=accept();const valid=snapshotFromStore(store())

@@ -51,3 +51,9 @@ Cập nhật Street Edition: B01–B04 đã có sửa mã và regression test; c
 - Hoàn thành: 100 NPC riêng/50 nghề hoặc vai trò, sổ cư dân/filter, quan hệ lưu được, 3 đơn đề nghị/ngày, 8 milestone, 3 upgrade quầy; xem NPC_SYSTEM.md.
 - Tiếp theo: hình upgrade xuất hiện trên xe xôi, cây hội thoại và lịch đi làm/đi học theo từng NPC (hiện roster theo ngày/giờ chung), dẫn đường giao đơn, lưu nhiều tab, thêm nghề kinh doanh sau cân bằng một ca/ngày.
 - Đã có tránh xe xôi cho chạm để đi; chưa phải pathfinding bản đồ tổng quát. Không tự đánh dấu F02/B06 hoàn tất cho thiết bị thật.
+
+## Ba nghề và report
+
+- F03: đã tách careers.ts, ba lựa chọn xôi/bánh mì/trà sữa trên một quầy, giờ/chi phí/công suất/nhu cầu khác nhau; có regression test và migration v5. Không phải ba quầy cùng lúc.
+- B05: thêm full-ca test đối soát restock/marketing/tuyển/thưởng/thuê/lương và report; live cuối xem STATUS.md. Chưa cân bằng dài hạn nhiều nghề.
+- Upgrade visual đã có trên cảnh; tiếp tục đo hiệu năng thiết bị thật, save nhiều tab, lịch NPC cá nhân và mô hình nhiều quầy.

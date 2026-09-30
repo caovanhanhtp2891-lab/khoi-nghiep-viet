@@ -59,3 +59,7 @@ Không ghi một quyết định là “được chốt” chỉ vì AI thấy h
 - Tạm giữ thời gian khi chưa hoàn tất tạo nhân vật; pause theo lựa chọn người chơi được giữ khi tải save.
 - Thông báo hệ thống 1 giây theo yêu cầu mới; bubble NPC 3,4 giây và story chờ xử lý để nội dung đọc được.
 - Built-in image generation tạo raster mới, không lấy hình UI tham chiếu làm nền sao chép.
+
+## Quyết định triển khai trong đợt nhiều nghề
+
+Theo yêu cầu tiếp tục phát triển: tạm chọn thêm bánh mì và trà sữa trên một quầy, mọi nghề có thể chọn từ đầu với vốn 1 triệu; chưa đồng thời nhiều quầy. Bảng quote đổi có hoàn vốn dụng cụ 50%/nguyên liệu theo giá vốn; giữ portable upgrade/nhân viên. Dụng cụ tách khỏi operating profit, chưa mô hình khấu hao. Kết thúc ngày sớm bỏ qua doanh thu còn lại, hiển thị phí trước nút; không phải offline catch-up. Đây là cấu hình implementation có thể cân bằng lại theo phản hồi, không phải toàn bộ PLAN đã hoàn thành.

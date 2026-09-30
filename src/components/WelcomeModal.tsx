@@ -13,7 +13,7 @@ export function WelcomeModal() {
     <div className="modal-backdrop welcome-backdrop" role="dialog" aria-modal="true" aria-label="Tạo nhân vật">
       <section className="welcome-card">
         <div className="welcome-brand"><span className="brand-mark">KN</span><span><small>MỘT KHU PHỐ · NGÀN CƠ HỘI</small><strong>KHỞI NGHIỆP VIỆT</strong></span></div>
-        <div className="welcome-hero-copy"><span className="eyebrow"><Sparkles size={15} /> Câu chuyện của bạn bắt đầu</span><h1>Từ một triệu đồng,<br />đến một ước mơ lớn.</h1><p>18 tuổi, một khu phố thân quen. Mở quầy đầu tiên và xây dựng sự nghiệp của riêng bạn.</p></div>
+        <div className="welcome-hero-copy"><span className="eyebrow"><Sparkles size={15} /> Câu chuyện của bạn bắt đầu</span><h1>Từ một triệu đồng,<br />đến một ước mơ lớn.</h1><p>18 tuổi, một khu phố thân quen. Chọn xôi, bánh mì hoặc trà sữa để lập nghiệp.</p></div>
         <div className="gender-options" role="radiogroup" aria-label="Giới tính nhân vật">
           {(['male', 'female'] as Gender[]).map((value) => <button key={value} role="radio" aria-checked={gender === value} className={gender === value ? 'selected' : ''} onClick={() => setGender(value)}><CharacterArt gender={value} /><strong>{value === 'male' ? 'Nam' : 'Nữ'}</strong><small>{gender === value ? 'Đã chọn' : 'Chọn nhân vật'}</small></button>)}
         </div>

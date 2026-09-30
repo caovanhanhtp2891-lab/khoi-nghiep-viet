@@ -35,7 +35,7 @@ Giao đơn là một action giao dịch: đủ hàng → trừ kho, cộng tiề
 | Tủ nguyên liệu | 140.000 | maxInventory +30, không tự thêm hàng |
 | Biển hiệu | 100.000 | Hệ số marketing +0,15 cố định |
 
-Mỗi nâng cấp mua một lần, cần quầy và đủ tiền; chi phí ghi vào dayStats.expenses. Hiện chưa thêm hình ảnh riêng cho nâng cấp vào cảnh, hiệu quả thể hiện ở chỉ số và danh sách “Đã lắp”. Một quầy xôi/một nhân viên vẫn là scope economy hiện tại.
+Mỗi nâng cấp mua một lần, cần quầy và đủ tiền; chi phí ghi vào dayStats.expenses. Scene đã có visual upgrade. Economy có một quầy với ba lựa chọn nghề và một nhân viên; xem BUSINESS_SYSTEM.md.
 
 ## Save v4
 
@@ -44,3 +44,5 @@ Mỗi nâng cấp mua một lần, cần quầy và đủ tiền; chi phí ghi v
 ## Kiểm tra và giới hạn
 
 25 unit test/5 file + check 100 asset; lint/build pass cục bộ. Kiểm tra live và viewport cuối cùng nằm trong STATUS.md. Các test mới bao phủ giới hạn chào hỏi, thưởng một lần, đơn thiếu hàng/quá hạn/id sai, đối soát giao đơn, nâng cấp và migration v3/v4. Chưa đo RAM/FPS trên máy thật; scene preload 100 SVG nên cần đo trước mở rộng dân số. Phaser bundle vẫn lớn. Chưa có khóa save nhiều tab, đường phố thứ hai hoặc đơn online.
+
+Bản v5 bổ sung careerId cho activeOrder, dailyOrders(day, careerId) và đơn vị/sản phẩm theo nghề; rule hạn/giao một lần giữ nguyên.

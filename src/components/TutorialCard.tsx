@@ -1,12 +1,12 @@
 import { ArrowRight, Clock3, Store, Zap } from 'lucide-react'
 import { formatMoney } from '../domain/format'
-import { BOOTH_SETUP_COST, STARTER_STOCK_COST } from '../domain/types'
+import { career, STARTER_QUANTITY, isTradingHour, tradingHours } from '../domain/careers'
 import { useGameStore } from '../store/gameStore'
 
 export function TutorialCard({ openBusinessPanel }: { openBusinessPanel: () => void }) {
   const business = useGameStore((state) => state.business)
   const world = useGameStore((state) => state.world)
-  const buyFirstBooth = useGameStore((state) => state.buyFirstBooth)
+  const config = career(business.careerId)
   const toggleBusiness = useGameStore((state) => state.toggleBusiness)
   const setSpeed = useGameStore((state) => state.setSpeed)
 
@@ -16,22 +16,22 @@ export function TutorialCard({ openBusinessPanel }: { openBusinessPanel: () => v
         <span className="tutorial-icon"><Store size={19} /></span>
         <div>
           <small>BƯỚC 1 · QUẦY ĐẦU TIÊN</small>
-          <strong>Mua xe xôi và 20 phần nguyên liệu</strong>
-          <p>Chi phí trọn gói {formatMoney(BOOTH_SETUP_COST + STARTER_STOCK_COST)}.</p>
+          <strong>Chọn nghề: xôi, bánh mì hoặc trà sữa</strong>
+          <p>Chi phí trọn gói {formatMoney(config.setup + STARTER_QUANTITY * config.unitCost)}.</p>
         </div>
-        <button onClick={buyFirstBooth}>Mua ngay <ArrowRight size={16} /></button>
+        <button onClick={openBusinessPanel}>Chọn nghề <ArrowRight size={16} /></button>
       </section>
     )
   }
 
-  if (!business.open && world.minuteOfDay < 600) {
+  if (!business.open && isTradingHour(business.careerId, world.minuteOfDay)) {
     return (
       <section className="tutorial-card">
         <span className="tutorial-icon"><Clock3 size={19} /></span>
         <div>
           <small>BƯỚC 2 · GIỜ VÀNG</small>
-          <strong>Mở quầy trước 06:30</strong>
-          <p>Học sinh sẽ đi ngang đông nhất từ 06:30–07:45.</p>
+          <strong>Mở bán {config.product.toLocaleLowerCase('vi')}</strong>
+          <p>Cao điểm: {config.peak}. Ca bán: {tradingHours(business.careerId)}.</p>
         </div>
         <button onClick={toggleBusiness}>Mở bán <ArrowRight size={16} /></button>
       </section>

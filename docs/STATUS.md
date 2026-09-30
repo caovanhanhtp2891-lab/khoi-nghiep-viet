@@ -9,9 +9,9 @@ Cập nhật 30/09/2026 (Asia/Saigon). Mã cuối được kiểm tra: `d131043b
 - 100 NPC hư cấu riêng, 50 nghề/vai trò, tuổi 7–82; 100 sheet SVG/400 frame, không dùng sprite người chơi. Tối đa 10 cư dân/3 bubble trên cảnh, luân phiên nghề theo ngày/giờ. Sổ cư dân có tìm kiếm, nhóm nghề/tuổi, hồ sơ và hỏi chuyện nghề.
 - Tình thân 0–100, lần chào đầu/ngày +3 tình thân/+3 XP; giao đơn +8 tình thân/+15 XP. Chat trên máy, có portrait/id NPC, lịch sử 40 tin và tin mới mỗi 30 phút game; chưa chat người thật.
 - 3 đề nghị đặt hàng/ngày, một đơn đang nhận, hạn 120 phút game và phải giao cùng ngày. Giao đủ hàng mới cộng tiền, ghi doanh thu/giá vốn/tồn kho; không nhận lại đơn đã giao.
-- 8 mốc hành trình nhận thưởng một lần; 3 nâng cấp quầy tác động nhu cầu mưa, sức chứa kho và marketing. Vẫn một nghề kinh doanh là quầy xôi, một nhân viên.
+- 8 mốc hành trình nhận thưởng một lần; 3 nâng cấp quầy tác động nhu cầu mưa, sức chứa kho và marketing. Hiện một quầy hoạt động với ba lựa chọn xôi/bánh mì/trà sữa và một nhân viên.
 - Thông báo toast/hiệu ứng tiền tự ẩn sau 1.000ms; bubble NPC 3,4 giây để đọc, tình huống lựa chọn được giữ tới xử lý. Nội dung hỏng dấu tiếng Việt đã viết lại UTF-8; dùng font hệ thống hỗ trợ dấu.
-- Save payload v4, migrate v1–v3; giữ tiền/hàng/thời gian/seed/nhân vật. Autosave + backup lần trước, validate trước hydrate. Load lỗi chặn tick/autosave và cho export raw/restore backup. Pause giữ qua reload; chưa onboarding thì chưa chạy đồng hồ.
+- Save payload v5, migrate v1–v4; giữ tiền/hàng/thời gian/seed/nhân vật. Autosave + backup lần trước, validate trước hydrate. Load lỗi chặn tick/autosave và cho export raw/restore backup. Pause giữ qua reload; chưa onboarding thì chưa chạy đồng hồ.
 - `?demo=1` dùng database riêng; `mobile-preview.html` đổi viewport CSS iframe, không thay tiến độ chính.
 
 ## Bằng chứng kiểm tra
@@ -39,8 +39,14 @@ Cập nhật 30/09/2026 (Asia/Saigon). Mã cuối được kiểm tra: `d131043b
 
 - Phaser bundle khoảng 1.375KB trước gzip (357,8KB gzip), build có cảnh báo >500KB; preload 100 SVG chưa đo RAM/FPS/tải trên điện thoại thật.
 - NPC dùng renderer vector với phối mặt/tóc/màu/đồ nghề; chưa 16 hướng hoặc lịch cá nhân/AI ngôn ngữ. Đơn giao từ bảng, chưa đi giao vật lý.
-- Nâng cấp có hiệu quả economy và trạng thái UI, chưa thêm visual riêng lên xe.
-- Chưa nhiều nghề kinh doanh/chuỗi/công ty, boss/leaderboard, đầu tư thật, multiplayer/backend, cloud save, offline progress hoặc service worker.
+- Nâng cấp có hiệu quả economy và trạng thái UI, đã thêm mái che rộng, tủ bên xe và viền biển hiệu lên cảnh.
+- Đã có ba nghề trên một quầy; chưa nhiều quầy/chuỗi/công ty, boss/leaderboard, đầu tư thật, multiplayer/backend, cloud save, offline progress hoặc service worker.
 - Chưa import UI, backup nhiều phiên hoặc khóa save giữa nhiều tab. Chưa kiểm thử quyết toán đầy đủ một ngày, hardware keyboard/safe area/bàn phím thật hay benchmark Android/iOS.
 
 Xem [BACKLOG.md](BACKLOG.md) và [HANDOFF.md](HANDOFF.md) cho việc tiếp; PLAN.md là tầm nhìn, không phải tính năng đã có.
+
+## Đợt nhiều nghề và quyết toán
+
+Phát triển từ main `5b95a9bfbedc9001e3c0b9e7cf8c30c1513ff23e`. Thêm careers/accounting, ba nghề giá/giờ/công suất/weather riêng, chọn/chuyển nghề có quote thu hồi, đơn cư dân theo sản phẩm, report 30 ngày và kết thúc ngày sớm. Payload v5 giữ tiến độ v1–v4. Quầy đổi hình xôi/bánh mì/trà sữa và hiển thị 3 upgrade.
+
+Cục bộ: lint, 41 test/6 file +check 100 SVG, TypeScript/build đều exit 0. Full ca xôi đã đối soát trong test cùng restock/marketing/tuyển/thưởng/thuê/lương; tự qua ngày và kết thúc sớm không tính phí trùng. Kiểm tra live đang thực hiện sau triển khai. Chi tiết BUSINESS_SYSTEM.md.

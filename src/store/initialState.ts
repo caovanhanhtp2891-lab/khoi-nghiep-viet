@@ -1,9 +1,11 @@
+import { businessForCareer } from '../domain/careers'
+import { freshDayStats } from '../domain/accounting'
 import { initialNeighborhood } from '../domain/neighborhood'
 import type { GameSnapshot } from '../domain/types'
 
 export function createInitialSnapshot(): GameSnapshot {
   return {
-    version: 4,
+    version: 5,
     onboarded: false,
     tutorialStep: 0,
     player: {
@@ -26,29 +28,9 @@ export function createInitialSnapshot(): GameSnapshot {
       paused: false,
       rngSeed: 24_051_998,
     },
-    business: {
-      owned: false,
-      open: false,
-      name: 'Xôi Sáng 18',
-      productName: 'Xôi mặn',
-      price: 22_000,
-      unitCost: 8_000,
-      inventory: 0,
-      maxInventory: 60,
-      quality: 65,
-      reputation: 55,
-      hasEmployee: false,
-      employeeName: 'Chị Mai',
-      dailySalary: 120_000,
-      marketingScore: 0,
-    },
-    dayStats: {
-      revenue: 0,
-      cogs: 0,
-      expenses: 0,
-      customers: 0,
-      lostCustomers: 0,
-    },
+    business: businessForCareer('xoi'),
+    dayStats: freshDayStats(1_000_000, 'xoi'),
+    reports: [],
     lifetime: {
       revenue: 0,
       profit: 0,

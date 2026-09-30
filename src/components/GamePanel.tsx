@@ -1,3 +1,6 @@
+import { CareerOptions } from './CareerOptions'
+import { DayReports } from './DayReports'
+import { career, STARTER_QUANTITY, tradingHours, isTradingHour } from '../domain/careers'
 import { useState } from 'react'
 import { NeighborhoodPanel } from './NeighborhoodPanel'
 import { UPGRADES } from '../domain/neighborhood'
@@ -27,10 +30,8 @@ import {
 import { calculateDemand } from '../domain/simulation'
 import { formatMoney, formatPercent } from '../domain/format'
 import {
-  BOOTH_SETUP_COST,
   MARKETING_COST,
   RECRUITMENT_COST,
-  STARTER_STOCK_COST,
   WEATHER_META,
 } from '../domain/types'
 import { snapshotFromStore, useGameStore } from '../store/gameStore'
@@ -114,31 +115,39 @@ function MapPanel() {
 }
 
 function BusinessPanel() {
+  const owned = useGameStore(state => state.business.owned)
+  const [section, setSection] = useState<'operate' | 'careers' | 'reports'>(owned ? 'operate' : 'careers')
+  return <><div className="community-tabs business-tabs" role="tablist" aria-label="Quản lý kinh doanh">{([['operate','Vận hành'],['careers','Nghề'],['reports','Báo cáo']] as const).map(([id,label])=><button key={id} role="tab" aria-selected={section===id} className={section===id?'is-active':''} onClick={()=>setSection(id)}>{label}</button>)}</div>{section==='careers'?<CareerOptions/>:section==='reports'?<DayReports/>:<OperationsPanel/>}</>
+}
+
+function OperationsPanel() {
   const store = useGameStore()
   const { business, dayStats, player } = store
+  const config = career(business.careerId)
+  const restockQty = Math.min(20, business.maxInventory - business.inventory)
+  const restockCost = restockQty * business.unitCost
   const profit = dayStats.revenue - dayStats.cogs - dayStats.expenses
   const demand = calculateDemand(snapshotFromStore(store))
   const canRestock =
     business.owned &&
     business.inventory < business.maxInventory &&
-    player.money >= business.unitCost
+    player.money >= restockCost
 
   if (!business.owned) {
     return (
       <div className="empty-business">
         <span className="large-feature-icon"><BriefcaseBusiness size={34} /></span>
         <span className="eyebrow">CƠ HỘI ĐẦU TIÊN</span>
-        <h3>Quầy Xôi Sáng 18</h3>
+        <h3>{business.name}</h3>
         <p>
-          Vị trí ngay cổng trường, lưu lượng học sinh cao vào buổi sáng. Gói khởi đầu
-          gồm xe bán hàng và 20 phần nguyên liệu.
+          {config.description} Gói bắt đầu gồm xe và {STARTER_QUANTITY} {config.unit} nguyên liệu.
         </p>
         <div className="cost-breakdown">
-          <span>Xe và dụng cụ <strong>{formatMoney(BOOTH_SETUP_COST)}</strong></span>
-          <span>Nguyên liệu ban đầu <strong>{formatMoney(STARTER_STOCK_COST)}</strong></span>
-          <span className="total">Tổng vốn <strong>{formatMoney(BOOTH_SETUP_COST + STARTER_STOCK_COST)}</strong></span>
+          <span>Xe và dụng cụ <strong>{formatMoney(config.setup)}</strong></span>
+          <span>Nguyên liệu ban đầu <strong>{formatMoney(STARTER_QUANTITY * config.unitCost)}</strong></span>
+          <span className="total">Tổng vốn <strong>{formatMoney(config.setup + STARTER_QUANTITY * config.unitCost)}</strong></span>
         </div>
-        <button className="primary-button" onClick={store.buyFirstBooth}>
+        <button className="primary-button" disabled={player.money < config.setup + STARTER_QUANTITY * config.unitCost} onClick={store.buyFirstBooth}>
           <Store size={18} /> Mở quầy đầu tiên
         </button>
       </div>
@@ -152,10 +161,10 @@ function BusinessPanel() {
           <span className={`open-dot ${business.open ? 'is-open' : ''}`} />
           <small>{business.open ? 'ĐANG MỞ BÁN' : 'ĐÃ ĐÓNG CỬA'}</small>
           <h3>{business.name}</h3>
-          <p>Cổng trường Bình Minh · Xôi mặn</p>
+          <p>{business.productName} · Ca {tradingHours(business.careerId)}</p>
         </div>
-        <button className={business.open ? 'danger-button' : 'primary-button'} onClick={store.toggleBusiness}>
-          {business.open ? 'Đóng quầy' : 'Mở bán'}
+        <button className={business.open ? 'danger-button' : 'primary-button'} disabled={!business.open && !isTradingHour(business.careerId, store.world.minuteOfDay)} onClick={store.toggleBusiness}>
+          {business.open ? 'Đóng quầy' : isTradingHour(business.careerId, store.world.minuteOfDay) ? 'Mở bán' : `Mở lúc ${tradingHours(business.careerId).split('–')[0]}`}
         </button>
       </article>
 
@@ -163,13 +172,13 @@ function BusinessPanel() {
         <div><small>Doanh thu</small><strong>{formatMoney(dayStats.revenue, true)}</strong></div>
         <div><small>Giá vốn</small><strong>−{formatMoney(dayStats.cogs, true)}</strong></div>
         <div><small>Chi phí</small><strong>−{formatMoney(dayStats.expenses, true)}</strong></div>
-        <div className={profit >= 0 ? 'positive' : 'negative'}><small>Lợi nhuận</small><strong>{formatMoney(profit, true)}</strong></div>
+        <div className={profit >= 0 ? 'positive' : 'negative'}><small>Lợi nhuận tạm tính</small><strong>{formatMoney(profit, true)}</strong></div>
       </div>
 
       <section className="section-card">
         <div className="section-title-row"><h3>Sản phẩm và giá</h3><span>{dayStats.customers} khách hôm nay</span></div>
         <div className="product-control-row">
-          <div className="product-icon">🍚</div>
+          <div className="product-icon">{config.icon}</div>
           <div className="product-copy"><strong>{business.productName}</strong><small>Giá vốn {formatMoney(business.unitCost)}</small></div>
           <div className="stepper">
             <button onClick={() => store.changePrice(-1_000)} aria-label="Giảm giá"><Minus size={15} /></button>
@@ -180,10 +189,10 @@ function BusinessPanel() {
       </section>
 
       <section className="section-card">
-        <div className="section-title-row"><h3>Nguyên liệu</h3><span>{business.inventory}/{business.maxInventory} phần</span></div>
+        <div className="section-title-row"><h3>Nguyên liệu</h3><span>{business.inventory}/{business.maxInventory} {config.unit}</span></div>
         <div className="progress-track"><span style={{ width: `${(business.inventory / business.maxInventory) * 100}%` }} /></div>
         <button className="secondary-button full-button" disabled={!canRestock} onClick={store.restock}>
-          <Package size={17} /> Nhập 20 phần · {formatMoney(20 * business.unitCost)}
+          <Package size={17} /> Nhập {restockQty} {config.unit} · {formatMoney(restockCost)}
         </button>
       </section>
 
@@ -209,9 +218,9 @@ function BusinessPanel() {
           <span className="mini-card-icon"><Users size={18} /></span>
           <h3>Nhân viên</h3>
           {business.hasEmployee ? (
-            <><strong>{business.employeeName}</strong><small>5 khách/lượt · {formatMoney(business.dailySalary)}/ngày</small><span className="success-label">Đang làm việc</span></>
+            <><strong>{business.employeeName}</strong><small>{config.employeeCapacity} khách/lượt · {formatMoney(business.dailySalary)}/ngày</small><span className="success-label">Đang làm việc</span></>
           ) : (
-            <><p>Tăng công suất từ 2 lên 5 khách mỗi lượt.</p><button className="text-button" disabled={player.money < RECRUITMENT_COST} onClick={store.hireEmployee}>Tuyển · {formatMoney(RECRUITMENT_COST, true)}</button></>
+            <><p>Tăng công suất từ {config.capacity} lên {config.employeeCapacity} khách mỗi lượt.</p><button className="text-button" disabled={player.money < RECRUITMENT_COST} onClick={store.hireEmployee}>Tuyển · {formatMoney(RECRUITMENT_COST, true)}</button></>
           )}
         </section>
         <section className="section-card management-card">

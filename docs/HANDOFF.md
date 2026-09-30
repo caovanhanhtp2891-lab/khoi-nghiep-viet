@@ -25,3 +25,7 @@ Main giữ Minh/715.000/ngày8/pause. Demo nữ giữ quan hệ, thưởng đã 
 5. Thêm lock nhiều tab và backup nhiều phiên/import có validate trước cloud save/online.
 
 Không nâng dependency ngoài phạm vi. Giữ UTF-8, seed economy và save compatibility. Nguồn raster/prompt ở ASSETS.md/ART_PROMPTS.md; NPC vector là mã gốc trong kho.
+
+## Bản ba nghề (v5)
+
+Đọc BUSINESS_SYSTEM.md trước sửa economy/report. career và accounting dùng dữ liệu; một quầy, ba nghề, một nhân viên. Chuyển nghề chặn open/order/story, quote mua/thu hồi giữ portable upgrade. Report 30 ngày; cashOpening=null chỉ cho sổ từ save cũ, không đoán dòng tiền lịch sử. Có 41 test/6 file, full ca tự động/cashflow/fees/migration/Dexie. Scene đã thêm hình sản phẩm và upgrade. Xem STATUS.md cho bằng chứng live cuối. Ưu tiên tiếp: cân bằng nghề nhiều ngày, report/cashflow khi đổi nghề nhiều lần, khóa save nhiều tab; chưa nhiều quầy/chuỗi hoặc đầu tư.

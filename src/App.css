@@ -1519,3 +1519,28 @@
  .resident-hero h3 { font-size: 19px; }
  .community-summary { font-size: 11px; }
 }
+
+/* Career management and daily accounting. */
+.business-tabs { margin-top: -8px; }
+.career-card.selected { border: 2px solid #779269; background: #fcfff2; }
+.career-title { display: flex; align-items: center; gap: 12px; }
+.career-title > span { font-size: 32px; }
+.career-title h3 { margin: 0 0 4px; }
+.career-title small { color: #867056; font-size: 11px; }
+.career-card > p { font-size: 12px; line-height: 1.6; color: #816a51; }
+.career-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+.career-facts span { display: grid; gap: 5px; font-size: 10px; color: #8c765a; }
+.career-facts strong { font-size: 12px; color: #614c37; }
+.career-start-cost { padding: 10px; background: #f1e6d0; border-radius: 10px; }
+.career-card button + button { margin-top: 12px; }
+.career-quote, .report-ledger { display: grid; gap: 10px; margin: 14px 0; }
+.career-quote > span, .report-ledger > span { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; line-height: 1.5; }
+.career-quote > span strong, .report-ledger > span strong { text-align: right; flex-shrink: 0; }
+.career-quote .total, .report-ledger .total { border-top: 1px solid #dbc7a8; padding-top: 10px; font-size: 13px; font-weight: 700; }
+.day-reports .section-card > p { font-size: 12px; line-height: 1.65; color: #876c50; }
+.day-reports .section-card > small { display: block; margin-top: 10px; color: #a07348; font-size: 11px; }
+.report-select { width: 100%; border: 1px solid #d2bd9c; padding: 12px; border-radius: 12px; color: #614b33; background: #fffcef; font: inherit; font-size: 13px; }
+.report-hero { padding: 18px; text-align: center; background: #f0e4cb; border-radius: 18px; }
+.report-hero small { font-size: 11px; color: #8b7050; }
+.report-hero h3 { margin: 14px 0 8px; font-size: 28px; }
+.report-hero span { font-size: 11px; line-height: 1.6; color: #8a7357; }

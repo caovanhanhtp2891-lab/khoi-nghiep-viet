@@ -1,3 +1,4 @@
+import { career } from '../domain/careers'
 import { useState } from 'react'
 import { NPC_CATALOG, NPC_GROUP_LABELS, getNpc, npcLine } from '../domain/npcCatalog'
 import { absoluteMinute, dailyOrders, MILESTONES, relationshipLabel } from '../domain/neighborhood'
@@ -19,6 +20,7 @@ export function NeighborhoodPanel({ selectedNpc }: { selectedNpc?: string | null
  const pages=Math.max(1,Math.ceil(residents.length/10))
  const current=Math.min(page,pages-1)
  const seen=Object.keys(store.neighborhood.relationships).length
+ const config=career(store.business.careerId)
  const order=store.neighborhood.activeOrder
  const expired=order && (absoluteMinute(store)>order.dueAt || store.world.day!==order.day)
  const talk=(id:string,next:'greet'|'work')=>{store.talkToNpc(id,next);setTopic(next)}
@@ -32,7 +34,7 @@ export function NeighborhoodPanel({ selectedNpc }: { selectedNpc?: string | null
    <blockquote>{npcLine(npc,store.world,store.business,topic)}</blockquote>
    <div className="resident-actions"><button className="primary-button" onClick={()=>talk(npc.id,'greet')}>Chào hỏi</button><button className="secondary-button" onClick={()=>talk(npc.id,'work')}>Hỏi chuyện nghề</button></div>
    <p className="community-note">Lần trò chuyện đầu mỗi ngày: +3 tình thân và +3 XP. Lời chào được lưu trong Chat.</p>
-   {dailyOrders(store.world.day).some(o=>o.npcId===npc.id) && <button className="secondary-button full-button" onClick={()=>{setFocused(null);setTab('orders')}}>Xem đơn đặt của {npc.name}</button>}
+   {dailyOrders(store.world.day,store.business.careerId).some(o=>o.npcId===npc.id) && <button className="secondary-button full-button" onClick={()=>{setFocused(null);setTab('orders')}}>Xem đơn đặt của {npc.name}</button>}
   </div> : <>
    <div className="community-summary"><strong>100 người · 50 nghề</strong><span>Đã quen {seen}/100</span></div>
    <input className="resident-search" aria-label="Tìm cư dân" placeholder="Tìm tên hoặc nghề…" value={query} onChange={e=>{setQuery(e.target.value);setPage(0)}}/>
@@ -43,8 +45,8 @@ export function NeighborhoodPanel({ selectedNpc }: { selectedNpc?: string | null
   </>)}
   {tab==='orders' && <div className="stack-list">
    <p className="community-note">Mỗi ngày có 3 đơn mới. Một đơn đang nhận; thời hạn 120 phút game. Chuẩn bị đủ hàng rồi giao, quầy có thể đóng khi chuẩn bị.</p>
-   {order && <article className={`section-card active-delivery ${expired?'expired':''}`}><h3>{expired?'Đơn đã hết hạn':'Đơn đang chuẩn bị'} · {getNpc(order.npcId)?.name}</h3><p>{order.quantity} phần · {formatMoney(order.unitPrice)}/phần</p><strong>{expired?'Hãy hủy để chọn đơn khác':`Còn ${Math.ceil(order.dueAt-absoluteMinute(store))} phút game`}</strong><div className="resident-actions"><button className="primary-button" disabled={Boolean(expired) || store.business.inventory<order.quantity} onClick={store.completeOrder}>Giao đơn · {formatMoney(order.quantity*order.unitPrice,true)}</button><button className="text-button" onClick={store.cancelOrder}>Hủy đơn</button></div><small>Hàng trong quầy: {store.business.inventory} phần</small></article>}
-   {dailyOrders(store.world.day).map(o=>{const n=getNpc(o.npcId)!;const done=store.neighborhood.completedOrders.includes(o.id);return <article className="section-card delivery-offer" key={o.id}><div className="delivery-person"><NpcPortrait npcId={n.id}/><div><h3>{n.name}</h3><small>{n.job}</small><p>{o.quantity} phần · Tổng {formatMoney(o.quantity*o.unitPrice)}</p></div></div><button className="secondary-button full-button" disabled={!store.business.owned || Boolean(order) || done} onClick={()=>store.acceptOrder(o.id)}>{done?'Đã giao hôm nay':order?.id===o.id?'Đang chuẩn bị':store.business.owned?'Nhận đơn':'Cần mở quầy trước'}</button></article>})}
+   {order && <article className={`section-card active-delivery ${expired?'expired':''}`}><h3>{expired?'Đơn đã hết hạn':'Đơn đang chuẩn bị'} · {getNpc(order.npcId)?.name}</h3><p>{order.quantity} {config.unit} {config.product} · {formatMoney(order.unitPrice)}/{config.unit}</p><strong>{expired?'Hãy hủy để chọn đơn khác':`Còn ${Math.ceil(order.dueAt-absoluteMinute(store))} phút game`}</strong><div className="resident-actions"><button className="primary-button" disabled={Boolean(expired) || store.business.inventory<order.quantity} onClick={store.completeOrder}>Giao đơn · {formatMoney(order.quantity*order.unitPrice,true)}</button><button className="text-button" onClick={store.cancelOrder}>Hủy đơn</button></div><small>Hàng trong quầy: {store.business.inventory} {config.unit}</small></article>}
+   {dailyOrders(store.world.day,store.business.careerId).map(o=>{const n=getNpc(o.npcId)!;const done=store.neighborhood.completedOrders.includes(o.id);return <article className="section-card delivery-offer" key={o.id}><div className="delivery-person"><NpcPortrait npcId={n.id}/><div><h3>{n.name}</h3><small>{n.job}</small><p>{o.quantity} {config.unit} {config.product} · Tổng {formatMoney(o.quantity*o.unitPrice)}</p></div></div><button className="secondary-button full-button" disabled={!store.business.owned || Boolean(order) || done} onClick={()=>store.acceptOrder(o.id)}>{done?'Đã giao hôm nay':order?.id===o.id?'Đang chuẩn bị':store.business.owned?'Nhận đơn':'Cần mở quầy trước'}</button></article>})}
    <p className="community-note">Đã hoàn thành {store.neighborhood.deliveries} đơn. Tiền đơn được ghi nhận vào doanh thu, nguyên liệu vào giá vốn; giao thành công +8 tình thân và +15 XP.</p>
   </div>}
   {tab==='tasks' && <div className="stack-list"><p className="community-note">Các mốc hành trình nhận thưởng một lần. Thưởng từ khu phố không tính vào doanh thu bán hàng.</p>{MILESTONES.map(m=>{const progress=Math.min(m.target,m.progress(snapshotFromStore(store)));const claimed=store.neighborhood.claimedMilestones.includes(m.id);return <article className="section-card milestone-card" key={m.id}><div className="section-title-row"><h3>{m.title}</h3><span>{progress}/{m.target}</span></div><p>{m.description}</p><div className="progress-track"><span style={{width:`${progress/m.target*100}%`}}/></div><div className="milestone-reward"><small>+{formatMoney(m.money,true)} · {m.xp} XP</small><button className="secondary-button" disabled={claimed || progress<m.target} onClick={()=>store.claimMilestone(m.id)}>{claimed?'Đã nhận':'Nhận thưởng'}</button></div></article>})}</div>}

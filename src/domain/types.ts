@@ -1,3 +1,4 @@
+import type { CareerId } from './careers'
 import type { NeighborhoodState } from './neighborhood'
 export type Weather = 'sunny' | 'cloudy' | 'rain' | 'hot'
 export type GameSpeed = 1 | 2 | 4
@@ -69,6 +70,7 @@ export interface WorldState {
 }
 
 export interface BusinessState {
+  careerId: CareerId
   owned: boolean
   open: boolean
   name: string
@@ -91,6 +93,21 @@ export interface DayStats {
   expenses: number
   customers: number
   lostCustomers: number
+  cashOpening: number | null
+  stockPurchases: number
+  capitalPurchases: number
+  recoveries: number
+  communityRewards: number
+  careerIds: CareerId[]
+}
+
+export interface DayReport extends DayStats {
+  day: number
+  weather: Weather
+  rent: number
+  payroll: number
+  profit: number
+  cashClosing: number
 }
 
 export interface LifetimeStats {
@@ -107,7 +124,7 @@ export interface GameNotice {
 }
 
 export interface GameSnapshot {
-  version: 1 | 2 | 3 | 4
+  version: 1 | 2 | 3 | 4 | 5
   onboarded: boolean
   tutorialStep: number
   player: PlayerState
@@ -121,6 +138,7 @@ export interface GameSnapshot {
   chat: ChatMessage[]
   chatSeq: number
   neighborhood: NeighborhoodState
+  reports: DayReport[]
 }
 
 export interface DemandBreakdown {

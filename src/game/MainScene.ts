@@ -1,3 +1,4 @@
+import { career, STARTER_QUANTITY, type CareerId } from '../domain/careers'
 import Phaser from 'phaser'
 import type { GameSnapshot, Gender } from '../domain/types'
 import { formatMoney } from '../domain/format'
@@ -14,6 +15,9 @@ export class MainScene extends Phaser.Scene {
   private player?: Actor
   private booth?: Phaser.GameObjects.Container
   private boothText?: Phaser.GameObjects.Text
+  private boothTitle?: Phaser.GameObjects.Text
+  private boothGraphic?: Phaser.GameObjects.Graphics
+  private boothVisualKey = ''
   private lighting?: Phaser.GameObjects.Rectangle
   private rain?: Phaser.GameObjects.Container
   private snapshot = snapshotFromStore(useGameStore.getState())
@@ -104,20 +108,55 @@ export class MainScene extends Phaser.Scene {
   private createBooth(): void {
     const root = this.add.container(350, 1030).setDepth(12)
     const g = this.add.graphics()
-    g.fillStyle(0x594537).fillRoundedRect(-112, -80, 224, 112, 10)
-    g.fillStyle(0xfff4d5).fillRoundedRect(-106, -76, 212, 95, 6)
-    g.lineStyle(4, 0x78523b).strokeRoundedRect(-106, -76, 212, 95, 6)
-    g.fillStyle(0xb8533b).fillRoundedRect(-108, -57, 216, 34, 3)
-    g.fillStyle(0xf5c76b).fillRect(-121, -108, 242, 30)
-    for (let i = 0; i < 6; i++) { g.fillStyle(i % 2 ? 0xb8533b : 0xffedbb).fillRect(-121 + i * 40, -112, 40, 29) }
-    g.fillStyle(0x3c3935).fillCircle(-82, 37, 17).fillCircle(82, 37, 17)
-    g.fillStyle(0x8a9e55).fillEllipse(-52, -4, 50, 17).fillEllipse(52, -4, 50, 17)
-    g.fillStyle(0xf5dc9f).fillEllipse(-52, -10, 38, 16).fillEllipse(52, -10, 38, 16)
     const title = this.add.text(0, -52, 'XÔI SÁNG 18', { fontFamily: FONT, fontSize: '25px', fontStyle: 'bold', color: '#fff6de' }).setOrigin(0.5, 0)
     this.boothText = this.add.text(0, 6, 'MỞ QUẦY · 480K', { fontFamily: FONT, fontSize: '19px', fontStyle: 'bold', color: '#754935' }).setOrigin(0.5)
     root.add([g, title, this.boothText]).setSize(260, 180).setInteractive({ useHandCursor: true })
     root.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => { event.stopPropagation(); gameEvents.emit('business:selected', undefined) })
     this.booth = root
+    this.boothTitle = title
+    this.boothGraphic = g
+  }
+  private drawBooth(id: CareerId): void {
+    const g = this.boothGraphic
+    if (!g) return
+    const config = career(id)
+    g.clear()
+    g.fillStyle(0x594537).fillRoundedRect(-112, -80, 224, 112, 10)
+    g.fillStyle(0xfff4d5).fillRoundedRect(-106, -76, 212, 95, 6)
+    g.lineStyle(4, 0x78523b).strokeRoundedRect(-106, -76, 212, 95, 6)
+    g.fillStyle(config.color).fillRoundedRect(-108, -57, 216, 34, 3)
+    const canopy = this.snapshot.neighborhood.upgrades.includes('canopy')
+    const roofWidth = canopy ? 284 : 242
+    g.fillStyle(0xf5c76b).fillRect(-roofWidth / 2, -108, roofWidth, 30)
+    for (let i = 0; i < 6; i++) g.fillStyle(i % 2 ? config.color : 0xffedbb).fillRect(-roofWidth / 2 + i * roofWidth / 6, -112, roofWidth / 6, 29)
+    g.fillStyle(0x3c3935).fillCircle(-82, 37, 17).fillCircle(82, 37, 17)
+    if (id === 'xoi') {
+      g.fillStyle(0x8a9e55).fillEllipse(-52, -4, 50, 17).fillEllipse(52, -4, 50, 17)
+      g.fillStyle(0xf5dc9f).fillEllipse(-52, -10, 38, 16).fillEllipse(52, -10, 38, 16)
+    } else if (id === 'banhmi') {
+      for (const x of [-52, 52]) {
+        g.fillStyle(0xd9984e).fillEllipse(x, -5, 64, 20)
+        g.fillStyle(0x699447).fillRect(x - 25, -8, 50, 4)
+        g.fillStyle(0xf3cf85).fillEllipse(x, -14, 62, 17)
+        g.lineStyle(2, 0xbd8544).lineBetween(x - 14, -18, x - 7, -10).lineBetween(x + 4, -18, x + 11, -10)
+      }
+    } else {
+      for (const x of [-56, 56]) {
+        g.fillStyle(0xc8a0b8).fillRoundedRect(x - 15, -16, 30, 33, 4)
+        g.fillStyle(0xffe9bd).fillRect(x - 12, -13, 24, 20)
+        g.fillStyle(0x554335).fillCircle(x - 6, 9, 3).fillCircle(x + 6, 9, 3).fillCircle(x, 13, 3)
+        g.lineStyle(4, 0x77638b).lineBetween(x + 2, -18, x + 8, -40)
+        g.fillStyle(0xf5ead8).fillEllipse(x, -17, 33, 7)
+      }
+    }
+    if (this.snapshot.neighborhood.upgrades.includes('storage')) {
+      g.fillStyle(0x899e9d).fillRoundedRect(116, -42, 48, 75, 5)
+      g.lineStyle(2, 0xd6e2d5).lineBetween(121, -9, 159, -9).lineBetween(150, -30, 150, -18)
+    }
+    if (this.snapshot.neighborhood.upgrades.includes('sign')) {
+      g.lineStyle(4, 0xe0b858).strokeRoundedRect(-108, -57, 216, 34, 3)
+      g.fillStyle(0xffedb0).fillCircle(-99, -40, 3).fillCircle(99, -40, 3)
+    }
   }
   private walkHere(pointer: Phaser.Input.Pointer): void {
     if (!this.player || !this.snapshot.onboarded || pointer.worldY < H * 0.60 || pointer.worldY > H * 0.82) return
@@ -227,7 +266,11 @@ export class MainScene extends Phaser.Scene {
       this.player.gender = snapshot.player.gender
       this.player.sprite.stop().setFrame(snapshot.player.gender === 'female' ? '1-0' : '0-0')
     }
-    this.boothText?.setText(!snapshot.business.owned ? 'MỞ QUẦY · 480K' : snapshot.business.open ? `ĐANG BÁN · ${snapshot.business.inventory} PHẦN` : `ĐÃ ĐÓNG · ${snapshot.business.inventory} PHẦN`)
+    const config = career(snapshot.business.careerId)
+    const visualKey = `${config.id}:${snapshot.neighborhood.upgrades.join(',')}`
+    if (this.boothVisualKey !== visualKey) { this.boothVisualKey = visualKey; this.drawBooth(config.id) }
+    this.boothTitle?.setText(config.shortSign).setFontSize(config.id === 'xoi' ? 25 : 20)
+    this.boothText?.setText(!snapshot.business.owned ? `MỞ QUẦY · ${formatMoney(config.setup + STARTER_QUANTITY * config.unitCost, true)}` : snapshot.business.open ? `ĐANG BÁN · ${snapshot.business.inventory} ${config.unit.toLocaleUpperCase('vi')}` : `ĐÃ ĐÓNG · ${snapshot.business.inventory} ${config.unit.toLocaleUpperCase('vi')}`)
     const hour = snapshot.world.minuteOfDay / 60
     const dark = hour < 5.5 || hour >= 19 ? 0.43 : hour < 7 ? 0.12 : 0
     this.lighting?.setAlpha(dark + (snapshot.world.weather === 'rain' ? 0.12 : 0))

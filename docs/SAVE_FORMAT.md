@@ -1,6 +1,6 @@
-# Save format version 4
+# Save format version 5
 
-Cập nhật 30/09/2026. Database Dexie `khoi-nghiep-viet` vẫn version 1, bảng `saves` index `id, savedAt`; envelope schemaVersion vẫn 1. Payload game hiện version **4**. `?demo=1` dùng database `khoi-nghiep-viet-demo` riêng.
+Cập nhật 30/09/2026. Database Dexie `khoi-nghiep-viet` vẫn version 1, bảng `saves` index `id, savedAt`; envelope schemaVersion vẫn 1. Payload game hiện version **5**. `?demo=1` dùng database `khoi-nghiep-viet-demo` riêng.
 
 ## Slot và envelope
 
@@ -34,7 +34,7 @@ NPC/milestone/upgrade id được validate bằng catalog. Đơn active phải k
 - v2: có story, chưa gender/position; thêm mặc định, giữ tiền/tồn kho/thời gian/seed.
 - v3: giữ giới tính/vị trí/chat, thêm neighborhood mặc định.
 - v4: validate nhóm mới cùng dữ liệu cũ. Phiên bản tương lai chưa hỗ trợ → exception và blocked.
-- Migrate về v4, clamp vị trí x 0,08–0,92/y 0,64–0,79; notices transient không phát lại. Story cũ có title hỏng dấu hỏi được bỏ tình huống đó, giữ economy.
+- Migrate về v5, clamp vị trí x 0,08–0,92/y 0,64–0,79; notices transient không phát lại. Story cũ có title hỏng dấu hỏi được bỏ tình huống đó, giữ economy.
 - Không chạy offline catch-up, không tự đổi pause sang false. Snapshot phải gồm neighborhood khi autosave; không serialize function actions.
 
 Autosave mỗi 5 giây, tab ẩn và runtime cleanup; tránh hai persist đồng thời trong một instance. Vị trí cập nhật khi đến đích/thả phím; save đang đi có thể giữ điểm trước hành trình.
@@ -44,3 +44,7 @@ Autosave mỗi 5 giây, tab ẩn và runtime cleanup; tránh hai persist đồng
 Dexie test fake-indexeddb: v2 load, v1 thiếu story, round-trip nữ/vị trí/chat/quan hệ/upgrade/milestone/tiền/RNG/pause, payload hỏng/tương lai còn nguyên, backup restore. Neighborhood test thêm v3→v4 và đơn/quan hệ sai. Live reload giữ cả tiến độ chính và tiến độ demo mới; chi tiết STATUS.md.
 
 IndexedDB phụ thuộc origin/profile, không phải ID phần cứng hay đồng bộ nhiều máy. Chưa import UI, backup nhiều phiên, lock/xử lý xung đột nhiều tab hay cloud save. Không mở nhiều tab cùng một hồ sơ để kiểm thử giao dịch; dùng demo riêng với hồ sơ chính.
+
+## v5 — career và báo cáo
+
+Business thêm careerId (xoi/banhmi/trasua); activeOrder thêm careerId. Snapshot thêm reports tối đa 30 ngày. dayStats/report có cashOpening (nullable), stockPurchases, capitalPurchases, recoveries, communityRewards và careerIds. Reports lưu fee/profit/cashClosing và ngày/weather. v1–v4 thêm xoi, giữ economy/nhân vật/quan hệ, chuyển active order v4 sang xoi. Không dựng số liệu quá khứ: sổ ngày cũ có cashOpening=null và không thêm report giả; ngày sau có đủ. v5 validate nghề/cost/giá, order cùng nghề, sổ và công thức profit trong báo cáo. Xem BUSINESS_SYSTEM.md và careers.test.ts.

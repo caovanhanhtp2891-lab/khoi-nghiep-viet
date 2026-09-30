@@ -76,3 +76,7 @@ Có trang `mobile-preview.html` để đặt iframe game demo ở 320/360/390/43
 `pnpm test` kiểm tra 100 sheet SVG đúng generator rồi chạy **25 test/5 file**. `neighborhood.test.ts` kiểm tra identity/ngoại hình riêng (bỏ title trước so uniqueness), roster deterministic, chào hỏi không farm XP trong cùng ngày, reward một lần, đơn đủ/thiếu/quá hạn/id sai, nâng cấp chỉ mua một lần, đối soát doanh thu/kho/giá vốn và migration v3/v4. Test Dexie đã thêm quan hệ/upgrade/milestone trong round-trip.
 
 Kịch bản live bổ sung: filter theo nghề/tuổi, gặp NPC → hồ sơ, chào/hỏi nghề → chat/quan hệ, nhận đơn/giao, nhận thưởng, mua nâng cấp; pause và reload giữ tiến độ. Kiểm tra viewport qua mobile-preview là CSS iframe, không phải emulation phần cứng hay benchmark.
+
+## Ba nghề và quyết toán
+
+41 test/6 file. careers.test.ts bao phủ ca/thời tiết theo nghề, chuyển nghề và hoàn vốn, chặn active order/trading, milk tea order, full ca xôi đối soát dòng tiền, phí một lần, finishDay giữ pause, report 30 ngày, v4 thật →v5, round-trip Dexie và payload hỏng. Live thử đổi nghề, nhân viên/nâng cấp giữ, quầy đổi hình, bán theo tick, kết thúc ngày, report và reload; xem STATUS.md.

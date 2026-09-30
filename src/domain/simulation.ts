@@ -1,11 +1,9 @@
+import { career, DAILY_RENT, type CareerId } from './careers'
+import { closeDayReport, freshDayStats } from './accounting'
 import type { DemandBreakdown, GameSnapshot, TickResult, Weather } from './types'
 import { generateLifeSituation, SITUATION_INTERVAL_MINUTES } from './situations'
 
 const DAY_MINUTES = 1_440
-const OPEN_MINUTE = 5 * 60 + 30
-const CLOSE_MINUTE = 10 * 60
-const BASE_CUSTOMERS_PER_TICK = 1.35
-const DAILY_RENT = 35_000
 
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
@@ -16,28 +14,20 @@ export function nextRandom(seed: number): { seed: number; value: number } {
   return { seed: nextSeed, value: nextSeed / 4_294_967_296 }
 }
 
-export function getTimeDemandFactor(minute: number): number {
-  if (minute >= 390 && minute < 465) return 1.85
-  if (minute >= 330 && minute < 390) return 1.15
-  if (minute >= 465 && minute < 540) return 1.35
-  if (minute >= 540 && minute < 600) return 0.65
-  return 0.08
+export function getTimeDemandFactor(minute: number, careerId: CareerId = 'xoi'): number {
+  return career(careerId).hours.find(h=>minute>=h.from && minute<h.to)?.factor ?? 0.08
 }
 
-export function getWeatherDemandFactor(weather: Weather): number {
-  return {
-    sunny: 1,
-    cloudy: 0.92,
-    rain: 0.58,
-    hot: 0.88,
-  }[weather]
+export function getWeatherDemandFactor(weather: Weather, careerId: CareerId = 'xoi'): number {
+  return career(careerId).weather[weather]
 }
 
 export function calculateDemand(snapshot: GameSnapshot): DemandBreakdown {
   const { business, world } = snapshot
-  const time = getTimeDemandFactor(world.minuteOfDay)
-  const weather = world.weather === 'rain' && snapshot.neighborhood.upgrades.includes('canopy') ? 0.78 : getWeatherDemandFactor(world.weather)
-  const price = clamp(1.8 - (business.price / 22_000) * 0.8, 0.35, 1.28)
+  const config = career(business.careerId)
+  const time = getTimeDemandFactor(world.minuteOfDay, business.careerId)
+  const weather = world.weather === 'rain' && snapshot.neighborhood.upgrades.includes('canopy') ? Math.max(0.78, config.weather.rain) : getWeatherDemandFactor(world.weather, business.careerId)
+  const price = clamp(1.8 - (business.price / config.price) * 0.8, 0.35, 1.28)
   const quality = clamp(0.65 + business.quality / 200, 0.65, 1.15)
   const reputation = clamp(0.7 + business.reputation / 200, 0.7, 1.2)
   const marketing = 1 + (business.marketingScore / 100) * 0.45 + (snapshot.neighborhood.upgrades.includes('sign') ? 0.15 : 0)
@@ -66,6 +56,8 @@ function stochasticRound(value: number, randomValue: number): number {
 }
 
 export function simulateTick(snapshot: GameSnapshot, minutes = 5): TickResult {
+  if (!Number.isFinite(minutes) || !Number.isInteger(minutes) || minutes <= 0 || minutes > DAY_MINUTES) throw new Error('Bước thời gian không hợp lệ')
+  const config = career(snapshot.business.careerId)
   const random = nextRandom(snapshot.world.rngSeed)
   let minuteOfDay = snapshot.world.minuteOfDay + minutes
   let day = snapshot.world.day
@@ -74,6 +66,7 @@ export function simulateTick(snapshot: GameSnapshot, minutes = 5): TickResult {
   let dayStats = { ...snapshot.dayStats }
   let lifetime = { ...snapshot.lifetime }
   let story = { ...snapshot.story, history: snapshot.story.history.slice(-8) }
+  let reports = snapshot.reports
   let newDay = false
 
   if (minuteOfDay >= DAY_MINUTES) {
@@ -83,8 +76,9 @@ export function simulateTick(snapshot: GameSnapshot, minutes = 5): TickResult {
 
     const payroll = snapshot.business.hasEmployee ? snapshot.business.dailySalary : 0
     const operatingExpenses = snapshot.business.owned ? DAILY_RENT + payroll : 0
-    const completedProfit =
-      dayStats.revenue - dayStats.cogs - dayStats.expenses - operatingExpenses
+    const report = closeDayReport(snapshot, snapshot.business.owned ? DAILY_RENT : 0, payroll)
+    const completedProfit = report.profit
+    reports = [...reports, report].slice(-30)
 
     money -= operatingExpenses
     lifetime = {
@@ -92,24 +86,18 @@ export function simulateTick(snapshot: GameSnapshot, minutes = 5): TickResult {
       profit: lifetime.profit + completedProfit,
       daysCompleted: lifetime.daysCompleted + 1,
     }
-    dayStats = {
-      revenue: 0,
-      cogs: 0,
-      expenses: 0,
-      customers: 0,
-      lostCustomers: 0,
-    }
+    dayStats = freshDayStats(money, snapshot.business.careerId)
     story = { ...story, resolvedToday: 0 }
     weather = pickNextWeather(random.value)
   }
 
-  const autoClosed = snapshot.business.open && minuteOfDay >= CLOSE_MINUTE
+  const autoClosed = snapshot.business.open && (newDay || minuteOfDay >= config.close)
   const isTrading =
     snapshot.business.owned &&
     snapshot.business.open &&
     !autoClosed &&
-    minuteOfDay >= OPEN_MINUTE &&
-    minuteOfDay < CLOSE_MINUTE
+    minuteOfDay >= config.open &&
+    minuteOfDay < config.close
 
   let baseSnapshot: GameSnapshot = {
     ...snapshot,
@@ -129,6 +117,7 @@ export function simulateTick(snapshot: GameSnapshot, minutes = 5): TickResult {
     dayStats,
     story,
     lifetime,
+    reports,
   }
 
   const absoluteMinute = day * DAY_MINUTES + minuteOfDay
@@ -154,7 +143,7 @@ export function simulateTick(snapshot: GameSnapshot, minutes = 5): TickResult {
   }
 
   const demand = calculateDemand(baseSnapshot)
-  if (!isTrading || snapshot.business.inventory <= 0) {
+  if (!isTrading) {
     return {
       next: baseSnapshot,
       arrivals: 0,
@@ -167,8 +156,8 @@ export function simulateTick(snapshot: GameSnapshot, minutes = 5): TickResult {
     }
   }
 
-  const arrivals = stochasticRound(BASE_CUSTOMERS_PER_TICK * demand.total, random.value)
-  const capacity = snapshot.business.hasEmployee ? 5 : 2
+  const arrivals = stochasticRound(config.baseCustomers * demand.total, random.value)
+  const capacity = snapshot.business.hasEmployee ? config.employeeCapacity : config.capacity
   const sales = Math.min(arrivals, capacity, snapshot.business.inventory)
   const lostCustomers = Math.max(0, arrivals - sales)
   const revenue = sales * snapshot.business.price

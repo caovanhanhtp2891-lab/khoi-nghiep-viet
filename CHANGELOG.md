@@ -27,3 +27,11 @@ Không tái dựng lịch sử cũ bằng suy đoán; xem git log cho các commi
 - 3 đơn đề nghị/ngày, deadline, giao dịch tồn kho/tiền/giá vốn; 8 milestone thưởng một lần.
 - 3 nâng cấp quầy tác động nhu cầu/kho/marketing; save v4 tương thích v1–v3.
 - Generator/check asset, 25 unit test; iframe mobile preview dùng đúng viewport nội dung.
+
+## 30/09/2026 — Ba nghề và quyết toán ngày
+
+- Thêm bánh mì/trà sữa, cấu hình riêng giá vốn/giờ bán/thời tiết/công suất.
+- Chọn nghề/đổi nghề có quote thu hồi; giữ nhân viên và nâng cấp, chặn việc đang chờ.
+- Đơn cư dân theo sản phẩm, 30 báo cáo lời lỗ/dòng tiền, kết thúc ngày sớm.
+- Payload v5 tương thích v1–v4; quầy/đồ bán/upgrade thay hình theo state.
+- 41 test/6 file +check 100 SVG; lint/build pass cục bộ.

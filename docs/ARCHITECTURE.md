@@ -15,10 +15,10 @@ React + TypeScript cho giao diện; Phaser cho khu phố 2D; Zustand cho trạng
 | `src/domain/types.ts` | Snapshot, entity, event result và hằng số tiền/thời gian |
 | `src/domain/simulation.ts` | RNG có seed, nhu cầu, bán hàng, ngày mới, thời tiết, chi phí |
 | `src/domain/situations.ts` | Nội dung và sinh lựa chọn tình huống NPC |
-| `src/domain/migrateSave.ts` | Validate unknown save, migrate v1/v2/v3/v4 |
+| `src/domain/migrateSave.ts` | Validate unknown save, migrate v1/v2/v3/v4/v5 |
 | `src/domain/chat.ts` | Lời NPC theo thời gian/thời tiết |
 | `src/domain/format.ts` | Định dạng số, tiền, thời gian |
-| `src/store/initialState.ts` | Snapshot mới version 4 |
+| `src/store/initialState.ts` | Snapshot mới version 5 |
 | `src/store/gameStore.ts` | Actions, hydrate, reset, xuất snapshot và phát event |
 | `src/hooks/useGameRuntime.ts` | Load trước khi sẵn sàng, tích lũy thời gian, autosave |
 | `src/services/saveDb.ts` | Database, autosave/backup, export và recovery |
@@ -55,7 +55,7 @@ Các subscription trả hàm unsubscribe. React effects và Phaser shutdown ph�
 
 ## Mô phỏng đang có
 
-- Quầy xôi hoạt động 05:30 đến trước 10:00; tự đóng lúc 10:00.
+- Ba nghề lấy giờ bán/công suất/weather từ careers.ts; quầy tự đóng khi hết ca.
 - Nhu cầu là tích các hệ số thời gian, thời tiết, giá, chất lượng, uy tín, marketing.
 - Khách/tick dùng stochastic rounding theo RNG có seed; số bán = min(khách đến, công suất, tồn kho).
 - Cuối ngày trừ tiền thuê 35.000 VNĐ và lương nếu có nhân viên, tổng hợp lợi nhuận rồi reset thống kê ngày và đổi thời tiết.
@@ -84,3 +84,7 @@ Load lỗi chuyển blocked, giữ ready=false nên tick/persist không chạy. 
 - `game/events.ts`: npc:selected chuyển scene → panel; scene không tự quyết định quan hệ/doanh thu.
 
 Chi tiết và cách thêm cư dân xem [NPC_SYSTEM.md](NPC_SYSTEM.md).
+
+## Careers và accounting v5
+
+`domain/careers.ts`: cấu hình ba nghề, quote đổi, giờ/đơn vị sản phẩm. `accounting.ts`: freshDayStats, closeDayReport, cash reconciliation. `simulation.ts` chốt ngày cũ → report → phí → sổ mới. Store cập nhật các dòng tiền khi mua quầy/restock/chuyển nghề/thưởng. `CareerOptions.tsx` và `DayReports.tsx` nằm trong các tab Kinh doanh; scene vẽ đồ bán/upgrade, không phát sinh giao dịch. Xem BUSINESS_SYSTEM.md.
