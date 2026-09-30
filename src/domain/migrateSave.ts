@@ -21,6 +21,8 @@ export function migrateSnapshot(raw: unknown): GameSnapshot {
     const source = raw[group]
     if (!record(source)) throw new Error(`Dữ liệu ${group} không hợp lệ`)
     for (const [key, value] of Object.entries(defaults[group])) {
+      // Historical saves have no reliable opening cash; validDayStats handles null.
+      if (group === 'dayStats' && key === 'cashOpening') continue
       if (Number(raw.version) < 5 && ((group === 'business' && key === 'careerId') || (group === 'dayStats' && ['cashOpening','stockPurchases','capitalPurchases','recoveries','communityRewards','careerIds'].includes(key)))) continue
       if (group === 'player' && ['gender', 'position'].includes(key) && Number(raw.version) < 3) continue
       const actual = source[key]

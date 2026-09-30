@@ -117,6 +117,18 @@ describe('careers and accounting',()=>{
   const snapshot=snapshotFromStore(state());await saveGame(snapshot)
   expect(await loadGame()).toEqual({...snapshot,notices:[]})
  })
+ it('loads, hydrates and saves a migrated historical day with unknown opening cash',async()=>{
+  state().buyFirstBooth()
+  const old=structuredClone(snapshotFromStore(state())) as unknown as Record<string,unknown>
+  old.version=4;delete old.reports;delete (old.business as Record<string,unknown>).careerId
+  for(const key of ['cashOpening','stockPurchases','capitalPurchases','recoveries','communityRewards','careerIds'])delete (old.dayStats as Record<string,unknown>)[key]
+  await db.saves.put({id:'autosave',schemaVersion:1,savedAt:'2026-09-30',payload:old})
+  const loaded=await loadGame();state().hydrate(loaded!)
+  expect(state().dayStats.cashOpening).toBeNull();expect(state().player.money).toBe(520000)
+  await saveGame(snapshotFromStore(state()));state().hydrate((await loadGame())!)
+  state().finishDay();expect(state().reports[0]?.cashOpening).toBeNull()
+  await saveGame(snapshotFromStore(state()));expect((await loadGame())?.reports[0]?.cashOpening).toBeNull()
+ })
  it('rejects unknown careers, altered product costs and broken report formulas without replacing the saved record',async()=>{
   state().buyFirstBooth();state().finishDay();const good=snapshotFromStore(state())
   const corrupt=[{...good,business:{...good.business,careerId:'fake'}},{...good,business:{...good.business,unitCost:1}},{...good,reports:[{...good.reports[0]!,profit:999999}]}]
