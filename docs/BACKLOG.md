@@ -62,3 +62,9 @@ Cập nhật Street Edition: B01–B04 đã có sửa mã và regression test; c
 ## Đua top cục bộ
 
 F05 đã có ba đối thủ dùng simulateTick chung với ngân sách/stock/fees, bảng assets/revenue/profit, thi đua theo baseline và thưởng một lần, tin chat state thật. 57 test/7 file gồm regression economy/save; live cuối xem STATUS.md. Chưa bảng tỉnh/quốc gia/thế giới, multiplayer hoặc AI học từ lịch sử. Tiếp tục cân bằng độ khó nhiều ngày và dự trữ vốn để người chơi có thể cạnh tranh bằng thao tác trên mobile.
+
+## UI và hội thoại mở rộng
+
+Đã có 120 cư dân/60 nghề, sáu loại phương tiện, bộ 1.000 biến thể từ 50 tình huống, chọn người nhận/chat gợi ý, NPC hỏi đáp và filter Quen biết. Header/composer không cuộn; tab quay đầu; chi tiết vận hành gập. 64 test/8 file và generator120; nghiệm thu live cuối ở STATUS.md.
+
+Ưu tiên tiếp: cân bằng NPC qua nhiều ngày và tự nhập hàng có giới hạn cho người chơi; đo FPS/RAM trên máy thật; save lock nhiều tab; cây hội thoại có trí nhớ dài hạn. Muốn thêm 20 cư dân mới vào đơn phải version hóa pool/offer để giữ đơn đang nhận từ save cũ.

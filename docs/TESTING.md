@@ -87,3 +87,7 @@ Regression live: bản v4 phải đi qua load/hydrate rồi lưu v5 và reload m
 ## Đối thủ và thi đua
 
 57 test/7 file +check 100 SVG. competition.test.ts kiểm tra vốn/chi phí/rank/tie/RNG, cả ngày với restock/staff/upgrade/fee đối soát, pause và finishDay không thêm player sales, enroll baseline/chặn đổi nghề, thắng/thua/claim một lần, genuine v5 trà sữa +order/report/upgrade/cashOpening=null, corrupted competition giữ raw và continuation sau Dexie load/hydrate. Kịch bản live: mở Đua top, đổi tiêu chí, xem ledger/tin NPC, nhận thi đua đúng ngày, chơi một đoạn, quyết toán, reload giữ hạng/challenge/result/seed. Chỉ ghi kết quả thực tế trong STATUS.md.
+
+## Bản hội thoại và UI gọn
+
+64 test/8 file +120 SVG. dialogue.test.ts kiểm tra 1.000 văn bản duy nhất/50 tình huống, nhận từ khóa không nhầm mua/mưa hoặc tôi/tối, rain selector/seed, cặp NPC khác nhau, quan sát không tạo quan hệ, chat và chào chỉ một lượt thưởng/ngày kể cả reload, không trả tiền chat, giới hạn 160 ký tự/40 tin, đơn cũ ở ngày lớn và IDs mới. UI cần kiểm tra ở 320×568, 390×740, 430×844: scroll tới dòng cuối, quay tab về đầu, gập/mở vận hành, chat composer luôn thấy, xem hồ sơ không thêm người quen, gửi/chào thêm đúng một người, reload giữ kết quả.

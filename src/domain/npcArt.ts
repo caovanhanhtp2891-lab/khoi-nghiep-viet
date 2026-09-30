@@ -6,6 +6,8 @@ function accessory(n: NpcProfile): string {
  const x = n.gender === 'female' ? 85 : 87
  const base = `stroke="${edge}" stroke-width="1.8" stroke-linejoin="round"`
  switch(n.accessory) {
+ case 'calculator': return `<g ${base}><rect x="${x-14}" y="111" width="27" height="36" rx="4" fill="#455769"/><rect x="${x-10}" y="115" width="19" height="8" fill="#c5dbc0"/><path d="M${x-8} 129h3m4 0h3m-10 6h3m4 0h3m-10 6h3m4 0h3" stroke="#f8e9bd" stroke-width="3"/></g>`
+ case 'radio': return `<g ${base}><rect x="${x-9}" y="111" width="20" height="30" rx="4" fill="#384842"/><path d="M${x-5} 112v-15m1 25h11m-11 5h11" stroke="#becab5" stroke-width="2"/><circle cx="${x+4}" cy="135" r="2" fill="#d8b454"/></g>`
  case 'book': return `<g ${base}><rect x="${x-8}" y="111" width="22" height="30" rx="2" fill="${n.accent}"/><path d="M${x-3} 117h12m-12 6h12" stroke="#fff1d8"/></g>`
  case 'bag': return `<g ${base}><path d="M${x-9} 115v-10q11-15 21 0v10" fill="none"/><rect x="${x-13}" y="115" width="29" height="29" rx="6" fill="${n.accent}"/><path d="M${x-8} 124h19" stroke="#e7cf99"/></g>`
  case 'basket': return `<g ${base}><path d="M${x-13} 119q13-31 26 0" fill="none"/><path d="M${x-17} 119h34l-5 24h-24z" fill="#c08d4d"/><path d="M${x-14} 128h28m-25 7h23" stroke="#f0c887"/></g>`
@@ -20,6 +22,7 @@ function accessory(n: NpcProfile): string {
 }
 function hat(n: NpcProfile): string {
  switch(n.hat) {
+ case 'peaked': return `<path d="M31 37l5-20h48l5 20z" fill="${n.color}" stroke="${edge}" stroke-width="2"/><path d="M28 37h64l-9 8H38z" fill="#34453d"/><path d="M34 33h51" stroke="#d9bb66" stroke-width="4"/><circle cx="60" cy="26" r="5" fill="#be533b"/><path d="M60 22l1 3h3l-2 2 1 3-3-2-3 2 1-3-2-2h3z" fill="#f4d580"/>`
  case 'conical': return `<path d="M22 54L60 15l38 39q-38 14-76 0z" fill="#e4c885" stroke="${edge}" stroke-width="2"/><path d="M32 52l28-30 28 30m-53 4h50" fill="none" stroke="#ba9a60" stroke-width="1.5"/>`
  case 'helmet': return `<path d="M32 47q-1-34 28-34t28 34z" fill="${n.color}" stroke="${edge}" stroke-width="2"/><path d="M38 43h46" stroke="#f4d78c" stroke-width="5"/><path d="M85 50l-5 20" stroke="${edge}" stroke-width="3"/>`
  case 'hardhat': return `<path d="M31 45q0-31 29-31t29 31z" fill="#e8b643" stroke="${edge}" stroke-width="2"/><path d="M26 45h68M59 15v28" stroke="#c48f25" stroke-width="6"/>`
@@ -47,7 +50,8 @@ function frame(n: NpcProfile, step: number): string {
  const glasses = n.glasses ? `<g fill="none" stroke="${edge}" stroke-width="1.8"><rect x="39" y="45" width="16" height="12" rx="4"/><rect x="65" y="45" width="16" height="12" rx="4"/><path d="M55 48h10m-30 0h4m42 0h4"/></g>` : ''
  const wrinkles = n.age >= 60 ? `<path d="M37 56l-3 3m49-3l3 3m-47 4l2 3m40-3l-2 3" fill="none" stroke="#b18261" stroke-width="1.2"/>` : ''
  const moustache = n.gender === 'male' && n.age >= 40 && n.variant % 3 === 0 ? `<path d="M48 65q6-9 12-2 6-7 12 2-10 7-12 1-4 5-12-1" fill="${n.hair}"/>` : ''
- const clothes = n.outfit === 'apron' ? `<path d="M46 84h28l8 52H38z" fill="${n.accent}" stroke="${edge}" stroke-width="1.5"/><path d="M48 111h24v17H48z" fill="#e2cbb0"/>`
+ const clothes = ['police','militia','firefighter'].includes(n.outfit) ? `<path d="M45 81l15 9 15-9M60 90v44" fill="none" stroke="#e0ce8e" stroke-width="2"/><path d="M39 85h13m17 0h13" stroke="#bd4c38" stroke-width="5"/><rect x="42" y="98" width="12" height="10" rx="1" fill="#d3bd75"/><path d="M39 129h41" stroke="#34433b" stroke-width="6"/>${n.outfit==='firefighter'?'<path d="M37 114h46" stroke="#efdc79" stroke-width="6"/>':''}`
+ : n.outfit === 'apron' ? `<path d="M46 84h28l8 52H38z" fill="${n.accent}" stroke="${edge}" stroke-width="1.5"/><path d="M48 111h24v17H48z" fill="#e2cbb0"/>`
  : n.outfit === 'suit' ? `<path d="M47 81l13 20 13-20M59 93l-5 25 6 8 6-8-5-25" fill="${n.accent}" stroke="${edge}" stroke-width="1.5"/>`
  : n.outfit === 'uniform' ? `<path d="M50 81l10 9 10-9" fill="none" stroke="${n.accent}" stroke-width="3"/>${child || n.age < 18 ? '<path d="M48 83l12 13 12-13-8 16 5 9-9-6-9 6 5-10z" fill="#b9503b"/>' : '<rect x="42" y="99" width="12" height="9" rx="1" fill="#c3d1c8"/>'}`
  : n.outfit === 'coat' ? `<path d="M49 79l-6 18 17-7 17 7-6-18M60 91v40" fill="none" stroke="#a99f8e" stroke-width="2"/><path d="M41 108h12v17H41z" fill="${n.accent}"/>`

@@ -47,3 +47,11 @@ Không tái dựng lịch sử cũ bằng suy đoán; xem git log cho các commi
 - Áp lực cùng nghề giảm12% nhu cầu đối xứng, hàng Cạnh tranh trong Vận hành; hiệu ứng bán dùng đơn vị nghề.
 - Payload v6 giữ v1–v5, NPC bắt đầu hiện tại, save cũ thi đua từ ngày tiếp theo, giữ đơn trà sữa/report/nullable cashOpening.
 - 57 test/7 file và check100SVG; lint/TypeScript/build pass. Kiểm tra live và giới hạn xem STATUS.md.
+
+## 30/09/2026 — Giao diện gọn, 120 cư dân và hội thoại
+
+- Bảng theo dvh, header/đóng luôn thấy; tab chuyển về đầu, nhu cầu/nâng cấp gập, composer chat tách khỏi lịch sử. Sửa portrait đối thủ bị cắt.
+- 20 cư dân thêm vào cuối danh mục, 60 nghề; công an/dân quân/cứu hỏa/mũ kê-pi/bộ đàm/máy tính kế toán; 120 sheet/480 frame.
+- Sáu phương tiện hai chiều, tối đa ba xe, chỉ trang trí.
+- 1.000 chuỗi từ 50 tình huống, NPC hỏi đáp, chat chọn người/gợi ý; quen biết chỉ sau giao lưu, giới hạn bond/XP chung chào và chat.
+- 26 nhu cầu tình huống khách, đơn vị phục vụ theo nghề. Giữ schema v6, ID/pool đơn cũ; 64 test/8 file và generator120 pass.

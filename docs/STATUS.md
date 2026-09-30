@@ -1,12 +1,12 @@
 # Hiện trạng dự án
 
-Cập nhật 30/09/2026 (Asia/Saigon). Mã runtime cuối được kiểm tra: `18a6569435ef271fda00f7d486d9747ead378992`; bản ba nghề đầu tiên: `ae5153a9f95cc63321138088aea89f7a9100c943`. Commit chứa cập nhật tài liệu này là mốc bàn giao; xem git log/workflow khi tiếp tục.
+Cập nhật 30/09/2026 (Asia/Saigon). Mã runtime cuối được kiểm tra: `ccfc63871b3e34259d44de1e73a223e8ec7d4ab3`; bản ba nghề đầu tiên: `ae5153a9f95cc63321138088aea89f7a9100c943`. Commit chứa cập nhật tài liệu này là mốc bàn giao; xem git log/workflow khi tiếp tục.
 
 ## Đã triển khai
 
 - Phố Việt Nam nhìn ngang: nhà ống, ban công, mái ngói, cờ, dây điện và hàng quán; nền raster mới. Theme kem/xanh/nâu, portrait tối đa 560px; HUD luôn hiện giờ, nội dung dài cuộn trong bảng.
 - Người chơi chọn nam/nữ, có mặt và 4 frame đi bộ; chạm vỉa hè hoặc dùng phím mũi tên, lưu vị trí chuẩn hóa. Chạm đi có tuyến tránh xe xôi, chưa phải pathfinding bản đồ rộng.
-- 100 NPC hư cấu riêng, 50 nghề/vai trò, tuổi 7–82; 100 sheet SVG/400 frame, không dùng sprite người chơi. Tối đa 10 cư dân/3 bubble trên cảnh, luân phiên nghề theo ngày/giờ. Sổ cư dân có tìm kiếm, nhóm nghề/tuổi, hồ sơ và hỏi chuyện nghề.
+- 120 NPC hư cấu riêng, 60 nghề/vai trò, tuổi 7–82; 120 sheet SVG/480 frame, không dùng sprite người chơi. Tối đa 10 cư dân/3 bubble trên cảnh, luân phiên nghề theo ngày/giờ. Sổ cư dân có tìm kiếm, nhóm nghề/tuổi, hồ sơ và hỏi chuyện nghề.
 - Tình thân 0–100, lần chào đầu/ngày +3 tình thân/+3 XP; giao đơn +8 tình thân/+15 XP. Chat trên máy, có portrait/id NPC, lịch sử 40 tin và tin mới mỗi 30 phút game; chưa chat người thật.
 - 3 đề nghị đặt hàng/ngày, một đơn đang nhận, hạn 120 phút game và phải giao cùng ngày. Giao đủ hàng mới cộng tiền, ghi doanh thu/giá vốn/tồn kho; không nhận lại đơn đã giao.
 - 8 mốc hành trình nhận thưởng một lần; 3 nâng cấp quầy tác động nhu cầu mưa, sức chứa kho và marketing. Hiện một quầy hoạt động với ba lựa chọn xôi/bánh mì/trà sữa và một nhân viên.
@@ -37,7 +37,7 @@ Cập nhật 30/09/2026 (Asia/Saigon). Mã runtime cuối được kiểm tra: `
 
 ## Giới hạn còn lại
 
-- Phaser bundle khoảng 1.375KB trước gzip (357,8KB gzip), build có cảnh báo >500KB; preload 100 SVG chưa đo RAM/FPS/tải trên điện thoại thật.
+- Phaser bundle khoảng 1.375KB trước gzip (357,8KB gzip), build có cảnh báo >500KB; preload 120 SVG chưa đo RAM/FPS/tải trên điện thoại thật.
 - NPC dùng renderer vector với phối mặt/tóc/màu/đồ nghề; chưa 16 hướng hoặc lịch cá nhân/AI ngôn ngữ. Đơn giao từ bảng, chưa đi giao vật lý.
 - Nâng cấp có hiệu quả economy và trạng thái UI, đã thêm mái che rộng, tủ bên xe và viền biển hiệu lên cảnh.
 - Đã có ba nghề trên một quầy; có boss/bảng xếp hạng cục bộ; chưa nhiều quầy/chuỗi/công ty, bảng người thật, đầu tư thật, multiplayer/backend, cloud save, offline progress hoặc service worker.
@@ -79,4 +79,8 @@ Chrome cloud, 30/09/2026, mã `18a6569435ef271fda00f7d486d9747ead378992`. Action
 
 Phát triển từ main `10b07ebc7b6552f70da7225a909857404ac9334e`. Ba chủ quầy xôi/bánh mì/trà sữa, cùng mô phỏng người chơi, budget/ledger/seed riêng; bảng tài sản/doanh thu/profit, daily duel với baseline/fee/claim một lần, news state thật và pressure cùng nghề. Schema v6 giữ v1–v5. Xem COMPETITION_SYSTEM.md.
 
-Cục bộ lint, 57 test/7 file, check100SVG và TypeScript/build pass. Test full ca đối thủ đối soát, skipday/pause, v5 thật→hydrate→save→reload và dữ liệu corrupt giữ nguyên. Bản UI đang chờ chơi thử sau triển khai; chưa cân bằng nhiều ngày/thiết bị thật/leaderboard online.
+Cục bộ lint, 57 test/7 file, check100SVG và TypeScript/build pass. Test full ca đối thủ đối soát, skipday/pause, v5 thật→hydrate→save→reload và dữ liệu corrupt giữ nguyên. Actions 36720790267 completed/success. Live Chrome cloud đã giữ Lan/nữ, 298.000/ngày3/pause/đồ trà sữa/báo cáo; board tài sản702.000, doanh thu đồng hạng0 và profit−155.000 có thuê/lương. Cũ được thi đua ngày4; ngày4 giao3 ly và bán21 ly, doanh thu762.000/giá vốn264.000, profit343.000; tiền143.000+762.000−220.000−155.000=530.000, báo cáo khớp. Thi đua ngày4 chưa thắng, không có nút nhận thưởng; reload giữ active/history/news/NPC, ngày5/pause. Thắng/claim một lần kiểm tra bằng unit/Dexie, chưa thắng trong ca live. Viewport320×568/390×740/430×844 không tràn document; hồ sơ đối thủ mở được. Lỗi portrait bị cắt đã thấy trong ảnh và đang sửa ở bản UI tiếp theo. Chưa cân bằng nhiều ngày/thiết bị thật/leaderboard online.
+
+## Bản UI, cư dân và hội thoại mở rộng
+
+Cục bộ đã có120 cư dân/60 nghề, 1.000 chuỗi từ50 tình huống, sáu loại xe, chỉ giao lưu mới ghi quen biết, chọn người chat/gợi ý và bảng gọn. Lint,64test/8file, generator120, TypeScript/build pass; chơi thử bản mới chờ triển khai. DIALOGUE_SYSTEM.md ghi cách đếm bank và giới hạn chọn mẫu.

@@ -55,3 +55,7 @@ Luồng runtime validate hai lần: `loadGame` rồi `hydrate`; kiểm thử reg
 ## v6 — competition
 
 competition lưu ba rival với ledger/seed/quầy/upgrade/lastReport, joinedAt/eligibleFromDay, 16 news, activeDuel và lastDuelDay, 30 kết quả/claimed. v1–v5 giữ dữ liệu cũ rồi tạo rivals tại world hiện tại, không chạy quá khứ; eligibleFromDay là ngày sau với save cũ. v5 career/order/report được validate và giữ, không đổi về xôi. v6 giữ nullable cashOpening của player lịch sử ở mọi lần load/hydrate/save. validateCompetition đối soát tiền NPC và chặn id trùng, nghề/cost/stock sai, news tương lai, result/outcome/claimed sai. Xem COMPETITION_SYSTEM.md.
+
+### Mở rộng nội dung giữ v6
+
+120 cư dân nối tiếp ID, bank hội thoại/phương tiện không thêm dữ liệu persist. Quan hệ/chat mới dùng cùng schema v6. Pool đề nghị đơn vẫn 100 cư dân gốc, không thay công thức modulo của order cũ. Chi tiết DIALOGUE_SYSTEM.md.

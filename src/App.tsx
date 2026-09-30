@@ -88,7 +88,7 @@ function App() {
       </section>
 
       <BottomNav active={panel} onSelect={selectPanel} />
-      {panel && <GamePanel panel={panel} selectedNpc={selectedNpc} onClose={() => setPanel(null)} />}
+      {panel && <GamePanel key={panel} panel={panel} selectedNpc={selectedNpc} onClose={() => setPanel(null)} />}
       {!onboarded && <WelcomeModal />}
     </main>
   )

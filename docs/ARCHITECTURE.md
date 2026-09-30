@@ -93,3 +93,5 @@ Chi tiết và cách thêm cư dân xem [NPC_SYSTEM.md](NPC_SYSTEM.md).
 ## Đối thủ v6
 
 Runtime/store gọi `rivalSimulation.simulateWorldTick` bọc mô phỏng người chơi và ba NPC. NPC dùng `simulateTick` chung, ledger/seed riêng, không sinh story. Chính sách mua hàng/marketing/tuyển/nâng cấp có ngân sách; quyết toán cùng ngày và cùng thời tiết. `competition.ts` định nghĩa schema/valuation/rank/duel/validation; `CompetitionPanel.tsx` nằm trong tab Đua top của Cư dân. finishDay mô phỏng ca còn lại của NPC nhưng đóng quầy người chơi, chốt duel từ report và baseline. Chi tiết COMPETITION_SYSTEM.md. Phaser chỉ hiển thị, không quyết định kết quả hay tiền thưởng.
+
+Hội thoại: dialogue.ts chứa bank/selector thuần; chat.ts ghép reply/exchange; gameStore giới hạn giao lưu/XP và lịch sử. traffic.ts chỉ vẽ; không quyết định economy. GamePanel header/body và ChatPanel history/composer có vùng cuộn tách biệt. Xem DIALOGUE_SYSTEM.md.

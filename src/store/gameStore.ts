@@ -16,16 +16,16 @@ import { simulateWorldTick, rivalForCareer } from '../domain/rivalSimulation'
 import { DUEL_REWARD, DUEL_XP, operatingProfit } from '../domain/competition'
 import { gameEvents } from '../game/events'
 import { migrateSnapshot } from '../domain/migrateSave'
-import { npcChatLine } from '../domain/chat'
-import { getNpc, npcLine } from '../domain/npcCatalog'
+import { chatReply, npcConversation } from '../domain/chat'
+import { getNpc, npcLine, type TalkTopic } from '../domain/npcCatalog'
 import { dailyOrders, absoluteMinute, MILESTONES, UPGRADES, type UpgradeId } from '../domain/neighborhood'
 import { createInitialSnapshot } from './initialState'
 
 export interface GameActions {
   startJourney: (name: string, avatarStyle: AvatarStyle, gender?: Gender) => void
   movePlayer: (x: number, y: number) => void
-  sendChat: (text: string) => void
-  talkToNpc: (id: string, topic?: 'greet' | 'work') => void
+  sendChat: (text: string, npcId?: string) => void
+  talkToNpc: (id: string, topic?: TalkTopic) => void
   acceptOrder: (id: string) => void
   completeOrder: () => void
   cancelOrder: () => void
@@ -98,6 +98,12 @@ export function snapshotFromStore(state: GameStore): GameSnapshot {
   })
 }
 
+function interactionPatch(state:GameSnapshot,npcId:string) {
+  const previous=state.neighborhood.relationships[npcId] ?? {bond:0,greetedDay:0,meetings:0}
+  const firstToday=previous.greetedDay!==state.world.day
+  const xp=state.player.xp+(firstToday?3:0)
+  return {player:{...state.player,xp,level:Math.max(state.player.level,1+Math.floor(xp/350))},neighborhood:{...state.neighborhood,relationships:{...state.neighborhood.relationships,[npcId]:{bond:clamp(previous.bond+(firstToday?3:0),0,100),greetedDay:state.world.day,meetings:previous.meetings+(firstToday?1:0)}}}}
+}
 export const useGameStore = create<GameStore>((set, get) => ({
   ...createInitialSnapshot(),
 
@@ -121,30 +127,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set((state) => ({ player: { ...state.player, position: { x: clamp(x, 0.08, 0.92), y: clamp(y, 0.64, 0.79) } } }))
   },
 
-  sendChat: (text) => {
+  sendChat: (text, npcId) => {
     const state = get()
     const clean = text.trim().slice(0, 160)
     if (!clean || !state.onboarded) return
     const minute = state.world.day * 1440 + state.world.minuteOfDay
     const id = state.chatSeq + 1
-    const reply = npcChatLine(state.world, state.business, id)
-    set({ chatSeq: id + 1, chat: [...state.chat, { id, name: state.player.name, text: clean, minute, fromPlayer: true }, { id: id + 1, ...reply, minute, fromPlayer: false }].slice(-40) })
+    if (npcId && !getNpc(npcId)) return
+    const reply = chatReply(state.world, state.business, id, clean, npcId ? getNpc(npcId) : undefined)
+    set({ ...interactionPatch(state,reply.npcId), chatSeq: id + 1, chat: [...state.chat, { id, name: state.player.name, text: clean, minute, fromPlayer: true }, { id: id + 1, ...reply, minute, fromPlayer: false }].slice(-40) })
   },
 
   talkToNpc: (npcId, topic = 'greet') => {
     const state = get()
     const npc = getNpc(npcId)
     if (!npc || !state.onboarded) return
-    const previous = state.neighborhood.relationships[npcId] ?? { bond: 0, greetedDay: 0, meetings: 0 }
-    const firstToday = previous.greetedDay !== state.world.day
-    const relationship = { bond: clamp(previous.bond + (firstToday ? 3 : 0), 0, 100), greetedDay: state.world.day, meetings: previous.meetings + (firstToday ? 1 : 0) }
-    const xp = state.player.xp + (firstToday ? 3 : 0)
     const id = state.chatSeq + 1
     set({
-      neighborhood: { ...state.neighborhood, relationships: { ...state.neighborhood.relationships, [npcId]: relationship } },
-      player: { ...state.player, xp, level: Math.max(state.player.level, 1 + Math.floor(xp / 350)) },
+      ...interactionPatch(state,npcId),
       chatSeq: id,
-      chat: [...state.chat, { id, npcId, name: `${npc.name} · ${npc.job}`, text: npcLine(npc, state.world, state.business, topic), minute: absoluteMinute(state), fromPlayer: false }].slice(-40),
+      chat: [...state.chat, { id, npcId, name: `${npc.name} · ${npc.job}`, text: npcLine(npc, state.world, state.business, topic,id), minute: absoluteMinute(state), fromPlayer: false }].slice(-40),
     })
   },
 
@@ -424,7 +426,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const totalMinute = next.world.day * 1440 + next.world.minuteOfDay
     if (Math.floor(totalMinute / 30) !== Math.floor((state.world.day * 1440 + state.world.minuteOfDay) / 30)) {
       const id = next.chatSeq + 1
-      next = { ...next, chatSeq: id, chat: [...next.chat, { id, ...npcChatLine(next.world, next.business, id), minute: totalMinute, fromPlayer: false }].slice(-40) }
+      const conversation=npcConversation(next.world,id)
+      next = { ...next, chatSeq: id+1, chat: [...next.chat, ...conversation.map((message,i)=>({id:id+i,...message,minute:totalMinute,fromPlayer:false}))].slice(-40) }
     }
     set(next)
     gameEvents.emit('simulation:update', next)

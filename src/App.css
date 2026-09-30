@@ -1575,7 +1575,7 @@
 .competition-panel details[open] summary { margin-bottom:12px; }
 .duel-card .section-title-row h3 { display:flex; align-items:center; gap:6px; }
 .duel-opponent { display:flex; align-items:center; gap:10px; margin:12px 0; }
-.duel-opponent .npc-portrait { width:46px; height:64px; }
+.duel-opponent .npc-portrait { flex:0 0 42px; width:42px; height:70px; }
 .duel-opponent > div { display:grid; gap:4px; }
 .duel-opponent small { color:#89704f; }
 .duel-card > small { display:block; margin-top:10px; color:#927858; line-height:1.6; font-size:10px; }
@@ -1592,3 +1592,62 @@
 .competition-news small { font-size:10px; color:#9d835d; }
 .competition-news p { margin:5px 0 0; }
 @media (max-width:350px) { .neighborhood-tabs { gap:4px; } .neighborhood-tabs button { font-size:10px; } .ranking-list li { grid-template-columns:18px 32px minmax(0,1fr) auto; gap:4px; padding:10px 6px; } .ranking-list .npc-portrait,.ranking-player-art { width:32px; height:49px; } .ranking-value { font-size:11px; } }
+
+/* One bounded sheet, one scrolling body. Keep the header and chat composer visible. */
+.panel-backdrop { padding:0; align-items:flex-end; }
+.game-panel { height:min(88dvh,880px); max-height:calc(100dvh - 20px); padding-bottom:env(safe-area-inset-bottom,0px); }
+.panel-handle { flex:0 0 4px; }
+.panel-header { min-width:0; gap:10px; padding:10px 14px; }
+.panel-header > div { min-width:0; }
+.panel-header h2 { font-size:21px; overflow-wrap:anywhere; }
+.panel-header small { display:block; font-size:10px; line-height:1.4; }
+.panel-header .icon-button { flex:0 0 42px; width:42px; height:42px; }
+.panel-content { flex:1; min-height:0; max-height:none; padding:8px 12px 32px; overflow:auto; overscroll-behavior:contain; scroll-padding-block:68px 20px; }
+.panel-content * { min-width:0; }
+.panel-content button,.panel-content summary,.panel-content select,.panel-content input { scroll-margin-block:68px 20px; }
+.community-tabs { top:0; margin:0 0 10px; padding:8px 0; border-bottom:1px solid #e1d3b8; background:#fff9ed; }
+.community-tabs button { min-height:42px; }
+.business-heading-card { display:grid; grid-template-columns:42px minmax(0,1fr); gap:10px; }
+.business-heading-card > button { grid-column:1/-1; width:100%; min-height:44px; }
+.business-heading-card h3 { font-size:18px; overflow-wrap:anywhere; }
+.section-card { padding:12px; }
+.operation-details summary { cursor:pointer; min-height:28px; color:#4e6f57; font-weight:700; font-size:13px; line-height:1.5; }
+.operation-details[open] summary { margin-bottom:12px; }
+.section-title-row { flex-wrap:wrap; }
+.section-title-row h3 { font-size:13px; }
+.career-quote > span,.report-ledger > span { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; }
+.career-quote > span strong,.report-ledger > span strong { overflow-wrap:anywhere; }
+.resident-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.resident-actions button { min-width:0; min-height:44px; padding:10px 6px; font-size:12px; }
+.resident-scope { display:flex; gap:8px; margin:12px 0; }
+.resident-scope button { flex:1; min-height:42px; border:1px solid #d7c5a2; border-radius:11px; background:#f1e7d0; color:#705b3e; font-weight:700; }
+.resident-scope button[aria-pressed=true] { background:#587b62; color:#fff9e5; }
+.resident-detail blockquote { margin:12px 0; padding:12px; font-size:13px; }
+.resident-hero h3 { overflow-wrap:anywhere; }
+.resident-pagination { position:sticky; bottom:-32px; background:#fff9ed; padding:12px 0 20px; border-top:1px solid #e1d3b8; }
+.resident-list { gap:8px; }
+.resident-card { padding:4px 8px; gap:8px; }
+.resident-card .npc-portrait { flex-basis:48px; width:48px; height:80px; }
+.competition-hero { padding:16px; border-radius:16px; }
+.competition-hero h3 { font-size:28px; margin:8px 0 4px; }
+.competition-hero > strong { font-size:20px; }
+.competition-hero p { margin-bottom:10px; }
+.competition-hero > div { padding-top:8px; }
+.chat-panel .panel-content { overflow:hidden; display:flex; flex-direction:column; padding-bottom:12px; }
+.chat-list { display:flex; flex-direction:column; flex:1; min-height:0; gap:8px; }
+.chat-list .channel-tabs { flex:0 0 auto; margin:0; }
+.chat-history { flex:1; min-height:60px; max-height:none; overscroll-behavior:contain; }
+.chat-message { flex-shrink:0; }
+.chat-message > div { min-width:0; flex:1; }
+.chat-message p { display:flex; flex-wrap:wrap; gap:4px; }
+.chat-message p strong { overflow-wrap:anywhere; }
+.chat-message time { margin-left:auto; }
+.chat-footer { flex:0 0 auto; border-top:1px solid #ddccae; padding-top:8px; background:#fff9ed; }
+.chat-footer select { width:100%; min-height:40px; padding:8px; border:1px solid #d6c2a0; border-radius:10px; color:#705537; background:#fffdf4; font:inherit; font-size:12px; }
+.chat-prompts { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+.chat-prompts button { min-height:34px; padding:6px 8px; font-size:10px; color:#6c5c43; background:#ede3cc; border:1px solid #d8c6a2; border-radius:9px; }
+.chat-compose { margin-top:8px; }
+.chat-compose input { font-size:16px; min-height:44px; padding:8px; }
+.chat-compose button { min-height:44px; min-width:52px; }
+.bot-disclosure { font-size:10px; line-height:1.4; margin-top:6px; }
+@media(max-height:620px) { .game-panel { height:92dvh; }.panel-header small { display:none; }.panel-header h2 { font-size:19px; }.chat-list .channel-tabs { display:none; }.chat-prompts button { min-height:32px; font-size:9px; }.chat-footer select { min-height:34px; } }

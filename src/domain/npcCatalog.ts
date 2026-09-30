@@ -1,9 +1,10 @@
 import type { Gender, WorldState, BusinessState } from './types'
+import { residentDialogue } from './dialogue.ts'
 
 export type NpcGroup = 'school' | 'food' | 'trade' | 'health' | 'office' | 'culture' | 'community' | 'transport' | 'farm' | 'service'
-export type Outfit = 'uniform' | 'apron' | 'workwear' | 'coat' | 'suit' | 'aodai' | 'baba' | 'casual'
-export type Accessory = 'bag' | 'basket' | 'tools' | 'book' | 'medical' | 'laptop' | 'flowers' | 'parcel' | 'produce' | 'camera'
-export type Hat = 'none' | 'conical' | 'helmet' | 'hardhat' | 'chef' | 'cap'
+export type Outfit = 'uniform' | 'apron' | 'workwear' | 'coat' | 'suit' | 'aodai' | 'baba' | 'casual' | 'police' | 'militia' | 'firefighter'
+export type Accessory = 'bag' | 'basket' | 'tools' | 'book' | 'medical' | 'laptop' | 'flowers' | 'parcel' | 'produce' | 'camera' | 'calculator' | 'radio'
+export type Hat = 'none' | 'conical' | 'helmet' | 'hardhat' | 'chef' | 'cap' | 'peaked'
 export interface NpcProfile {
   id: string; name: string; age: number; gender: Gender; job: string; group: NpcGroup
   outfit: Outfit; accessory: Accessory; hat: Hat; color: string; accent: string
@@ -31,7 +32,7 @@ const roles: Record<string, { group: NpcGroup; outfit: Outfit; accessory: Access
   'Kỹ thuật viên xét nghiệm': { group: 'health', outfit: 'coat', accessory: 'medical', hat: 'none', advice: 'Làm việc theo quy trình giúp giảm sai sót.' },
   'Nhân viên cứu hộ': { group: 'health', outfit: 'workwear', accessory: 'medical', hat: 'helmet', advice: 'Lối đi quanh quầy nên thông thoáng.' },
   'Nhân viên văn phòng': { group: 'office', outfit: 'suit', accessory: 'laptop', hat: 'none', advice: 'Giao đúng giờ khiến cả văn phòng tin tưởng.' },
-  'Kế toán': { group: 'office', outfit: 'suit', accessory: 'book', hat: 'none', advice: 'Doanh thu khác lợi nhuận; luôn ghi cả giá vốn và chi phí.' },
+  'Kế toán': { group: 'office', outfit: 'suit', accessory: 'calculator', hat: 'none', advice: 'Doanh thu khác lợi nhuận; luôn ghi cả giá vốn và chi phí.' },
   'Lập trình viên': { group: 'office', outfit: 'casual', accessory: 'laptop', hat: 'none', advice: 'Thử từng thay đổi nhỏ rồi đo kết quả nhé.' },
   'Nhân viên ngân hàng': { group: 'office', outfit: 'suit', accessory: 'laptop', hat: 'none', advice: 'Giữ một khoản dự phòng trước khi mở rộng quầy.' },
   'Nhà thiết kế': { group: 'office', outfit: 'casual', accessory: 'book', hat: 'none', advice: 'Biển hiệu dễ đọc tốt hơn quá nhiều chi tiết.' },
@@ -61,7 +62,19 @@ const roles: Record<string, { group: NpcGroup; outfit: Outfit; accessory: Access
   'Bảo vệ': { group: 'service', outfit: 'uniform', accessory: 'bag', hat: 'cap', advice: 'Ca trực dài, một bữa ăn đúng giờ giúp tôi tỉnh táo.' },
   'Thợ sửa điện thoại': { group: 'service', outfit: 'workwear', accessory: 'tools', hat: 'none', advice: 'Khách tin người nói rõ giá và làm đúng hẹn.' },
 }
-// 100 fictional residents, hand-authored identities; visuals are reproducible from this catalog.
+Object.assign(roles, {
+ 'Công an': { group:'community', outfit:'police', accessory:'radio', hat:'peaked', advice:'Chừa lối đi, giữ quầy sáng và nhờ hỗ trợ khi cần nhé.' },
+ 'Dân quân': { group:'community', outfit:'militia', accessory:'radio', hat:'cap', advice:'Có buổi dọn phố cuối tuần, bạn tham gia cùng mọi người nhé.' },
+ 'Cảnh sát giao thông': { group:'community', outfit:'police', accessory:'radio', hat:'peaked', advice:'Khách ghé quầy nên đỗ xe gọn, tránh chắn đường.' },
+ 'Lính cứu hỏa': { group:'community', outfit:'firefighter', accessory:'tools', hat:'helmet', advice:'Giữ khu vực nấu thoáng và lối ra luôn thông thoáng.' },
+ 'Kỹ sư môi trường': { group:'office', outfit:'workwear', accessory:'book', hat:'hardhat', advice:'Dùng thùng rác riêng cho bao bì và thức ăn thừa.' },
+ 'Kiến trúc sư': { group:'office', outfit:'suit', accessory:'book', hat:'hardhat', advice:'Bố trí quầy để người mua và người đi bộ đều thoải mái.' },
+ 'Nhân viên đường sắt': { group:'transport', outfit:'uniform', accessory:'bag', hat:'peaked', advice:'Đúng giờ và ghi rõ thông tin giúp mọi chuyến đi thuận lợi.' },
+ 'Thợ làm bánh': { group:'food', outfit:'apron', accessory:'basket', hat:'chef', advice:'Mẻ bánh mới nên ghi giờ làm để phục vụ luôn tươi.' },
+ 'Nghệ nhân gốm': { group:'culture', outfit:'apron', accessory:'tools', hat:'none', advice:'Đồ thủ công có câu chuyện riêng, hãy kể cho khách nghe.' },
+ 'Nhân viên siêu thị': { group:'service', outfit:'uniform', accessory:'parcel', hat:'cap', advice:'Xếp hàng cũ phía trước, kiểm tra hạn dùng mỗi ca.' },
+})
+// Append-only IDs preserve relationships and historical saves.
 const rows: Array<[string, number, Gender, string]> = [
  ['An',7,'male','Học sinh tiểu học'],['Bông',8,'female','Học sinh tiểu học'],
  ['Khang',12,'male','Học sinh THCS'],['Ngọc',13,'female','Học sinh THCS'],
@@ -113,25 +126,32 @@ const rows: Array<[string, number, Gender, string]> = [
  ['Anh Hưng',32,'male','Nhân viên khách sạn'],['Chị Hảo',27,'female','Nhân viên khách sạn'],
  ['Bác Vinh',64,'male','Bảo vệ'],['Cô Hòa',58,'female','Bảo vệ'],
  ['Anh Tín',26,'male','Thợ sửa điện thoại'],['Chị Nguyệt',31,'female','Thợ sửa điện thoại'],
+ ['Anh Chính',34,'male','Công an'],['Chị Bình An',29,'female','Công an'],
+ ['Anh Quyết',25,'male','Dân quân'],['Chị Thanh',24,'female','Dân quân'],
+ ['Anh Lưu',38,'male','Cảnh sát giao thông'],['Chị Hạnh Nguyên',32,'female','Cảnh sát giao thông'],
+ ['Anh Kiệt',30,'male','Lính cứu hỏa'],['Chị Duyên',28,'female','Lính cứu hỏa'],
+ ['Anh Phước',36,'male','Kỹ sư môi trường'],['Chị Diễm',33,'female','Kỹ sư môi trường'],
+ ['Anh Trường',40,'male','Kiến trúc sư'],['Chị Anh Thư',35,'female','Kiến trúc sư'],
+ ['Chú Hòa Bình',51,'male','Nhân viên đường sắt'],['Chị Thùy',37,'female','Nhân viên đường sắt'],
+ ['Anh Khoa Nam',27,'male','Thợ làm bánh'],['Chị Ngọc Lan',31,'female','Thợ làm bánh'],
+ ['Chú Trung',55,'male','Nghệ nhân gốm'],['Chị Bảo Châu',43,'female','Nghệ nhân gốm'],
+ ['Anh Tuấn Anh',22,'male','Nhân viên siêu thị'],['Chị Nhã',26,'female','Nhân viên siêu thị'],
 ]
 const colors = ['#397664','#bc573b','#5575a0','#b88134','#82639a','#4c827e','#ab617b','#626e43','#465571','#a67f65']
 const skins = ['#f4c9a0','#dca678','#eabc91','#c68e63','#f6d4b1']
 export const NPC_CATALOG: NpcProfile[] = rows.map(([name, age, gender, job], i) => ({
  id: `npc-${String(i + 1).padStart(3, '0')}`, name, age, gender, job,
- ...roles[job], color: colors[(i * 3 + Math.floor(i / 10)) % colors.length]!,
+ ...roles[job], color: job==='Công an' ? '#4c7147' : job==='Cảnh sát giao thông' ? '#d2b77a' : job==='Dân quân' ? '#356963' : job==='Lính cứu hỏa' ? '#a74433' : colors[(i * 3 + Math.floor(i / 10)) % colors.length]!,
  accent: colors[(i * 7 + 4) % colors.length]!, skin: skins[i % skins.length]!,
  hair: age >= 65 ? '#d8d0bd' : age >= 50 ? '#6a6258' : ['#302d2b','#513d31','#382d24'][i % 3]!,
  hairStyle: i % 5, glasses: i % 7 === 0 || age >= 70, variant: i,
 }))
 export const NPC_GROUP_LABELS: Record<NpcGroup, string> = { school:'Trường học',food:'Ẩm thực',trade:'Thợ nghề',health:'Y tế',office:'Văn phòng',culture:'Văn hóa',community:'Đời sống',transport:'Vận tải',farm:'Nông nghiệp',service:'Dịch vụ' }
 export function getNpc(id: string): NpcProfile | undefined { return NPC_CATALOG.find((npc) => npc.id === id) }
-export function npcLine(npc: NpcProfile, world: WorldState, business: BusinessState, topic: 'greet' | 'work' = 'greet'): string {
+export type TalkTopic = 'greet' | 'work' | 'neighborhood' | 'business'
+export function npcLine(npc: NpcProfile, world: WorldState, business: BusinessState, topic: TalkTopic = 'greet', sequence = 0): string {
  if (topic === 'work') return roles[npc.job]!.advice
- if (world.weather === 'rain') return `${npc.age < 18 ? 'Em' : 'Tôi'} mang đồ che mưa rồi. Quầy nhớ giữ thức ăn khô ráo nhé!`
- if (npc.age < 18) return 'Chào anh chị! Em đang ghé khu phố trên đường tới lớp.'
- if (world.minuteOfDay >= 19 * 60) return 'Khu phố lên đèn rồi. Hẹn bạn sáng mai nhé!'
- if (business.open) return `Quầy ${business.name} thơm quá! Chúc bạn bán đắt hàng.`
- return `Chào hàng xóm mới! Tôi là ${npc.name}, làm ${npc.job.toLocaleLowerCase('vi')}.`
+ return residentDialogue(npc,world,business,sequence,topic)
 }
 /** Rotating roster varies by day and time without changing economic RNG. */
 export function streetNpc(world: WorldState, sequence: number): NpcProfile {

@@ -11,4 +11,5 @@ it('returns the RNG state after generating all choices, with deterministic Vietn
   expect(result.seed).toBe(seed)
   expect(result.situation.title).not.toContain('?')
   expect(result.situation.choices[0]?.label).toContain('Phục vụ')
+  expect(generateLifeSituation(42,{...context,unit:'ly'}).situation.choices[0]?.label).toContain('ly')
 })

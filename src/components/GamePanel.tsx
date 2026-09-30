@@ -5,7 +5,8 @@ import { useState } from 'react'
 import { NeighborhoodPanel } from './NeighborhoodPanel'
 import { UPGRADES } from '../domain/neighborhood'
 import { NpcPortrait } from './NpcPortrait'
-import { getNpc } from '../domain/npcCatalog'
+import { getNpc, NPC_CATALOG } from '../domain/npcCatalog'
+import { DIALOGUE_COUNT } from '../domain/dialogue'
 import { CharacterArt } from './CharacterArt'
 import {
   BarChart3,
@@ -51,7 +52,7 @@ export function GamePanel({ panel, selectedNpc, onClose }: { panel: PanelName; s
 
   return (
     <div className="panel-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <section className="game-panel" role="dialog" aria-modal="true" aria-label={meta.title}>
+      <section className={`game-panel ${panel==='chat'?'chat-panel':''}`} role="dialog" aria-modal="true" aria-label={meta.title}>
         <div className="panel-handle" aria-hidden="true" />
         <header className="panel-header">
           <div>
@@ -117,7 +118,7 @@ function MapPanel() {
 function BusinessPanel() {
   const owned = useGameStore(state => state.business.owned)
   const [section, setSection] = useState<'operate' | 'careers' | 'reports'>(owned ? 'operate' : 'careers')
-  return <><div className="community-tabs business-tabs" role="tablist" aria-label="Quản lý kinh doanh">{([['operate','Vận hành'],['careers','Nghề'],['reports','Báo cáo']] as const).map(([id,label])=><button key={id} role="tab" aria-selected={section===id} className={section===id?'is-active':''} onClick={()=>setSection(id)}>{label}</button>)}</div>{section==='careers'?<CareerOptions/>:section==='reports'?<DayReports/>:<OperationsPanel/>}</>
+  return <><div className="community-tabs business-tabs" role="tablist" aria-label="Quản lý kinh doanh">{([['operate','Vận hành'],['careers','Nghề'],['reports','Báo cáo']] as const).map(([id,label])=><button key={id} role="tab" aria-selected={section===id} className={section===id?'is-active':''} onClick={e=>{setSection(id);e.currentTarget.closest('.panel-content')?.scrollTo(0,0)}}>{label}</button>)}</div>{section==='careers'?<CareerOptions/>:section==='reports'?<DayReports/>:<OperationsPanel/>}</>
 }
 
 function OperationsPanel() {
@@ -196,8 +197,8 @@ function OperationsPanel() {
         </button>
       </section>
 
-      <section className="section-card">
-        <div className="section-title-row"><h3>Nhu cầu hiện tại</h3><span className="demand-score">×{demand.total.toFixed(2)}</span></div>
+      <details className="section-card operation-details">
+        <summary>Nhu cầu hiện tại · ×{demand.total.toFixed(2)}</summary>
         <div className="factor-grid">
           <Factor label="Khung giờ" value={demand.time} />
           <Factor label="Thời tiết" value={demand.weather} />
@@ -207,12 +208,12 @@ function OperationsPanel() {
           <Factor label="Marketing" value={demand.marketing} />
           <Factor label="Cạnh tranh" value={demand.competition} />
         </div>
-      </section>
+      </details>
 
-      <section className="section-card upgrade-list"><h3>Nâng cấp quầy</h3>{UPGRADES.map(upgrade => {
+      <details className="section-card upgrade-list operation-details"><summary>Nâng cấp quầy · {store.neighborhood.upgrades.length}/3 đã lắp</summary>{UPGRADES.map(upgrade => {
         const owned = store.neighborhood.upgrades.includes(upgrade.id)
         return <article key={upgrade.id}><div><strong>{upgrade.title}</strong><p>{upgrade.description}</p></div><button className="secondary-button" disabled={owned || player.money < upgrade.cost} onClick={() => store.buyUpgrade(upgrade.id)}>{owned ? 'Đã lắp' : formatMoney(upgrade.cost, true)}</button></article>
-      })}</section>
+      })}</details>
 
       <div className="management-grid">
         <section className="section-card management-card">
@@ -275,10 +276,12 @@ function ChatPanel() {
   const messages = useGameStore((state) => state.chat)
   const sendChat = useGameStore((state) => state.sendChat)
   const [draft, setDraft] = useState('')
+  const [recipient,setRecipient] = useState('')
   return <div className="chat-list"><div className="channel-tabs"><button className="is-active">Khu phố Bình Minh</button></div>
-    <div className="chat-history">{messages.length === 0 && <p className="chat-empty">Chào hàng xóm mới! Gửi lời chào để bắt chuyện nhé.</p>}{messages.map((message) => <article className={`chat-message ${message.fromPlayer ? 'from-player' : ''}`} key={message.id}><span className="chat-avatar">{message.npcId && getNpc(message.npcId) ? <NpcPortrait npcId={message.npcId} /> : message.fromPlayer ? 'Bạn' : 'NPC'}</span><div><p><strong>{message.name}</strong><time>{String(Math.floor(message.minute % 1440 / 60)).padStart(2, '0')}:{String(message.minute % 60).padStart(2, '0')}</time></p><span>{message.text}</span></div></article>)}</div>
-    <form className="chat-compose" onSubmit={(event) => { event.preventDefault(); sendChat(draft); setDraft('') }}><input aria-label="Tin nhắn khu phố" placeholder="Chào hàng xóm…" value={draft} maxLength={160} onChange={(event) => setDraft(event.target.value)} /><button className="primary-button" disabled={!draft.trim()}>Gửi</button></form>
-    <div className="bot-disclosure"><MessageCircle size={15} /> Hội thoại với NPC trên máy bạn. Chưa kết nối người chơi khác.</div>
+    <div className="chat-history" role="log" aria-label="Hội thoại khu phố" aria-live="polite">{messages.length === 0 && <p className="chat-empty">Chào hàng xóm mới! Gửi lời chào để bắt chuyện nhé.</p>}{[...messages].reverse().map((message) => <article className={`chat-message ${message.fromPlayer ? 'from-player' : ''}`} key={message.id}><span className="chat-avatar">{message.npcId && getNpc(message.npcId) ? <NpcPortrait npcId={message.npcId} /> : message.fromPlayer ? 'Bạn' : 'NPC'}</span><div><p><strong>{message.name}</strong><time>{String(Math.floor(message.minute % 1440 / 60)).padStart(2, '0')}:{String(message.minute % 60).padStart(2, '0')}</time></p><span>{message.text}</span></div></article>)}</div>
+    <div className="chat-footer"><select aria-label="Trò chuyện với" value={recipient} onChange={e=>setRecipient(e.target.value)}><option value="">Hàng xóm trong phố</option>{NPC_CATALOG.map(n=><option key={n.id} value={n.id}>{n.name} · {n.job}</option>)}</select><div className="chat-prompts">{['Chào bạn!','Hôm nay trời mưa','Làm sao tính lợi nhuận?','Khu phố có gì mới?'].map(text=><button key={text} onClick={()=>sendChat(text,recipient || undefined)}>{text}</button>)}</div>
+    <form className="chat-compose" onSubmit={(event) => { event.preventDefault(); sendChat(draft,recipient || undefined); setDraft('') }}><input aria-label="Tin nhắn khu phố" placeholder="Gõ lời nhắn cho hàng xóm…" value={draft} maxLength={160} onChange={(event) => setDraft(event.target.value)} /><button className="primary-button" disabled={!draft.trim()}>Gửi</button></form>
+    <div className="bot-disclosure"><MessageCircle size={15} /> {DIALOGUE_COUNT.toLocaleString('vi')} lời thoại theo tình huống · NPC trên máy bạn.</div></div>
   </div>
 }
 

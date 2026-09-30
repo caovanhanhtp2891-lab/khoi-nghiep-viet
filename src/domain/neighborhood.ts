@@ -22,7 +22,8 @@ export const UPGRADES: Array<{ id: UpgradeId; title: string; description: string
 export function absoluteMinute(state: Pick<GameSnapshot,'world'>): number { return state.world.day*1440+state.world.minuteOfDay }
 /** Three deterministic adult customers per day, independent of economy RNG. */
 export function dailyOrders(day: number, careerId: CareerId = 'xoi'): Array<Omit<DeliveryOrder,'acceptedAt'|'dueAt'>> {
- const adults=NPC_CATALOG.filter(n=>n.age>=18 && ['school','office','trade','health','transport','service'].includes(n.group))
+ // Keep v4–v6 offer IDs valid when appending residents: never reshuffle the old pool.
+ const adults=NPC_CATALOG.filter(n=>n.variant<100 && n.age>=18 && ['school','office','trade','health','transport','service'].includes(n.group))
  return [0,1,2].map(i=>({id:`delivery-${day}-${i}`,npcId:adults[(day*3+i)%adults.length]!.id,day,careerId,quantity:3+(day+i)%4,unitPrice:career(careerId).price-2000+i*2000}))
 }
 export const MILESTONES: Array<{id:string;title:string;description:string;target:number;money:number;xp:number;progress:(s:GameSnapshot)=>number}> = [

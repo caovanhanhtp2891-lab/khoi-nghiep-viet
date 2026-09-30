@@ -132,6 +132,7 @@ export function simulateTick(snapshot: GameSnapshot, minutes = 5, options: { sit
       ...baseSnapshot.world,
       productName: baseSnapshot.business.productName,
       price: baseSnapshot.business.price,
+      unit: config.unit,
     })
     baseSnapshot = {
       ...baseSnapshot,

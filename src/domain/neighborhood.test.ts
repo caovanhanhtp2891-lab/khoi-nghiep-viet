@@ -12,14 +12,14 @@ function store() { return useGameStore.getState() }
 function openBooth() { store().buyFirstBooth() }
 function accept() { openBooth(); store().acceptOrder(dailyOrders(store().world.day)[0]!.id); return store().neighborhood.activeOrder! }
 describe('neighborhood economy and residents',()=>{
- it('has 100 distinct identities, professions and sheets spanning childhood to old age',()=>{
-  expect(NPC_CATALOG).toHaveLength(100)
-  expect(new Set(NPC_CATALOG.map(n=>n.id)).size).toBe(100)
-  expect(new Set(NPC_CATALOG.map(n=>n.job)).size).toBe(50)
-  expect(new Set(NPC_CATALOG.map(n=>npcSheetSvg(n).replace(/<title>.*<\/title>/, ''))).size).toBe(100)
+ it('has 120 distinct identities, professions and sheets spanning childhood to old age',()=>{
+  expect(NPC_CATALOG).toHaveLength(120)
+  expect(new Set(NPC_CATALOG.map(n=>n.id)).size).toBe(120)
+  expect(new Set(NPC_CATALOG.map(n=>n.job)).size).toBe(60)
+  expect(new Set(NPC_CATALOG.map(n=>npcSheetSvg(n).replace(/<title>.*<\/title>/, ''))).size).toBe(120)
   expect(Math.min(...NPC_CATALOG.map(n=>n.age))).toBe(7)
   expect(Math.max(...NPC_CATALOG.map(n=>n.age))).toBe(82)
-  expect(NPC_CATALOG.filter(n=>n.gender==='female')).toHaveLength(50)
+  expect(NPC_CATALOG.filter(n=>n.gender==='female')).toHaveLength(60)
  })
  it('uses a deterministic daily roster without affecting economic seed',()=>{
   const world=store().world;const seed=world.rngSeed

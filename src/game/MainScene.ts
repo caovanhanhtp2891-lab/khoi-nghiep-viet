@@ -1,5 +1,7 @@
 import { career, STARTER_QUANTITY, type CareerId } from '../domain/careers'
 import Phaser from 'phaser'
+import { drawVehicle, VEHICLE_KINDS } from './traffic'
+import { dialogueExchange } from '../domain/dialogue'
 import type { GameSnapshot, Gender } from '../domain/types'
 import { formatMoney } from '../domain/format'
 import { NPC_CATALOG, streetNpc, npcLine, type NpcProfile } from '../domain/npcCatalog'
@@ -28,6 +30,8 @@ export class MainScene extends Phaser.Scene {
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys
   private keyboardMoving = false
   private count = 0
+  private trafficCount = 0
+  private activeTraffic = 0
 
   constructor() { super('main-scene') }
   preload(): void {
@@ -213,9 +217,9 @@ export class MainScene extends Phaser.Scene {
     if (this.people.length >= 10) return
     const id = ++this.count
     let npc = streetNpc(this.snapshot.world, id)
-    for (let offset = 1; this.people.some(p => p.npcId === npc.id) && offset < 100; offset++) npc = streetNpc(this.snapshot.world, id + offset)
+    for (let offset = 1; this.people.some(p => p.npcId === npc.id) && offset < NPC_CATALOG.length; offset++) npc = streetNpc(this.snapshot.world, id + offset)
     if (!this.textures.exists(npc.id)) return
-    const line = npcLine(npc, this.snapshot.world, this.snapshot.business)
+    const line = npcLine(npc, this.snapshot.world, this.snapshot.business,'greet',id)
     const fromLeft = id % 2 === 0
     const y = H * (0.665 + (id % 5) * 0.025)
     const person = this.npcActor(npc, initial ? 120 + (id % 5) * 170 : fromLeft ? -80 : W + 80, y)
@@ -223,12 +227,19 @@ export class MainScene extends Phaser.Scene {
     this.people.push(person)
     person.sprite.setInteractive({ useHandCursor: true }).on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
       event.stopPropagation()
-      this.speak(person, `${npc.name}: ${npcLine(npc, this.snapshot.world, this.snapshot.business)}`)
+      this.speak(person, `${npc.name}: ${npcLine(npc, this.snapshot.world, this.snapshot.business,'greet',id)}`)
       gameEvents.emit('npc:selected', npc.id)
     })
     const duration = npc.age >= 65 ? 30000 : npc.age < 18 ? 18000 : 22000
     this.tweens.add({ targets: person.root, x: fromLeft ? W + 100 : -100, duration: initial ? duration * 0.65 : duration, onComplete: () => { this.people = this.people.filter(p => p !== person); person.root.destroy() } })
-    if (id % 3 === 0 || initial) this.time.delayedCall(300 + id * 130, () => { if (person.root.active) this.speak(person, line) })
+    if (id % 3 === 0 || initial) this.time.delayedCall(300 + id % 10 * 130, () => {
+      if (!person.root.active) return
+      const other=this.people.find(p=>p!==person && p.root.active && Math.abs(p.root.x-person.root.x)<350)
+      if(!other) {this.speak(person,line);return}
+      const conversation=dialogueExchange(npc,this.snapshot.world,id)
+      this.speak(person,conversation.question)
+      this.time.delayedCall(1800,()=>{if(other.root.active)this.speak(other,conversation.reply)})
+    })
   }
   private speak(actor: Actor, text: string): void {
     if (!actor.root.active) return
@@ -249,16 +260,20 @@ export class MainScene extends Phaser.Scene {
     this.tweens.add({ targets: text, y: text.y - 55, alpha: 0, duration: 1000, onComplete: () => text.destroy() })
   }
   private motorbike(): void {
-    const root = this.add.container(-130, 1380).setDepth(30)
-    const g = this.add.graphics().fillStyle(0x383637)
-    g.fillCircle(-52, 20, 25).fillCircle(52, 20, 25)
-    g.fillStyle(0xb7503d).fillRoundedRect(-67, -22, 140, 25, 10)
-    g.lineStyle(7, 0x51443b).lineBetween(55, 10, 35, -62).lineBetween(35, -62, 13, -62)
-    const riderNpc = NPC_CATALOG[70 + (this.count % 4)]!
-    if (!this.textures.exists(riderNpc.id)) { root.destroy(); return }
-    const rider = this.add.sprite(0, -16, riderNpc.id, '0').setOrigin(0.5, 0.9).setDisplaySize(80, 134)
-    root.add([g, rider])
-    this.tweens.add({ targets: root, x: W + 150, duration: 9000, onComplete: () => root.destroy() })
+    if(this.activeTraffic>=3) return
+    const kind=VEHICLE_KINDS[this.trafficCount++%VEHICLE_KINDS.length]!
+    const fromLeft=this.trafficCount%2===1
+    const root=this.add.container(fromLeft?-230:W+230,1360+(this.trafficCount%2)*70).setDepth(30)
+    const g=this.add.graphics()
+    const visual=drawVehicle(g,kind)
+    root.add(g).setScale(fromLeft?1:-1,1)
+    if(visual.rider) {
+      const riderNpc=NPC_CATALOG[70+this.trafficCount%4]!
+      if(this.textures.exists(riderNpc.id)) root.add(this.add.sprite(0,-16,riderNpc.id,'0').setOrigin(0.5,0.9).setDisplaySize(80,134))
+    }
+    if(kind==='bus'||kind==='taxi') root.add(this.add.text(0,-12,kind==='bus'?'XE BUÝT BÌNH MINH':'TAXI',{fontFamily:FONT,fontSize:'14px',color:'#fff6dc'}).setOrigin(0.5).setScale(fromLeft?1:-1,1))
+    this.activeTraffic++
+    this.tweens.add({targets:root,x:fromLeft?W+230:-230,duration:visual.duration,onComplete:()=>{this.activeTraffic--;root.destroy()}})
   }
   private applySnapshot(snapshot: GameSnapshot): void {
     this.snapshot = snapshot
