@@ -7,8 +7,10 @@ export function npcChatLine(world: WorldState, business: BusinessState, sequence
 }
 export function chatReply(world:WorldState,business:BusinessState,sequence:number,input:string,npc=streetNpc(world,sequence)) {
  const theme=chatTheme(input)
- const exchange=dialogueExchange(npc,world,sequence,theme,chatSceneIds(input))
- const text=theme==='business' && /giá|gia/i.test(input) ? `Quầy ${business.name} bán ${business.productName.toLocaleLowerCase('vi')} giá ${business.price.toLocaleString('vi-VN')}đ. ${exchange.reply}` : exchange.reply
+ const sceneIds=chatSceneIds(input)
+ const exchange=dialogueExchange(npc,world,sequence,theme,sceneIds)
+ const priceQuestion=theme==='business' && sceneIds?.every(id=>['scene-06','scene-07'].includes(id))
+ const text=priceQuestion ? `Quầy ${business.name} bán ${business.productName.toLocaleLowerCase('vi')} giá ${business.price.toLocaleString('vi-VN')}đ. ${exchange.reply}` : exchange.reply
  return {name:`${npc.name} · ${npc.job}`,npcId:npc.id,text}
 }
 /** A paired public exchange never marks either resident as met by the player. */

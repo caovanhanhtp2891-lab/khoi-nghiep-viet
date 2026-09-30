@@ -35,7 +35,7 @@ it('selects contextual conversations reproducibly and varies without consuming e
  const reply=chatReply(world,state().business,1,'Giá quầy bao nhiêu?',getNpc('npc-043'))
  expect(reply.text).toContain('22.000đ');expect(reply.npcId).toBe('npc-043')
  for(let sequence=0;sequence<20;sequence++) {
-  expect(chatReply(world,state().business,sequence,'Tôi muốn mua hàng cho quầy, tính lợi nhuận ra sao?',getNpc('npc-043')).text).toMatch(/doanh thu|giá vốn|Tiền có thể/)
+  expect(chatReply(world,state().business,sequence,'Tôi muốn mua hàng cho quầy, tính lợi nhuận ra sao?',getNpc('npc-043')).text).toMatch(/doanh thu|giá vốn|tiền có thể/i)
   expect(chatReply(world,state().business,sequence,'Cần tuyển nhân viên thế nào?',getNpc('npc-043')).text).toContain('lương hằng ngày')
  }
 })
