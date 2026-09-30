@@ -108,7 +108,7 @@ describe('careers and accounting',()=>{
   const oldOrder=(old.neighborhood as Record<string,unknown>).activeOrder as Record<string,unknown>;delete oldOrder.careerId
   for(const key of ['cashOpening','stockPurchases','capitalPurchases','recoveries','communityRewards','careerIds'])delete (old.dayStats as Record<string,unknown>)[key]
   const loaded=migrateSnapshot(old)
-  expect(loaded.version).toBe(5);expect(loaded.player).toEqual(state().player);expect(loaded.business.inventory).toBe(20)
+  expect(loaded.version).toBe(6);expect(loaded.player).toEqual(state().player);expect(loaded.business.inventory).toBe(20)
   expect(loaded.neighborhood.relationships).toEqual(state().neighborhood.relationships)
   expect(loaded.neighborhood.activeOrder?.careerId).toBe('xoi');expect(loaded.dayStats.cashOpening).toBeNull();expect(loaded.reports).toEqual([])
  })

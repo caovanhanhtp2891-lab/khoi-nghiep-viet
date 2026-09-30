@@ -5,10 +5,11 @@ import { absoluteMinute, dailyOrders, MILESTONES, relationshipLabel } from '../d
 import { formatMoney } from '../domain/format'
 import { useGameStore, snapshotFromStore } from '../store/gameStore'
 import { NpcPortrait } from './NpcPortrait'
+import { CompetitionPanel } from './CompetitionPanel'
 
 export function NeighborhoodPanel({ selectedNpc }: { selectedNpc?: string | null }) {
  const store=useGameStore()
- const [tab,setTab]=useState<'residents'|'orders'|'tasks'>('residents')
+ const [tab,setTab]=useState<'residents'|'orders'|'tasks'|'competition'>('residents')
  const [query,setQuery]=useState('')
  const [group,setGroup]=useState('all')
  const [age,setAge]=useState('all')
@@ -25,7 +26,8 @@ export function NeighborhoodPanel({ selectedNpc }: { selectedNpc?: string | null
  const expired=order && (absoluteMinute(store)>order.dueAt || store.world.day!==order.day)
  const talk=(id:string,next:'greet'|'work')=>{store.talkToNpc(id,next);setTopic(next)}
  return <div className="neighborhood-panel">
-  <div className="community-tabs" role="tablist" aria-label="Khu phố">{([['residents','Cư dân'],['orders','Đơn đặt'],['tasks','Nhiệm vụ']] as const).map(([id,label])=><button key={id} role="tab" aria-selected={tab===id} className={tab===id?'is-active':''} onClick={()=>{setTab(id);setFocused(null)}}>{label}</button>)}</div>
+  <div className="community-tabs neighborhood-tabs" role="tablist" aria-label="Khu phố">{([['residents','Cư dân'],['orders','Đơn đặt'],['tasks','Nhiệm vụ'],['competition','Đua top']] as const).map(([id,label])=><button key={id} role="tab" aria-selected={tab===id} className={tab===id?'is-active':''} onClick={()=>{setTab(id);setFocused(null)}}>{label}</button>)}</div>
+  {tab==='competition' && <CompetitionPanel/>}
   {tab==='residents' && (npc ? <div className="resident-detail">
    <button className="text-button" onClick={()=>setFocused(null)}>← Sổ cư dân</button>
    <div className="resident-hero"><NpcPortrait npcId={npc.id}/><div><h3>{npc.name}</h3><p>{npc.age} tuổi · {npc.gender==='female'?'Nữ':'Nam'}</p><strong>{npc.job}</strong><small>{NPC_GROUP_LABELS[npc.group]}</small></div></div>

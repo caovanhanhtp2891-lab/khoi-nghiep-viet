@@ -17,7 +17,7 @@ describe('save compatibility and recovery', () => {
     ;(old.business as Record<string, unknown>).inventory = 8
     await db.saves.put({ id: 'autosave', schemaVersion: 1, savedAt: '2026-09-30', payload: old })
     const loaded = await loadGame()
-    expect(loaded?.version).toBe(5)
+    expect(loaded?.version).toBe(6)
     expect(loaded?.player.money).toBe(784000)
     expect(loaded?.business.inventory).toBe(8)
     expect(loaded?.player.gender).toBe('male')

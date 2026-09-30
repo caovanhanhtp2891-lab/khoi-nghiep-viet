@@ -1,6 +1,6 @@
 # Kiến trúc hiện tại
 
-Cập nhật bản 100 cư dân ngày 30/09/2026; mã kiểm tra `d131043b17d7842ea171da06c8fde0523182d2bb`. Đây là một ứng dụng frontend Vite, chưa có backend trong kho.
+Cập nhật bản đối thủ ngày 30/09/2026; mốc mã đã kiểm tra xem STATUS.md. Đây là một ứng dụng frontend Vite, chưa có backend trong kho.
 
 ## Công nghệ và entry point
 
@@ -15,10 +15,10 @@ React + TypeScript cho giao diện; Phaser cho khu phố 2D; Zustand cho trạng
 | `src/domain/types.ts` | Snapshot, entity, event result và hằng số tiền/thời gian |
 | `src/domain/simulation.ts` | RNG có seed, nhu cầu, bán hàng, ngày mới, thời tiết, chi phí |
 | `src/domain/situations.ts` | Nội dung và sinh lựa chọn tình huống NPC |
-| `src/domain/migrateSave.ts` | Validate unknown save, migrate v1/v2/v3/v4/v5 |
+| `src/domain/migrateSave.ts` | Validate unknown save, migrate v1/v2/v3/v4/v5/v6 |
 | `src/domain/chat.ts` | Lời NPC theo thời gian/thời tiết |
 | `src/domain/format.ts` | Định dạng số, tiền, thời gian |
-| `src/store/initialState.ts` | Snapshot mới version 5 |
+| `src/store/initialState.ts` | Snapshot mới version 6 |
 | `src/store/gameStore.ts` | Actions, hydrate, reset, xuất snapshot và phát event |
 | `src/hooks/useGameRuntime.ts` | Load trước khi sẵn sàng, tích lũy thời gian, autosave |
 | `src/services/saveDb.ts` | Database, autosave/backup, export và recovery |
@@ -64,7 +64,7 @@ Các subscription trả hàm unsubscribe. React effects và Phaser shutdown ph�
 
 ## Ranh giới khi mở rộng
 
-Thêm nghề cần tách cấu hình giá vốn/giờ bán/công suất khỏi các giả định quầy xôi. Thêm online cần thiết kế backend có thẩm quyền giao dịch, không coi client hiện tại là server. Đổi save phải làm theo SAVE_FORMAT.md. Không chuyển ngay sang monorepo chỉ vì PLAN.md mô tả kiến trúc tương lai.
+Nghề đã lấy cấu hình từ careers.ts; thêm nghề cần cập nhật catalog/save/test, không hard-code trong UI. Thêm online cần thiết kế backend có thẩm quyền giao dịch, không coi client hiện tại là server. Đổi save phải làm theo SAVE_FORMAT.md. Không chuyển ngay sang monorepo chỉ vì PLAN.md mô tả kiến trúc tương lai.
 
 ## Street Edition
 
@@ -88,3 +88,8 @@ Chi tiết và cách thêm cư dân xem [NPC_SYSTEM.md](NPC_SYSTEM.md).
 ## Careers và accounting v5
 
 `domain/careers.ts`: cấu hình ba nghề, quote đổi, giờ/đơn vị sản phẩm. `accounting.ts`: freshDayStats, closeDayReport, cash reconciliation. `simulation.ts` chốt ngày cũ → report → phí → sổ mới. Store cập nhật các dòng tiền khi mua quầy/restock/chuyển nghề/thưởng. `CareerOptions.tsx` và `DayReports.tsx` nằm trong các tab Kinh doanh; scene vẽ đồ bán/upgrade, không phát sinh giao dịch. Xem BUSINESS_SYSTEM.md.
+
+
+## Đối thủ v6
+
+Runtime/store gọi `rivalSimulation.simulateWorldTick` bọc mô phỏng người chơi và ba NPC. NPC dùng `simulateTick` chung, ledger/seed riêng, không sinh story. Chính sách mua hàng/marketing/tuyển/nâng cấp có ngân sách; quyết toán cùng ngày và cùng thời tiết. `competition.ts` định nghĩa schema/valuation/rank/duel/validation; `CompetitionPanel.tsx` nằm trong tab Đua top của Cư dân. finishDay mô phỏng ca còn lại của NPC nhưng đóng quầy người chơi, chốt duel từ report và baseline. Chi tiết COMPETITION_SYSTEM.md. Phaser chỉ hiển thị, không quyết định kết quả hay tiền thưởng.

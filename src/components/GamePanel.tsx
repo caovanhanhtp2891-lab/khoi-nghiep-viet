@@ -205,6 +205,7 @@ function OperationsPanel() {
           <Factor label="Chất lượng" value={demand.quality} />
           <Factor label="Uy tín" value={demand.reputation} />
           <Factor label="Marketing" value={demand.marketing} />
+          <Factor label="Cạnh tranh" value={demand.competition} />
         </div>
       </section>
 

@@ -63,3 +63,8 @@ Không ghi một quyết định là “được chốt” chỉ vì AI thấy h
 ## Quyết định triển khai trong đợt nhiều nghề
 
 Theo yêu cầu tiếp tục phát triển: tạm chọn thêm bánh mì và trà sữa trên một quầy, mọi nghề có thể chọn từ đầu với vốn 1 triệu; chưa đồng thời nhiều quầy. Bảng quote đổi có hoàn vốn dụng cụ 50%/nguyên liệu theo giá vốn; giữ portable upgrade/nhân viên. Dụng cụ tách khỏi operating profit, chưa mô hình khấu hao. Kết thúc ngày sớm bỏ qua doanh thu còn lại, hiển thị phí trước nút; không phải offline catch-up. Đây là cấu hình implementation có thể cân bằng lại theo phản hồi, không phải toàn bộ PLAN đã hoàn thành.
+
+
+## Triển khai đối thủ trong đợt tiếp tục
+
+Theo yêu cầu tiếp tục game: F05 cục bộ gồm ba chủ quầy/ba nghề. Dùng công thức người chơi, ngân sách riêng 1 triệu/actor, seed riêng; pressure cùng nghề 0,88 đối xứng, chưa shared customer pool bảo toàn. Tài sản định giá stock100%/gear50%/upgrade50%, chỉ cho bảng xếp hạng. Daily duel lấy baseline lúc nhận, gồm phí cuối ngày, tối thiểu10 sản phẩm +lãi +hơn đối thủ, thưởng50k/60XP một lần. Các ngưỡng tự mua/NPC và độ khó là cấu hình implementation cần playtest, không xác nhận kế hoạch toàn thế giới đã xong.

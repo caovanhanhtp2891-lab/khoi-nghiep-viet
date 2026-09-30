@@ -23,3 +23,5 @@ Mỗi thông tin trạng thái phải có mốc commit hoặc ngày đối chi�
 - [NPC_SYSTEM.md](NPC_SYSTEM.md): 100 cư dân, renderer SVG, quan hệ, đơn đặt, milestone và nâng cấp.
 
 - [BUSINESS_SYSTEM.md](BUSINESS_SYSTEM.md): ba nghề, đổi nghề, dòng tiền/lợi nhuận và báo cáo ngày.
+
+- [COMPETITION_SYSTEM.md](COMPETITION_SYSTEM.md): ba chủ quầy, xếp hạng, thi đua, ledger/seed và migration v6.

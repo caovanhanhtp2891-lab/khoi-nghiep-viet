@@ -1,5 +1,6 @@
 import { CAREER_IDS, career } from './careers'
 import { freshDayStats } from './accounting'
+import { createCompetition, validateCompetition } from './competition'
 import { getNpc } from './npcCatalog'
 import { MILESTONES, UPGRADES, dailyOrders } from './neighborhood'
 import { createInitialSnapshot } from '../store/initialState'
@@ -15,7 +16,7 @@ function validSituation(value: unknown): boolean {
 
 /** Validate unknown historical payloads before allowing autosave to replace them. */
 export function migrateSnapshot(raw: unknown): GameSnapshot {
-  if (!record(raw) || !(typeof raw.version === 'number' && [1, 2, 3, 4, 5].includes(raw.version))) throw new Error('Phiên bản dữ liệu không được hỗ trợ')
+  if (!record(raw) || !(typeof raw.version === 'number' && [1, 2, 3, 4, 5, 6].includes(raw.version))) throw new Error('Phiên bản dữ liệu không được hỗ trợ')
   const defaults = createInitialSnapshot()
   for (const group of ['player', 'world', 'business', 'dayStats', 'lifetime'] as const) {
     const source = raw[group]
@@ -40,7 +41,7 @@ export function migrateSnapshot(raw: unknown): GameSnapshot {
   if (raw.version !== 1 && (!record(raw.story) || !Array.isArray(raw.story.history) || ![raw.story.lastSituationAt, raw.story.resolvedToday].every((v) => typeof v === 'number' && Number.isFinite(v)) || !(raw.story.activeSituation === null || validSituation(raw.story.activeSituation)) || !raw.story.history.every(validSituation))) throw new Error('Dữ liệu tình huống không hợp lệ')
   if (Number(raw.version) >= 3 && (!['male', 'female'].includes(String(player.gender)) || !record(player.position) || ![player.position.x, player.position.y].every((v) => typeof v === 'number' && Number.isFinite(v)))) throw new Error('Nhân vật không hợp lệ')
   const result = {
-    ...defaults, ...raw, version: 5,
+    ...defaults, ...raw, version: 6,
     player: { ...defaults.player, ...player },
     world: { ...defaults.world, ...world },
     story: { ...defaults.story, ...(record(raw.story) ? raw.story : {}) },
@@ -58,7 +59,7 @@ export function migrateSnapshot(raw: unknown): GameSnapshot {
     if (n.activeOrder !== null) {
       const order=n.activeOrder
       if (!record(order) || typeof order.day!=='number' || !Number.isSafeInteger(order.day) || order.day<1 || order.day>Number(world.day)) throw new Error('Đơn cư dân không hợp lệ')
-      const orderCareer = raw.version === 5 ? order.careerId : 'xoi'
+      const orderCareer = Number(raw.version) >= 5 ? order.careerId : 'xoi'
       if (!CAREER_IDS.includes(orderCareer as GameSnapshot['business']['careerId'])) throw new Error('Nghề của đơn không hợp lệ')
       const offer=dailyOrders(order.day, orderCareer as GameSnapshot['business']['careerId']).find(o=>o.id===order.id)
       if (!offer || offer.npcId!==order.npcId || offer.quantity!==order.quantity || offer.unitPrice!==order.unitPrice || ![order.acceptedAt,order.dueAt].every(v=>typeof v==='number' && Number.isFinite(v)) || Number(order.dueAt)!==Number(order.acceptedAt)+120 || Number(order.acceptedAt)<order.day*1440 || Number(order.acceptedAt)>order.day*1440+1439 || n.completedOrders.includes(order.id)) throw new Error('Đơn cư dân không hợp lệ')
@@ -68,7 +69,7 @@ export function migrateSnapshot(raw: unknown): GameSnapshot {
     result.neighborhood.upgrades = [...new Set(result.neighborhood.upgrades)]
     result.neighborhood.claimedMilestones = [...new Set(result.neighborhood.claimedMilestones)]
   } else result.neighborhood = defaults.neighborhood
-  if (raw.version === 5) {
+  if (Number(raw.version) >= 5) {
     if (!CAREER_IDS.includes(result.business.careerId)) throw new Error('Nghề kinh doanh không hợp lệ')
     const config = career(result.business.careerId)
     if (result.business.unitCost !== config.unitCost || result.business.price < config.minPrice || result.business.price > config.maxPrice || (result.neighborhood.activeOrder && result.neighborhood.activeOrder.careerId !== result.business.careerId)) throw new Error('Cấu hình sản phẩm không hợp lệ')
@@ -84,6 +85,8 @@ export function migrateSnapshot(raw: unknown): GameSnapshot {
     result.dayStats = { ...freshDayStats(null, 'xoi'), revenue: old.revenue, cogs: old.cogs, expenses: old.expenses, customers: old.customers, lostCustomers: old.lostCustomers }
     result.reports = []
   }
+  result.competition = raw.version === 6 ? validateCompetition(raw.competition, result.world, validDayStats) : createCompetition(result.world, true)
+  if (result.competition.activeDuel && (result.competition.rivals.find(r => r.id === result.competition.activeDuel!.rivalId)!.business.careerId !== result.business.careerId || result.competition.activeDuel.playerStartCustomers > result.dayStats.customers)) throw new Error('Mốc thi đua không hợp lệ')
   // Old corrupted Vietnamese text cannot be restored by changing its encoding.
   if (result.story.activeSituation?.title.includes('?')) result.story.activeSituation = null
   result.story.history = result.story.history.filter((v) => !v.title.includes('?')).slice(-8)

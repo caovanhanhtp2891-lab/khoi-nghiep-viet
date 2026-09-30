@@ -1,7 +1,7 @@
 # Backlog có thể bàn giao
 
 Đối chiếu: 30/09/2026, mã `d131043b17d7842ea171da06c8fde0523182d2bb`.
-Cập nhật Street Edition: B01–B04 đã có sửa mã và regression test; cần xem STATUS.md cho bằng chứng live. B05 đã đối soát full ca bằng test và hai quyết toán ngày live; còn cân bằng dài hạn; B06 đã kiểm tra viewport CSS 320/360/390/430, còn thiết bị thật/lifecycle đầy đủ. F02 có chạm/phím di chuyển giới hạn vỉa hè, chưa pathfinding hoàn chỉnh; F04 có chat theo lịch/ngữ cảnh trên máy. Những phần mở rộng khác chưa làm. Ưu tiên là đề xuất từ hiện trạng, không phải xác nhận của chủ dự án về lịch phát triển.
+Cập nhật Street Edition: B01–B04 đã có sửa mã và regression test; cần xem STATUS.md cho bằng chứng live. B05 đã đối soát full ca bằng test và hai quyết toán ngày live; còn cân bằng dài hạn; B06 đã kiểm tra viewport CSS 320/360/390/430, còn thiết bị thật/lifecycle đầy đủ. F02 có chạm/phím di chuyển giới hạn vỉa hè, chưa pathfinding hoàn chỉnh; F04 có chat theo lịch/ngữ cảnh trên máy. F05 đã thêm ba đối thủ/xếp hạng/thi đua cục bộ; các phần mở rộng khác xem dưới. Ưu tiên là đề xuất từ hiện trạng, không phải xác nhận của chủ dự án về lịch phát triển.
 
 ## Sửa nền tảng trước
 
@@ -57,3 +57,8 @@ Cập nhật Street Edition: B01–B04 đã có sửa mã và regression test; c
 - F03: đã tách careers.ts, ba lựa chọn xôi/bánh mì/trà sữa trên một quầy, giờ/chi phí/công suất/nhu cầu khác nhau; có regression test và migration v5. Không phải ba quầy cùng lúc.
 - B05: thêm full-ca test đối soát restock/marketing/tuyển/thưởng/thuê/lương và report; live cuối xem STATUS.md. Chưa cân bằng dài hạn nhiều nghề.
 - Upgrade visual đã có trên cảnh; tiếp tục đo hiệu năng thiết bị thật, save nhiều tab, lịch NPC cá nhân và mô hình nhiều quầy.
+
+
+## Đua top cục bộ
+
+F05 đã có ba đối thủ dùng simulateTick chung với ngân sách/stock/fees, bảng assets/revenue/profit, thi đua theo baseline và thưởng một lần, tin chat state thật. 57 test/7 file gồm regression economy/save; live cuối xem STATUS.md. Chưa bảng tỉnh/quốc gia/thế giới, multiplayer hoặc AI học từ lịch sử. Tiếp tục cân bằng độ khó nhiều ngày và dự trữ vốn để người chơi có thể cạnh tranh bằng thao tác trên mobile.

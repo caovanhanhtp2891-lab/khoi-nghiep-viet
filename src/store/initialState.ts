@@ -1,11 +1,12 @@
 import { businessForCareer } from '../domain/careers'
+import { createCompetition } from '../domain/competition'
 import { freshDayStats } from '../domain/accounting'
 import { initialNeighborhood } from '../domain/neighborhood'
 import type { GameSnapshot } from '../domain/types'
 
 export function createInitialSnapshot(): GameSnapshot {
   return {
-    version: 5,
+    version: 6,
     onboarded: false,
     tutorialStep: 0,
     player: {
@@ -31,6 +32,7 @@ export function createInitialSnapshot(): GameSnapshot {
     business: businessForCareer('xoi'),
     dayStats: freshDayStats(1_000_000, 'xoi'),
     reports: [],
+    competition: createCompetition({ day: 1, minuteOfDay: 330 }),
     lifetime: {
       revenue: 0,
       profit: 0,

@@ -245,7 +245,7 @@ export class MainScene extends Phaser.Scene {
   }
   private sale(count: number, revenue: number): void {
     if (!this.booth) return
-    const text = this.add.text(this.booth.x, this.booth.y - 155, `+${formatMoney(revenue, true)} · ${count} phần`, { fontFamily: FONT, fontSize: '25px', fontStyle: 'bold', color: '#fffbed', backgroundColor: '#416f53', padding: { x: 12, y: 8 } }).setOrigin(0.5).setDepth(70)
+    const text = this.add.text(this.booth.x, this.booth.y - 155, `+${formatMoney(revenue, true)} · ${count} ${career(this.snapshot.business.careerId).unit}`, { fontFamily: FONT, fontSize: '25px', fontStyle: 'bold', color: '#fffbed', backgroundColor: '#416f53', padding: { x: 12, y: 8 } }).setOrigin(0.5).setDepth(70)
     this.tweens.add({ targets: text, y: text.y - 55, alpha: 0, duration: 1000, onComplete: () => text.destroy() })
   }
   private motorbike(): void {

@@ -15,6 +15,7 @@ export function DayReports() {
  return <div className="stack-list day-reports">
  <section className="section-card"><h3>Hôm nay · Ngày {store.world.day}</h3><p>Lợi nhuận dự kiến sau tiền thuê và lương: <strong className={currentProfit>=0?'positive':'negative'}>{formatMoney(currentProfit)}</strong></p>
  <p>Cuối ngày trừ {formatMoney(fee)} tiền thuê/lương. Kết thúc sớm sẽ đóng quầy, bỏ qua thời gian còn lại và sang 05:30 ngày mai.</p>
+ {store.competition.activeDuel && <p className="community-note">Thi đua đang diễn ra: kết thúc sớm bỏ doanh thu còn lại của bạn, đối thủ vẫn mô phỏng hết ca trước khi so kết quả.</p>}
  <button className="primary-button full-button" disabled={!store.business.owned || blocked} onClick={store.finishDay}>Kết thúc ngày & xem báo cáo</button>{blocked && <small>Hoàn thành hoặc hủy đơn, xử lý tình huống đang chờ trước.</small>}
  </section>
  {reports.length===0 ? <p className="community-note">Chưa có ngày nào được quyết toán. Báo cáo tự xuất hiện khi sang ngày mới, hoặc sau khi bạn kết thúc ngày.</p> : <>

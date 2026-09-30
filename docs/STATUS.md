@@ -11,7 +11,7 @@ Cập nhật 30/09/2026 (Asia/Saigon). Mã runtime cuối được kiểm tra: `
 - 3 đề nghị đặt hàng/ngày, một đơn đang nhận, hạn 120 phút game và phải giao cùng ngày. Giao đủ hàng mới cộng tiền, ghi doanh thu/giá vốn/tồn kho; không nhận lại đơn đã giao.
 - 8 mốc hành trình nhận thưởng một lần; 3 nâng cấp quầy tác động nhu cầu mưa, sức chứa kho và marketing. Hiện một quầy hoạt động với ba lựa chọn xôi/bánh mì/trà sữa và một nhân viên.
 - Thông báo toast/hiệu ứng tiền tự ẩn sau 1.000ms; bubble NPC 3,4 giây để đọc, tình huống lựa chọn được giữ tới xử lý. Nội dung hỏng dấu tiếng Việt đã viết lại UTF-8; dùng font hệ thống hỗ trợ dấu.
-- Save payload v5, migrate v1–v4; giữ tiền/hàng/thời gian/seed/nhân vật. Autosave + backup lần trước, validate trước hydrate. Load lỗi chặn tick/autosave và cho export raw/restore backup. Pause giữ qua reload; chưa onboarding thì chưa chạy đồng hồ.
+- Save payload v6, migrate v1–v5; giữ tiền/hàng/thời gian/seed/nhân vật. Autosave + backup lần trước, validate trước hydrate. Load lỗi chặn tick/autosave và cho export raw/restore backup. Pause giữ qua reload; chưa onboarding thì chưa chạy đồng hồ.
 - `?demo=1` dùng database riêng; `mobile-preview.html` đổi viewport CSS iframe, không thay tiến độ chính.
 
 ## Bằng chứng lịch sử — bản 100 cư dân
@@ -40,7 +40,7 @@ Cập nhật 30/09/2026 (Asia/Saigon). Mã runtime cuối được kiểm tra: `
 - Phaser bundle khoảng 1.375KB trước gzip (357,8KB gzip), build có cảnh báo >500KB; preload 100 SVG chưa đo RAM/FPS/tải trên điện thoại thật.
 - NPC dùng renderer vector với phối mặt/tóc/màu/đồ nghề; chưa 16 hướng hoặc lịch cá nhân/AI ngôn ngữ. Đơn giao từ bảng, chưa đi giao vật lý.
 - Nâng cấp có hiệu quả economy và trạng thái UI, đã thêm mái che rộng, tủ bên xe và viền biển hiệu lên cảnh.
-- Đã có ba nghề trên một quầy; chưa nhiều quầy/chuỗi/công ty, boss/leaderboard, đầu tư thật, multiplayer/backend, cloud save, offline progress hoặc service worker.
+- Đã có ba nghề trên một quầy; có boss/bảng xếp hạng cục bộ; chưa nhiều quầy/chuỗi/công ty, bảng người thật, đầu tư thật, multiplayer/backend, cloud save, offline progress hoặc service worker.
 - Chưa import UI, backup nhiều phiên hoặc khóa save giữa nhiều tab. Quyết toán một ngày đã đối soát trong unit test; chưa kiểm tra hardware keyboard/safe area/bàn phím thật hay benchmark Android/iOS.
 
 Xem [BACKLOG.md](BACKLOG.md) và [HANDOFF.md](HANDOFF.md) cho việc tiếp; PLAN.md là tầm nhìn, không phải tính năng đã có.
@@ -73,3 +73,10 @@ Chrome cloud, 30/09/2026, mã `18a6569435ef271fda00f7d486d9747ead378992`. Action
 | Trang chính | URL Pages gốc tải giao diện chọn ba nghề; phiên browser này không có profile chính cũ. Việc giữ Minh của bảng lịch sử là bằng chứng đợt trước, không phải kiểm tra lại đợt này |
 
 Ảnh báo cáo được gửi riêng trong phiên; không đưa dữ liệu tiến độ lên kho công khai. Chưa chơi cân bằng nghề nhiều tuần, đo FPS/RAM hoặc kiểm thử E2E tự động; full ca tự động đã kiểm tra bằng unit test, live trên chỉ chơi từng đoạn và kết thúc ngày sớm.
+
+
+## Đợt đối thủ và đua top
+
+Phát triển từ main `10b07ebc7b6552f70da7225a909857404ac9334e`. Ba chủ quầy xôi/bánh mì/trà sữa, cùng mô phỏng người chơi, budget/ledger/seed riêng; bảng tài sản/doanh thu/profit, daily duel với baseline/fee/claim một lần, news state thật và pressure cùng nghề. Schema v6 giữ v1–v5. Xem COMPETITION_SYSTEM.md.
+
+Cục bộ lint, 57 test/7 file, check100SVG và TypeScript/build pass. Test full ca đối thủ đối soát, skipday/pause, v5 thật→hydrate→save→reload và dữ liệu corrupt giữ nguyên. Bản UI đang chờ chơi thử sau triển khai; chưa cân bằng nhiều ngày/thiết bị thật/leaderboard online.

@@ -1,6 +1,6 @@
-# Bàn giao bản ba nghề và báo cáo ngày
+# Bàn giao bản đối thủ và đua top
 
-Ngày 30/09/2026. Mã runtime đã đối chiếu: `18a6569435ef271fda00f7d486d9747ead378992`. Đọc AGENTS.md → STATUS.md → ARCHITECTURE.md → BUSINESS_SYSTEM.md/NPC_SYSTEM.md/SAVE_FORMAT.md trước khi sửa. Có 42 test/6 file + check 100 SVG; lint, TypeScript và build pass. Bằng chứng triển khai/chơi thử cuối ở STATUS.md.
+Ngày 30/09/2026. Mã runtime đã đối chiếu: `18a6569435ef271fda00f7d486d9747ead378992`. Đọc AGENTS.md → STATUS.md → ARCHITECTURE.md → COMPETITION_SYSTEM.md/BUSINESS_SYSTEM.md/NPC_SYSTEM.md/SAVE_FORMAT.md trước khi sửa. Có 57 test/7 file + check 100 SVG; lint, TypeScript và build pass. Bằng chứng triển khai/chơi thử cuối ở STATUS.md.
 
 ## Những file cần biết
 
@@ -27,3 +27,12 @@ Ngày 30/09/2026. Mã runtime đã đối chiếu: `18a6569435ef271fda00f7d486d9
 5. Nhiều quầy/chuỗi/công ty cần thiết kế schema, nhân viên và quyết toán riêng; không nhân bản quầy UI rồi dùng chung tiền/tồn kho.
 
 Giữ UTF-8, seeded economy, save compatibility và dependency/lockfile hiện có. Xem ASSETS.md/ART_PROMPTS.md cho raster; NPC/quầy vector là mã trong kho.
+
+
+## Tiếp tục bản competition v6
+
+competition.ts/rivalSimulation.ts tách schema/chính sách khỏi mô phỏng chung; gameStore gọi wrapper, không gọi simulateTick trực tiếp khi tick/finish. snapshotFromStore phải có competition. Ba NPC dùng seed riêng và chi phí cùng người chơi; thứ hạng tính tài sản ước tính, chưa hệ thống vốn/server online.
+
+Chặn đổi nghề khi activeDuel. Thưởng chỉ một lần sau report, ghi communityRewards của ngày nhận. Save v5 nghề trà sữa/đơn/report/nullable cash vẫn giữ; không migrate v5 về xôi. Bản cũ được thi đua từ ngày kế tiếp, NPC không chạy bù quá khứ. Mốc runtime hiện tại và chơi thử cuối xem STATUS.md; hash ở đoạn đầu là mốc bản ba nghề trước đợt này.
+
+Ưu tiên thêm: cân bằng NPC/độ khó thử thách qua nhiều ngày, automation nhập hàng có giới hạn cho người chơi, save nhiều tab/backup/import, thiết bị thật. Chưa tăng scope lên bảng quốc gia hoặc online.

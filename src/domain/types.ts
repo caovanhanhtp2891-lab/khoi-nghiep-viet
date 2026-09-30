@@ -1,5 +1,6 @@
 import type { CareerId } from './careers'
 import type { NeighborhoodState } from './neighborhood'
+import type { CompetitionState } from './competition'
 export type Weather = 'sunny' | 'cloudy' | 'rain' | 'hot'
 export type GameSpeed = 1 | 2 | 4
 export type AvatarStyle = 'green' | 'orange' | 'blue'
@@ -124,7 +125,7 @@ export interface GameNotice {
 }
 
 export interface GameSnapshot {
-  version: 1 | 2 | 3 | 4 | 5
+  version: 1 | 2 | 3 | 4 | 5 | 6
   onboarded: boolean
   tutorialStep: number
   player: PlayerState
@@ -139,6 +140,7 @@ export interface GameSnapshot {
   chatSeq: number
   neighborhood: NeighborhoodState
   reports: DayReport[]
+  competition: CompetitionState
 }
 
 export interface DemandBreakdown {
@@ -148,6 +150,7 @@ export interface DemandBreakdown {
   quality: number
   reputation: number
   marketing: number
+  competition: number
   total: number
 }
 

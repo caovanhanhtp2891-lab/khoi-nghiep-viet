@@ -82,3 +82,8 @@ Kịch bản live bổ sung: filter theo nghề/tuổi, gặp NPC → hồ sơ, 
 42 test/6 file. careers.test.ts bao phủ ca/thời tiết theo nghề, chuyển nghề và hoàn vốn, chặn active order/trading, milk tea order, full ca xôi đối soát dòng tiền, phí một lần, finishDay giữ pause, report 30 ngày, v4 thật →v5, round-trip Dexie và payload hỏng. Live thử đổi nghề, nhân viên/nâng cấp giữ, quầy đổi hình, bán theo tick, kết thúc ngày, report và reload; xem STATUS.md.
 
 Regression live: bản v4 phải đi qua load/hydrate rồi lưu v5 và reload mà không bị recovery. Khi bảng mở, Phaser pointer phải bị khóa; chọn nghề/đóng bảng không mở hồ sơ NPC phía sau.
+
+
+## Đối thủ và thi đua
+
+57 test/7 file +check 100 SVG. competition.test.ts kiểm tra vốn/chi phí/rank/tie/RNG, cả ngày với restock/staff/upgrade/fee đối soát, pause và finishDay không thêm player sales, enroll baseline/chặn đổi nghề, thắng/thua/claim một lần, genuine v5 trà sữa +order/report/upgrade/cashOpening=null, corrupted competition giữ raw và continuation sau Dexie load/hydrate. Kịch bản live: mở Đua top, đổi tiêu chí, xem ledger/tin NPC, nhận thi đua đúng ngày, chơi một đoạn, quyết toán, reload giữ hạng/challenge/result/seed. Chỉ ghi kết quả thực tế trong STATUS.md.

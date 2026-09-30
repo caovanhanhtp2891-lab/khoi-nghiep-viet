@@ -1,5 +1,6 @@
 import { career, DAILY_RENT, type CareerId } from './careers'
 import { closeDayReport, freshDayStats } from './accounting'
+import { competitionPressure } from './competition'
 import type { DemandBreakdown, GameSnapshot, TickResult, Weather } from './types'
 import { generateLifeSituation, SITUATION_INTERVAL_MINUTES } from './situations'
 
@@ -22,7 +23,7 @@ export function getWeatherDemandFactor(weather: Weather, careerId: CareerId = 'x
   return career(careerId).weather[weather]
 }
 
-export function calculateDemand(snapshot: GameSnapshot): DemandBreakdown {
+export function calculateDemand(snapshot: GameSnapshot, competition = competitionPressure(snapshot)): DemandBreakdown {
   const { business, world } = snapshot
   const config = career(business.careerId)
   const time = getTimeDemandFactor(world.minuteOfDay, business.careerId)
@@ -39,7 +40,8 @@ export function calculateDemand(snapshot: GameSnapshot): DemandBreakdown {
     quality,
     reputation,
     marketing,
-    total: time * weather * price * quality * reputation * marketing,
+    competition,
+    total: time * weather * price * quality * reputation * marketing * competition,
   }
 }
 
@@ -55,7 +57,7 @@ function stochasticRound(value: number, randomValue: number): number {
   return whole + (randomValue < value - whole ? 1 : 0)
 }
 
-export function simulateTick(snapshot: GameSnapshot, minutes = 5): TickResult {
+export function simulateTick(snapshot: GameSnapshot, minutes = 5, options: { situations?: boolean; competitionFactor?: number } = {}): TickResult {
   if (!Number.isFinite(minutes) || !Number.isInteger(minutes) || minutes <= 0 || minutes > DAY_MINUTES) throw new Error('Bước thời gian không hợp lệ')
   const config = career(snapshot.business.careerId)
   const random = nextRandom(snapshot.world.rngSeed)
@@ -122,7 +124,7 @@ export function simulateTick(snapshot: GameSnapshot, minutes = 5): TickResult {
 
   const absoluteMinute = day * DAY_MINUTES + minuteOfDay
   if (
-    isTrading &&
+    options.situations !== false && isTrading &&
     !baseSnapshot.story.activeSituation &&
     absoluteMinute - baseSnapshot.story.lastSituationAt >= SITUATION_INTERVAL_MINUTES
   ) {
@@ -142,7 +144,7 @@ export function simulateTick(snapshot: GameSnapshot, minutes = 5): TickResult {
     }
   }
 
-  const demand = calculateDemand(baseSnapshot)
+  const demand = calculateDemand(baseSnapshot, options.competitionFactor)
   if (!isTrading) {
     return {
       next: baseSnapshot,

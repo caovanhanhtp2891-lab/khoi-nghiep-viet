@@ -3,7 +3,7 @@ import { formatMoney } from '../domain/format'
 import { useGameStore } from '../store/gameStore'
 export function CareerOptions() {
  const store=useGameStore(), b=store.business
- const blocked=b.open || Boolean(store.neighborhood.activeOrder) || Boolean(store.story.activeSituation)
+ const blocked=b.open || Boolean(store.neighborhood.activeOrder) || Boolean(store.story.activeSituation) || Boolean(store.competition.activeDuel)
  return <div className="stack-list career-options"><p className="community-note">Chọn một nghề cho quầy đang có. Mỗi nghề có giờ bán, giá vốn và công suất riêng; khách tự đến theo thời gian.</p>
  {CAREER_IDS.map(id=>{const c=career(id), selected=b.careerId===id, quote=switchQuote(b,id)
  return <article className={`section-card career-card ${selected?'selected':''}`} key={id}>
@@ -14,6 +14,6 @@ export function CareerOptions() {
  <button className="secondary-button full-button" disabled={selected || (b.owned && (blocked || store.player.money<quote.net))} onClick={()=>store.chooseCareer(id)}>{selected?'Nghề hiện tại':b.owned?`Đổi sang ${c.label.toLocaleLowerCase('vi')}`:`Chọn ${c.label.toLocaleLowerCase('vi')}`}</button>
  {!b.owned && selected && <button className="primary-button full-button" disabled={store.player.money<c.setup+STARTER_QUANTITY*c.unitCost} onClick={store.buyFirstBooth}>Mở quầy · {formatMoney(c.setup+STARTER_QUANTITY*c.unitCost,true)}</button>}
  </article>})}
- {b.owned && <p className="community-note">Đổi nghề giữ nhân viên, uy tín và nâng cấp; chuyển kho thành tiền theo giá vốn rồi cấp 20 nguyên liệu của nghề mới. Quầy phải đóng và không có đơn/tình huống đang chờ.{blocked?' Hiện cần đóng quầy hoặc xử lý việc đang chờ.':''}</p>}
+ {b.owned && <p className="community-note">Đổi nghề giữ nhân viên, uy tín và nâng cấp; chuyển kho thành tiền theo giá vốn rồi cấp 20 nguyên liệu của nghề mới. Quầy phải đóng, không có đơn/tình huống hoặc thi đua đang chờ.{blocked?' Hiện cần đóng quầy hoặc xử lý việc đang chờ.':''}</p>}
  </div>
 }

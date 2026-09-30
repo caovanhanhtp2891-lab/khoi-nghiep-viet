@@ -37,3 +37,13 @@ Không tái dựng lịch sử cũ bằng suy đoán; xem git log cho các commi
 - 42 test/6 file +check 100 SVG; lint/build pass cục bộ.
 - Sửa load/hydrate lần thứ hai với `cashOpening=null` từ save lịch sử; regression test chạy toàn luồng Dexie và báo cáo ngày cũ.
 - Khóa Phaser pointer khi bảng quản lý hoặc onboarding đang mở để thao tác UI không chọn NPC phía sau.
+
+
+## 30/09/2026 — Đối thủ kinh doanh và đua top
+
+- Ba chủ quầy dùng mô phỏng/giá vốn/công suất/weather chung, tự chi vốn để nhập hàng, marketing, tuyển người và nâng cấp; seed riêng.
+- Cư dân →Đua top: tài sản/doanh thu/lợi nhuận, đồng hạng, hồ sơ sổ quầy và tin cạnh tranh vào Chat.
+- Thi đua mỗi ngày cùng nghề, mốc lợi nhuận/sản phẩm lúc nhận, quyết toán thắng/thua và thưởng50.000đ/60XP một lần.
+- Áp lực cùng nghề giảm12% nhu cầu đối xứng, hàng Cạnh tranh trong Vận hành; hiệu ứng bán dùng đơn vị nghề.
+- Payload v6 giữ v1–v5, NPC bắt đầu hiện tại, save cũ thi đua từ ngày tiếp theo, giữ đơn trà sữa/report/nullable cashOpening.
+- 57 test/7 file và check100SVG; lint/TypeScript/build pass. Kiểm tra live và giới hạn xem STATUS.md.
