@@ -1,6 +1,6 @@
 import { CloudSun, Pause, Play, Save, WalletCards } from 'lucide-react'
 import { formatGameTime, formatMoney } from '../domain/format'
-import { WEATHER_META, type GameSpeed } from '../domain/types'
+import { WEATHER_META } from '../domain/types'
 import type { SaveStatus } from '../hooks/useGameRuntime'
 import { CharacterArt } from './CharacterArt'
 import { useGameStore } from '../store/gameStore'
@@ -58,22 +58,15 @@ export function TopHud({ saveStatus }: { saveStatus: SaveStatus }) {
         <button
           className={`icon-button ${world.paused ? 'is-active' : ''}`}
           onClick={togglePause}
+          aria-label={world.paused ? 'Tiếp tục thời gian' : 'Tạm dừng thời gian'}
           title={world.paused ? 'Tiếp tục' : 'Tạm dừng'}
         >
           {world.paused ? <Play size={17} /> : <Pause size={17} />}
         </button>
-        {([1, 2, 4] as GameSpeed[]).map((speed) => (
-          <button
-            key={speed}
-            className={`speed-button ${!world.paused && world.speed === speed ? 'is-active' : ''}`}
-            onClick={() => setSpeed(speed)}
-          >
-            ×{speed}
-          </button>
-        ))}
+        <button className={`speed-button ${!world.paused ? 'is-active' : ''}`} onClick={() => setSpeed(world.speed === 1 ? 2 : world.speed === 2 ? 4 : 1)} aria-label={`Tốc độ ×${world.speed}; chuyển sang ×${world.speed === 1 ? 2 : world.speed === 2 ? 4 : 1}`} title="Chạm để chuyển tốc độ 1× → 2× → 4×">×{world.speed}</button>
       </div>
 
-      <div className={`save-status ${saveStatus}`} title="Trạng thái lưu trên thiết bị">
+      <div className={`save-status ${saveStatus}`} role="status" title="Trạng thái lưu trên thiết bị">
         {saveStatus === 'loading' ? <CloudSun size={14} /> : <Save size={14} />}
         <span>
           {saveStatus === 'loading' && 'Đang tải'}

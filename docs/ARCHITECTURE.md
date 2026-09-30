@@ -27,7 +27,7 @@ React + TypeScript cho giao diện; Phaser cho khu phố 2D; Zustand cho trạng
 | `src/game/events.ts` | EventTarget bridge với kiểu dữ liệu |
 | `src/components/` | HUD, điều hướng, bảng chức năng, tutorial, welcome, lựa chọn story |
 | `src/App.css`, `src/index.css` | Bố cục, theme, responsive |
-| `public/` | Manifest, icon, raster phố/người chơi, 100 SVG NPC và asset lịch sử |
+| `public/` | Manifest, icon, raster phố/người chơi, 120 SVG NPC và asset lịch sử |
 | `vite.config.ts` | Base tương đối, build ES2022, test môi trường node |
 
 ## Luồng nghiệp vụ
@@ -76,8 +76,8 @@ Load lỗi chuyển blocked, giữ ready=false nên tick/persist không chạy. 
 
 ## Cư dân (payload v4)
 
-- `domain/npcCatalog.ts`: 100 identity, role advice, roster theo giờ/ngày.
-- `domain/npcArt.ts` + `scripts/generate-npcs.mjs`: renderer SVG + generator/check 100 sheet.
+- `domain/npcCatalog.ts`: 120 identity, role advice, roster theo giờ/ngày.
+- `domain/npcArt.ts` + `scripts/generate-npcs.mjs`: renderer SVG + generator/check 120 sheet.
 - `domain/neighborhood.ts`: schema quan hệ/đơn/mốc/nâng cấp và cấu hình economy.
 - `store/gameStore.ts`: chào hỏi, giao đơn, nhận thưởng, mua upgrade trong action giao dịch.
 - `components/NeighborhoodPanel.tsx`, `NpcPortrait.tsx`: sổ/filter/detail/đơn/nhiệm vụ.
@@ -95,3 +95,7 @@ Chi tiết và cách thêm cư dân xem [NPC_SYSTEM.md](NPC_SYSTEM.md).
 Runtime/store gọi `rivalSimulation.simulateWorldTick` bọc mô phỏng người chơi và ba NPC. NPC dùng `simulateTick` chung, ledger/seed riêng, không sinh story. Chính sách mua hàng/marketing/tuyển/nâng cấp có ngân sách; quyết toán cùng ngày và cùng thời tiết. `competition.ts` định nghĩa schema/valuation/rank/duel/validation; `CompetitionPanel.tsx` nằm trong tab Đua top của Cư dân. finishDay mô phỏng ca còn lại của NPC nhưng đóng quầy người chơi, chốt duel từ report và baseline. Chi tiết COMPETITION_SYSTEM.md. Phaser chỉ hiển thị, không quyết định kết quả hay tiền thưởng.
 
 Hội thoại: dialogue.ts chứa bank/selector thuần; chat.ts ghép reply/exchange; gameStore giới hạn giao lưu/XP và lịch sử. traffic.ts chỉ vẽ; không quyết định economy. GamePanel header/body và ChatPanel history/composer có vùng cuộn tách biệt. Xem DIALOGUE_SYSTEM.md.
+
+### Màn hình chính
+
+App dùng bốn hàng: TopHud / GameCanvas / MainActions / BottomNav. MainActions hiển thị dự toán nhập hàng cùng công thức min(20, sức chứa trống) của store; gọi restock/toggleBusiness, không sửa tiền trực tiếp. Không có schema mới. Các lớp story/notices còn trong stage; thanh thao tác chiếm hàng riêng để tránh che khu phố. GamePanel focus/Tab/Escape tại lớp React, Phaser input vẫn bị khóa khi bảng mở. Xem MAIN_SCREEN.md.

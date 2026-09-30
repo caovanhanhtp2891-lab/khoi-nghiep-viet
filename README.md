@@ -66,3 +66,7 @@ Bảng và đối thủ chạy cục bộ, không có người chơi online. Sav
 ## Hội thoại và giao lưu
 
 Chat có 1.000 lời thoại từ 50 tình huống, NPC hỏi/đáp với nhau, chọn người nhận và gợi ý trò chuyện. Sổ có **Quen biết**: chỉ chào hỏi, chat trực tiếp hoặc giao đơn mới tăng quan hệ; xem hồ sơ không tính. Thêm công an, dân quân, cảnh sát giao thông, cứu hỏa và nhiều nghề; sáu loại phương tiện đi hai chiều. Bảng dài cuộn nội bộ, ô nhập chat giữ ở cuối và phần nhu cầu/nâng cấp có thể gập. Xem [DIALOGUE_SYSTEM.md](docs/DIALOGUE_SYSTEM.md).
+
+## Thao tác trên màn hình chính
+
+Thanh dưới khu phố hiển thị trạng thái quầy, doanh thu, lãi tạm tính và tồn kho. **Mở bán/Đóng quầy**, **Nhập hàng** và **Quản lý** luôn ở vị trí cố định. Nhập tối đa 20 sản phẩm/lần theo chỗ trống, hiển thị chi phí trước khi bấm; thiếu tiền hoặc đầy kho thì khóa nút. Không mở ngoài ca hoặc khi hết hàng. Đồng hồ có nút dừng/tiếp tục và nút chuyển tốc độ 1× →2× →4×. Các bảng hỗ trợ Escape, giữ Tab trong bảng và trả focus khi đóng. Chi tiết [MAIN_SCREEN.md](docs/MAIN_SCREEN.md).

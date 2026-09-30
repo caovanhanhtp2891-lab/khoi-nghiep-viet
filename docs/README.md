@@ -27,3 +27,5 @@ Mỗi thông tin trạng thái phải có mốc commit hoặc ngày đối chi�
 - [COMPETITION_SYSTEM.md](COMPETITION_SYSTEM.md): ba chủ quầy, xếp hạng, thi đua, ledger/seed và migration v6.
 
 - [DIALOGUE_SYSTEM.md](DIALOGUE_SYSTEM.md): bộ 1.000 lời thoại, NPC trao đổi, quen biết, bố cục bảng và phương tiện.
+
+- [MAIN_SCREEN.md](MAIN_SCREEN.md): bố cục cố định và điều kiện thao tác nhanh.

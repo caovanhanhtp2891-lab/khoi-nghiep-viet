@@ -55,3 +55,10 @@ Không tái dựng lịch sử cũ bằng suy đoán; xem git log cho các commi
 - Sáu phương tiện hai chiều, tối đa ba xe, chỉ trang trí.
 - 1.000 chuỗi từ 50 tình huống, NPC hỏi đáp, chat chọn người/gợi ý; quen biết chỉ sau giao lưu, giới hạn bond/XP chung chào và chat.
 - 26 nhu cầu tình huống khách, đơn vị phục vụ theo nghề. Giữ schema v6, ID/pool đơn cũ; 64 test/8 file và generator120 pass.
+
+## 30/09/2026 — Màn hình chính và thao tác nhanh
+
+- Chuyển thông tin quầy và thao tác sang hàng riêng dưới khu phố, bỏ caption/thời tiết lặp và thẻ hướng dẫn che cảnh.
+- Nút nhập có số lượng/chi phí, khóa khi thiếu tiền/đầy kho; nút mở theo giờ bán/tồn kho, trạng thái quầy khi pause. Dùng lại giao dịch store, không thay save v6.
+- Điều khiển thời gian 44px với nút chuyển tốc độ; tình huống giữ tới xử lý, cuộn trong cảnh.
+- Bảng tự focus nút đóng, Escape để thoát, Tab giữ trong bảng và trả focus cho thao tác trước.

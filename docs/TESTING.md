@@ -91,3 +91,7 @@ Regression live: bản v4 phải đi qua load/hydrate rồi lưu v5 và reload m
 ## Bản hội thoại và UI gọn
 
 64 test/8 file +120 SVG. dialogue.test.ts kiểm tra 1.000 văn bản duy nhất/50 tình huống, nhận từ khóa không nhầm mua/mưa hoặc tôi/tối, rain selector/seed, cặp NPC khác nhau, quan sát không tạo quan hệ, chat và chào chỉ một lượt thưởng/ngày kể cả reload, không trả tiền chat, giới hạn 160 ký tự/40 tin, đơn cũ ở ngày lớn và IDs mới. UI cần kiểm tra ở 320×568, 390×740, 430×844: scroll tới dòng cuối, quay tab về đầu, gập/mở vận hành, chat composer luôn thấy, xem hồ sơ không thêm người quen, gửi/chào thêm đúng một người, reload giữ kết quả.
+
+## Màn hình chính
+
+Sau thay đổi bố cục, kiểm tra nút nhập tối đa20/chỗ trống/chi phí và disabled, mở ngoài giờ/hết hàng, pause/tiếp tục và chuyển tốc độ, mở bảng/Tab/Escape, các hàng trong viewport320×568,390×740,430×844; reload giữ save. Chi tiết MAIN_SCREEN.md. Không giả định test đơn vị chứng minh UI mobile.

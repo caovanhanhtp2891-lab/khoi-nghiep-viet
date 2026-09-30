@@ -9,7 +9,7 @@ Cập nhật 30/09/2026. Hội thoại chạy trên máy; không gửi nội dun
 Chủ đề: kinh doanh, khu phố, mưa, nóng, buổi tối, trường học, sức khỏe. Selector dùng ngày/giờ, variant NPC và chatSeq; cùng đầu vào cho cùng kết quả, không rút RNG kinh tế. Sequence giúp đổi lời đáp kể cả khi pause. Đây là chọn mẫu theo ngữ cảnh và từ khóa, chưa hiểu ngôn ngữ tự do hoặc lưu trí nhớ dài hạn.
 
 - `npcLine`: chào hỏi theo bối cảnh; chuyện nghề có lời khuyên riêng của từng nghề; hai nút thêm chuyện khu phố/kinh doanh.
-- `chatReply`: nhận chủ đề từ tin nhắn và trả lời NPC được chọn hoặc cư dân trong roster. Hỏi giá có giá thật của quầy. Từ “mua hàng” không bị hiểu thành “mưa”; “tôi” không bị hiểu thành “buổi tối”.
+- `chatReply`: nhận chủ đề từ tin nhắn và trả lời NPC được chọn hoặc cư dân trong roster. Hỏi giá có giá thật của quầy. Từ khóa lợi nhuận/giá vốn, tồn kho, lương/công suất, thi đua, vốn, marketing và đơn đặt chọn nhóm tình huống sát câu hỏi thay vì toàn bộ chủ đề kinh doanh. Từ “mua hàng” không bị hiểu thành “mưa”; “tôi” không bị hiểu thành “buổi tối”.
 - `npcConversation`: một cặp hỏi/đáp giữa hai NPC khác nhau mỗi 30 phút game. Tin trả lời gọi tên người hỏi, cùng một tình huống. Lịch sử vẫn tối đa 40 tin.
 - `MainScene`: người đi bộ gần nhau có bubble hỏi/đáp; tối đa 10 NPC và 3 bubble. Lời cảnh và chat chọn từ cùng bộ nội dung nhưng không đồng bộ thành một sự kiện chung.
 

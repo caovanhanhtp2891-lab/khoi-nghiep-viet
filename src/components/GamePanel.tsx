@@ -1,7 +1,7 @@
 import { CareerOptions } from './CareerOptions'
 import { DayReports } from './DayReports'
 import { career, STARTER_QUANTITY, tradingHours, isTradingHour } from '../domain/careers'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NeighborhoodPanel } from './NeighborhoodPanel'
 import { UPGRADES } from '../domain/neighborhood'
 import { NpcPortrait } from './NpcPortrait'
@@ -49,10 +49,23 @@ const panelMeta: Record<PanelName, { title: string; subtitle: string }> = {
 
 export function GamePanel({ panel, selectedNpc, onClose }: { panel: PanelName; selectedNpc?: string | null; onClose: () => void }) {
   const meta = panelMeta[panel]
+  const dialogRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    dialogRef.current?.querySelector<HTMLButtonElement>('[aria-label="Đóng bảng"]')?.focus()
+    return () => { if (previous?.isConnected) previous.focus() }
+  }, [])
 
   return (
     <div className="panel-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <section className={`game-panel ${panel==='chat'?'chat-panel':''}`} role="dialog" aria-modal="true" aria-label={meta.title}>
+      <section ref={dialogRef} className={`game-panel ${panel==='chat'?'chat-panel':''}`} role="dialog" aria-modal="true" aria-label={meta.title} onKeyDown={(event) => {
+        if (event.key === 'Escape') { event.stopPropagation(); onClose(); return }
+        if (event.key !== 'Tab') return
+        const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary, a[href], [tabindex="0"]')).filter((element) => element.getClientRects().length > 0)
+        const first = controls[0], last = controls.at(-1)
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus() }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus() }
+      }}>
         <div className="panel-handle" aria-hidden="true" />
         <header className="panel-header">
           <div>
