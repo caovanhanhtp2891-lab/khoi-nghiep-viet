@@ -1,7 +1,7 @@
 # Backlog có thể bàn giao
 
 Đối chiếu: 30/09/2026, mã `d131043b17d7842ea171da06c8fde0523182d2bb`.
-Cập nhật Street Edition: B01–B04 đã có sửa mã và regression test; cần xem STATUS.md cho bằng chứng live. B05 chưa đối soát đầy đủ cả ngày; B06 đã kiểm tra viewport CSS 320/360/390/430, còn thiết bị thật/lifecycle đầy đủ. F02 có chạm/phím di chuyển giới hạn vỉa hè, chưa pathfinding hoàn chỉnh; F04 có chat theo lịch/ngữ cảnh trên máy. Những phần mở rộng khác chưa làm. Ưu tiên là đề xuất từ hiện trạng, không phải xác nhận của chủ dự án về lịch phát triển.
+Cập nhật Street Edition: B01–B04 đã có sửa mã và regression test; cần xem STATUS.md cho bằng chứng live. B05 đã đối soát full ca bằng test và hai quyết toán ngày live; còn cân bằng dài hạn; B06 đã kiểm tra viewport CSS 320/360/390/430, còn thiết bị thật/lifecycle đầy đủ. F02 có chạm/phím di chuyển giới hạn vỉa hè, chưa pathfinding hoàn chỉnh; F04 có chat theo lịch/ngữ cảnh trên máy. Những phần mở rộng khác chưa làm. Ưu tiên là đề xuất từ hiện trạng, không phải xác nhận của chủ dự án về lịch phát triển.
 
 ## Sửa nền tảng trước
 
@@ -43,13 +43,13 @@ Cập nhật Street Edition: B01–B04 đã có sửa mã và regression test; c
 - Kiểm tra thiết bị mobile thật; bổ sung E2E khi có hạ tầng browser test.
 - Đã tránh xe xôi cho chạm để đi và có 100 NPC nghề/tuổi; tiếp tục pathfinding rộng và animation hướng đi.
 - Backup nhiều phiên/import, khóa save giữa nhiều tab.
-- Tách cấu hình nghề và cân bằng quyết toán trước thêm ngành.
+- Đã tách cấu hình ba nghề và quyết toán; cân bằng nhiều ngày trước thêm ngành.
 - Bundle Phaser hiện lớn; đo tải, FPS và bộ nhớ trên điện thoại.
 
 ## 100 cư dân và mở rộng khu phố
 
 - Hoàn thành: 100 NPC riêng/50 nghề hoặc vai trò, sổ cư dân/filter, quan hệ lưu được, 3 đơn đề nghị/ngày, 8 milestone, 3 upgrade quầy; xem NPC_SYSTEM.md.
-- Tiếp theo: hình upgrade xuất hiện trên xe xôi, cây hội thoại và lịch đi làm/đi học theo từng NPC (hiện roster theo ngày/giờ chung), dẫn đường giao đơn, lưu nhiều tab, thêm nghề kinh doanh sau cân bằng một ca/ngày.
+- Hình upgrade đã hiện trên quầy; tiếp theo: cây hội thoại và lịch đi làm/đi học theo từng NPC (hiện roster theo ngày/giờ chung), dẫn đường giao đơn, lưu nhiều tab, cân bằng ba nghề hiện có trước mở rộng kinh doanh.
 - Đã có tránh xe xôi cho chạm để đi; chưa phải pathfinding bản đồ tổng quát. Không tự đánh dấu F02/B06 hoàn tất cho thiết bị thật.
 
 ## Ba nghề và report
