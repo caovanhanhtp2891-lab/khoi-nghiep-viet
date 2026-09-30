@@ -137,5 +137,5 @@ export function npcLine(npc: NpcProfile, world: WorldState, business: BusinessSt
 export function streetNpc(world: WorldState, sequence: number): NpcProfile {
  const hour = world.minuteOfDay / 60
  const pool = hour >= 19 ? NPC_CATALOG.filter((n) => n.age >= 18) : hour < 9 ? NPC_CATALOG : NPC_CATALOG.filter((n) => n.age >= 18 || n.age >= 15)
- return pool[(world.day * 17 + Math.floor(hour) * 7 + sequence) % pool.length]!
+ return pool[(world.day * 17 + Math.floor(hour) * 7 + sequence * 13) % pool.length]!
 }

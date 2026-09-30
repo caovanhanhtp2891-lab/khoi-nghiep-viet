@@ -196,6 +196,8 @@ export class MainScene extends Phaser.Scene {
     if (this.bubbles.length >= 3) this.bubbles.shift()?.destroy()
     const bubble = this.add.container(0, -255)
     const label = this.add.text(0, 0, text, { fontFamily: FONT, fontSize: '23px', color: '#5b4130', fontStyle: 'bold', wordWrap: { width: 270 }, align: 'center', padding: { x: 15, y: 10 } }).setOrigin(0.5)
+    const view = this.cameras.main.worldView
+    bubble.x = Phaser.Math.Clamp(actor.root.x, view.left + label.width / 2 + 12, view.right - label.width / 2 - 12) - actor.root.x
     const bg = this.add.graphics().fillStyle(0xfffcf1).lineStyle(3, 0xcdbd97)
     bg.fillRoundedRect(-label.width / 2, -label.height / 2, label.width, label.height, 15).strokeRoundedRect(-label.width / 2, -label.height / 2, label.width, label.height, 15)
     bg.fillTriangle(-9, label.height / 2 - 1, 9, label.height / 2 - 1, 0, label.height / 2 + 14)

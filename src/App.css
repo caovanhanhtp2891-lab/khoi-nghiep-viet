@@ -655,11 +655,11 @@
   background: var(--paper);
   border-radius: 24px 24px 0 0;
   box-shadow: 0 -22px 70px rgba(4, 28, 25, 0.26);
-  animation: panel-in 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  animation: panel-fade 140ms ease-out;
 }
 
-@keyframes panel-in {
-  from { transform: translateY(100%); }
+@keyframes panel-fade {
+  from { opacity: 0; }
 }
 
 .panel-handle {
