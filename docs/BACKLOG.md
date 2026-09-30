@@ -1,7 +1,7 @@
 # Backlog có thể bàn giao
 
 Đối chiếu: 30/09/2026, mã `7fed1c563a7e3493b329c51bcbef10b98e595db5`.
-Tất cả việc dưới đây đang **chưa làm** trong đợt tạo tài liệu. Ưu tiên là đề xuất từ hiện trạng, không phải xác nhận của chủ dự án về lịch phát triển.
+Cập nhật Street Edition: B01–B04 đã có sửa mã và regression test; cần xem STATUS.md cho bằng chứng live. B05 chưa đối soát đầy đủ cả ngày; B06 cần hoàn tất kiểm tra mobile. F02 có chạm/phím di chuyển giới hạn vỉa hè, chưa pathfinding hoàn chỉnh; F04 có chat theo lịch/ngữ cảnh trên máy. Những phần mở rộng khác chưa làm. Ưu tiên là đề xuất từ hiện trạng, không phải xác nhận của chủ dự án về lịch phát triển.
 
 ## Sửa nền tảng trước
 
@@ -37,3 +37,11 @@ Tất cả việc dưới đây đang **chưa làm** trong đợt tạo tài li�
 - Tiêu chí hoàn thành có thể kiểm tra:
 - Ảnh hưởng dữ liệu cũ:
 - Kết quả kiểm tra + commit/PR khi hoàn thành:
+
+## Ưu tiên sau Street Edition
+
+- Kiểm tra live và mobile thực tế; bổ sung E2E khi có hạ tầng browser test.
+- Pathfinding quanh xe xôi, đa dạng sprite nghề/tuổi và animation hướng đi.
+- Backup nhiều phiên/import, khóa save giữa nhiều tab.
+- Tách cấu hình nghề và cân bằng quyết toán trước thêm ngành.
+- Bundle Phaser hiện lớn; đo tải, FPS và bộ nhớ trên điện thoại.

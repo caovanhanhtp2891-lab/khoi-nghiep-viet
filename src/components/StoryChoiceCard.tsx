@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { HandHeart, Megaphone, ShoppingBasket } from 'lucide-react'
 import type { LifeSituation, SituationChoice } from '../domain/types'
 
@@ -9,10 +10,10 @@ const choiceIcons = {
 
 function effectSummary(choice: SituationChoice): string {
   const { effect } = choice
-  if ((effect.money ?? 0) > 0) return 'C? th?m doanh thu'
-  if ((effect.money ?? 0) < 0) return 'T?n m?t kho?n nh?'
-  if ((effect.marketing ?? 0) > 0) return 'T?ng nh?n di?n'
-  return 'T?ng thi?n c?m'
+  if ((effect.money ?? 0) > 0) return 'Có thêm doanh thu'
+  if ((effect.money ?? 0) < 0) return 'Tốn một khoản nhỏ'
+  if ((effect.marketing ?? 0) > 0) return 'Tăng nhận diện'
+  return 'Tăng thiện cảm'
 }
 
 export function StoryChoiceCard({
@@ -22,16 +23,17 @@ export function StoryChoiceCard({
   situation: LifeSituation
   onChoose: (choiceId: string) => void
 }) {
+  const [expanded, setExpanded] = useState(false)
   return (
-    <section className="story-choice-card" aria-live="polite" aria-label="T?nh hu?ng khu ph?">
-      <header>
+    <section className="story-choice-card" aria-live="polite" aria-label="Tình huống khu phố">
+<button className="story-toggle" onClick={() => setExpanded(!expanded)} aria-expanded={expanded}><header>
         <span className="story-icon">{situation.icon}</span>
         <div>
-          <small>T?NH HU?NG KHU PH?</small>
+          <small>TÌNH HUỐNG KHU PHỐ</small>
           <strong>{situation.title}</strong>
         </div>
-      </header>
-      <p>{situation.description}</p>
+</header><span>{expanded ? 'Thu gọn' : 'Chọn cách xử lý'} →</span></button>
+      {expanded && <><p>{situation.description}</p>
       <div className="story-choices">
         {situation.choices.map((choice) => {
           const Icon = choiceIcons[choice.id as keyof typeof choiceIcons] ?? HandHeart
@@ -46,7 +48,7 @@ export function StoryChoiceCard({
             </button>
           )
         })}
-      </div>
+      </div></>}
     </section>
   )
 }

@@ -1,6 +1,8 @@
 export type Weather = 'sunny' | 'cloudy' | 'rain' | 'hot'
 export type GameSpeed = 1 | 2 | 4
 export type AvatarStyle = 'green' | 'orange' | 'blue'
+export type Gender = 'male' | 'female'
+export interface ChatMessage { id: number; name: string; text: string; minute: number; fromPlayer: boolean }
 export type NoticeTone = 'info' | 'success' | 'warning'
 
 export type SituationTone = 'kind' | 'business' | 'careful'
@@ -46,6 +48,8 @@ export interface StoryState {
 export interface PlayerState {
   name: string
   avatarStyle: AvatarStyle
+  gender: Gender
+  position: { x: number; y: number }
   age: number
   money: number
   xp: number
@@ -102,7 +106,7 @@ export interface GameNotice {
 }
 
 export interface GameSnapshot {
-  version: 1 | 2
+  version: 1 | 2 | 3
   onboarded: boolean
   tutorialStep: number
   player: PlayerState
@@ -113,6 +117,8 @@ export interface GameSnapshot {
   lifetime: LifetimeStats
   noticeSeq: number
   notices: GameNotice[]
+  chat: ChatMessage[]
+  chatSeq: number
 }
 
 export interface DemandBreakdown {

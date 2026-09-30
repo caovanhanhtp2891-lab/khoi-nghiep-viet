@@ -35,4 +35,8 @@ Chi tiết thiết kế và lộ trình dài hạn nằm trong [PLAN.md](./PLAN.
 
 Bắt đầu từ [AGENTS.md](AGENTS.md), sau đó đọc [hiện trạng](docs/STATUS.md), [kiến trúc](docs/ARCHITECTURE.md) và [bàn giao](docs/HANDOFF.md). Danh sách đầy đủ nằm ở [docs/README.md](docs/README.md).
 
-[PLAN.md](PLAN.md) mô tả thiết kế và lộ trình dài hạn; trạng thái đã triển khai thực tế nằm ở [STATUS.md](docs/STATUS.md). Bản mã đã đối chiếu hiện có lỗi tải save version 2; xem mục B01 trong [backlog](docs/BACKLOG.md) trước khi mở rộng tính năng.
+[PLAN.md](PLAN.md) mô tả thiết kế và lộ trình dài hạn; trạng thái đã triển khai thực tế nằm ở [STATUS.md](docs/STATUS.md). Street Edition đã sửa loader v2 và chuyển payload mới sang v3. Xem [hiện trạng](docs/STATUS.md) để biết kết quả kiểm tra và phần còn thiếu.
+
+## Street Edition
+
+Chọn nhân vật nam/nữ, chạm vỉa hè để đi (máy tính dùng phím mũi tên), chạm quầy để quản lý và chạm NPC để nghe lời thoại. Chat khu phố hiện là hội thoại local với NPC, chưa có người chơi online. Thông báo tự ẩn sau 1 giây; tình huống lựa chọn được giữ tới khi xử lý.

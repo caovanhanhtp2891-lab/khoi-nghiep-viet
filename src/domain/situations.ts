@@ -5,62 +5,29 @@ type SituationContext = Pick<WorldState, 'day' | 'minuteOfDay' | 'weather'> &
 
 type RandomState = { seed: number }
 
-const names = [
-  'An', 'B?nh', 'Chi', 'D?ng', 'H?', 'Huy', 'Lan', 'Linh', 'Mai', 'Minh', 'Nam', 'Ng?n',
-  'Ph?c', 'Qu?n', 'Th?o', 'Trang', 'T?', 'Vy',
-]
-
-const roles = [
-  'h?c sinh v?a tan ti?t', 'c? gi?o tr?c c?ng', 'anh giao h?ng bu?i s?m', 'c? c?ng nh?n ca ng?y',
-  'b?c xe ?m c?ng ngh?', 'm? b?m ?ang v?i', 'c? b?n hoa ??u ng?', 'ch? b?o v? khu ph?',
-  'b?n sinh vi?n ?i l?m th?m', 'b?c lao c?ng', 'c? y t? tr?c ??m', 'anh th? s?a xe',
-  'c? ch? qu?n c? ph?', 'b?c n?ng d?n ch? rau', 'em nh? ?i c?ng b?', 'anh nh?n vi?n v?n ph?ng',
-  'c? nhi?p ?nh gia', 'b?c h?u tr? ?i t?p th? d?c',
-]
-
-const locations = [
-  'c?ng tr??ng B?nh Minh', 'ng? t? ??n xanh', 'ch? s?ng', 'v?a h? qu?n n??c',
-  'tr?m xe bu?t', 's?n chung c?', 'h?m nh? c? ti?m t?p h?a', 'c?ng vi?n ven h?',
-  'b?i g?i xe', 'khu kh?m b?nh', '???ng v?o ch? ??u m?i', 's?n b?ng thi?u nhi',
-]
-
+const names = ['An', 'Bình', 'Chi', 'Dũng', 'Hà', 'Huy', 'Lan', 'Linh', 'Mai', 'Minh', 'Nam', 'Ngân', 'Phúc', 'Quân', 'Thảo', 'Trang', 'Tú', 'Vy']
+const roles = ['học sinh vừa tan tiết', 'cô giáo trực cổng', 'anh giao hàng buổi sớm', 'cô công nhân ca ngày', 'bác xe ôm công nghệ', 'mẹ bỉm đang vội', 'cô bán hoa đầu ngõ', 'chú bảo vệ khu phố', 'bạn sinh viên đi làm thêm', 'bác lao công', 'cô y tá trực đêm', 'anh thợ sửa xe', 'cô chủ quán cà phê', 'bác nông dân chở rau', 'em nhỏ đi cùng bố', 'anh nhân viên văn phòng', 'cô nhiếp ảnh gia', 'bác hưu trí đi tập thể dục']
+const locations = ['cổng trường Bình Minh', 'ngã tư đèn xanh', 'chợ sáng', 'vỉa hè quán nước', 'trạm xe buýt', 'sân chung cư', 'hẻm nhỏ có tiệm tạp hóa', 'công viên ven hồ', 'bãi gửi xe', 'khu khám bệnh', 'đường vào chợ đầu mối', 'sân bóng thiếu nhi']
 const needs = [
-  { title: 'Qu?n v?', detail: 'v?a ph?t hi?n qu?n v? ? nh? v? ?ang l?ng t?ng t?m c?ch xoay x?.' },
-  { title: 'B?a s?ng g?p', detail: 'c?n m?t b?a s?ng nhanh tr??c khi ca l?m b?t ??u.' },
-  { title: '??n h?ng ??ng', detail: '?ang ph?i giao nhi?u ??n trong m?a v? ch?a k?p ?n g?.' },
-  { title: 'Ch? con', detail: '?ang ch? con h?c xong nh?ng tr?i b?t ??u oi n?ng.' },
-  { title: 'Ti?c l?p nh?', detail: 'mu?n ??t th?m ph?n ?n cho m?t nh?m b?n c?ng l?p.' },
-  { title: 'Kh?ch quen', detail: '?? nghe h?ng x?m khen qu?y c?a b?n v? mu?n th? l?n ??u.' },
-  { title: '??i ti?n l?', detail: 'ch? c?n ti?n m?nh gi? l?n, l?m m?i ng??i x?p h?ng ch?m l?i.' },
-  { title: 'G?i v?n nh?m', detail: '?ang l?m d? ?n nh? v? h?i kinh nghi?m m? b?n.' },
-  { title: 'Qu? c?m ?n', detail: 'mu?n mua ph?n ?n ?? c?m ?n m?t ng??i ?? gi?p m?nh.' },
-  { title: 'M?t ?o m?a', detail: 'b? ??t v? c?n m?t ch? d?ng ch?n an to?n v?i ph?t.' },
-  { title: 'T?m vi?c l?m th?m', detail: '?ang h?i th?m c?c qu?y h?ng trong khu ph?.' },
-  { title: 'H?t pin ?i?n tho?i', detail: 'kh?ng th? li?n l?c v?i ng??i nh? ??ng l?c ?ang v?i.' },
-  { title: '??n ??t chung', detail: 'c? th? r? th?m nhi?u ng??i c?ng mua n?u ???c ph?c v? nhanh.' },
-  { title: 'B?a s?ng cho b?nh nh?n', detail: 'c?n mang ?? ?n nh? ??n khu kh?m b?nh g?n ??.' },
-  { title: 'H?ng x?m m?i', detail: 'v?a chuy?n ??n v? ?ang t?m nh?ng ??a ?i?m ??ng tin trong khu.' },
-  { title: 'Ng?y l??ng v?', detail: 'mu?n t? th??ng m?t b?a s?ng ngon sau ca l?m d?i.' },
+  { title: 'Quên ví', detail: 'vừa phát hiện quên ví ở nhà và đang lúng túng tìm cách xoay xở.' },
+  { title: 'Bữa sáng gấp', detail: 'cần một bữa sáng nhanh trước khi ca làm bắt đầu.' },
+  { title: 'Đơn hàng đông', detail: 'đang phải giao nhiều đơn trong mưa và chưa kịp ăn gì.' },
+  { title: 'Chờ con', detail: 'đang chờ con học xong nhưng trời bắt đầu oi nóng.' },
+  { title: 'Tiệc lớp nhỏ', detail: 'muốn đặt thêm phần ăn cho một nhóm bạn cùng lớp.' },
+  { title: 'Khách quen', detail: 'đã nghe hàng xóm khen quầy của bạn và muốn thử lần đầu.' },
+  { title: 'Đổi tiền lẻ', detail: 'chỉ có tiền mệnh giá lớn, làm mọi người xếp hàng chậm lại.' },
+  { title: 'Góp vốn nhóm', detail: 'đang làm dự án nhỏ và hỏi kinh nghiệm mở bán.' },
+  { title: 'Quà cảm ơn', detail: 'muốn mua phần ăn để cảm ơn một người đã giúp mình.' },
+  { title: 'Mất áo mưa', detail: 'bị ướt và cần một chỗ dừng chân an toàn vài phút.' },
+  { title: 'Tìm việc làm thêm', detail: 'đang hỏi thăm các quầy hàng trong khu phố.' },
+  { title: 'Hết pin điện thoại', detail: 'không thể liên lạc với người nhà đúng lúc đang vội.' },
+  { title: 'Đơn đặt chung', detail: 'có thể rủ thêm nhiều người cùng mua nếu được phục vụ nhanh.' },
+  { title: 'Bữa sáng cho bệnh nhân', detail: 'cần mang đồ ăn nhẹ đến khu khám bệnh gần đó.' },
+  { title: 'Hàng xóm mới', detail: 'vừa chuyển đến và đang tìm những địa điểm đáng tin trong khu.' },
+  { title: 'Ngày lương về', detail: 'muốn tự thưởng một bữa sáng ngon sau ca làm dài.' },
 ]
-
-const twists = [
-  'M?t c?n gi? l?m t? th?c ??n bay xu?ng ???ng.',
-  'Hai ng??i ph?a sau b?t ??u s?t ru?t v? s?p mu?n gi?.',
-  'M?t ch? ch? nh? ng?i c?nh qu?y v? nh?n m?i ng??i r?t t? m?.',
-  'Nh?m h?c sinh b?n c?nh ?ang quay video chia s? qu?n ?n s?ng.',
-  'C? b?n hoa ??u ng? nh?n ra ng??i n?y v? kh? g?t ??u ch?o.',
-  'M?t c?n m?a nh? v?a d?t khi?n v?a h? ??ng ng??i h?n.',
-  'Ti?ng chu?ng v?o l?p vang l?n t? ph?a tr??ng h?c.',
-  'M?t xe giao h?ng v?a d?ng g?n ??, l?m l?i ?i h?i ch?t.',
-  'B?ng gi? c?a b?n ?ang ???c nhi?u ng??i ??ng xem.',
-  'Ng??i h?ng x?m n?i ??y l? c? h?i ?? t?o thi?n c?m.',
-  'C? kh?ch ph?a sau ?? ngh? nh?p ??n c?ng ?? ti?t ki?m th?i gian.',
-  'Ng??i n?y h?a s? k? l?i tr?i nghi?m v?i c? t? d?n ph?.',
-]
-
-const moments = [
-  'l?c khu ph? v?a th?c gi?c', 'trong gi? cao ?i?m', 'khi m?a v?a t?nh', 'tr??c gi? v?o ca',
-]
+const twists = ['Một cơn gió làm tờ thực đơn bay xuống đường.', 'Hai người phía sau bắt đầu sốt ruột vì sắp muộn giờ.', 'Một chú chó nhỏ ngồi cạnh quầy và nhìn mọi người rất tò mò.', 'Nhóm học sinh bên cạnh đang quay video chia sẻ quán ăn sáng.', 'Cô bán hoa đầu ngõ nhận ra người này và khẽ gật đầu chào.', 'Một cơn mưa nhỏ vừa dứt khiến vỉa hè đông người hơn.', 'Tiếng chuông vào lớp vang lên từ phía trường học.', 'Một xe giao hàng vừa dừng gần đó, làm lối đi hơi chật.', 'Bảng giá của bạn đang được nhiều người đứng xem.', 'Người hàng xóm nói đây là cơ hội để tạo thiện cảm.', 'Có khách phía sau đề nghị nhập đơn cùng để tiết kiệm thời gian.', 'Người này hứa sẽ kể lại trải nghiệm với cả tổ dân phố.']
+const moments = ['lúc khu phố vừa thức giấc', 'trong giờ cao điểm', 'khi mưa vừa tạnh', 'trước giờ vào ca']
 
 export const SITUATION_INTERVAL_MINUTES = 75
 export const SCENARIO_COMBINATION_COUNT =
@@ -83,22 +50,22 @@ function makeChoices(productName: string, price: number, state: RandomState): Si
   return [
     {
       id: 'serve',
-      label: `Ph?c v? ${orderCount} ph?n`,
-      description: `B?n ${productName} th?t nhanh, ?u ti?n ng??i ?ang v?i.`,
+      label: `Phục vụ ${orderCount} phần`,
+      description: `Bán ${productName} thật nhanh, ưu tiên người đang vội.`,
       tone: 'business',
       effect: { money: saleValue, revenue: saleValue, inventory: -orderCount, businessReputation: 1.2, xp: 10 },
     },
     {
       id: 'help',
-      label: 'H? tr? t? t?',
-      description: 'Gi?m gi? v? gi?p h? gi?i quy?t vi?c g?p.',
+      label: 'Hỗ trợ tử tế',
+      description: 'Giảm giá và giúp họ giải quyết việc gấp.',
       tone: 'kind',
       effect: { money: -serviceCost, expense: serviceCost, reputation: 2.4, businessReputation: 2.8, quality: 1, xp: 14 },
     },
     {
       id: 'connect',
-      label: 'K?t n?i khu ph?',
-      description: 'Gi?i thi?u th?m d?ch v? ph? h?p v? xin l?i gi?i thi?u.',
+      label: 'Kết nối khu phố',
+      description: 'Giới thiệu thêm dịch vụ phù hợp và xin lời giới thiệu.',
       tone: 'careful',
       effect: { marketing: 6, reputation: 1, businessReputation: 0.8, xp: 8 },
     },
@@ -116,20 +83,21 @@ export function generateLifeSituation(
   const need = pick(needs, state)
   const twist = pick(twists, state)
   const moment = pick(moments, state)
-  const icon = context.weather === 'rain' ? '?' : pick(['??', '??', '??', '??', '??', '?'], state)
+  const icon = context.weather === 'rain' ? '🌧️' : pick(['🌻', '🍚', '💬', '🚲', '☀️', '🏡'], state)
   const id = `d${context.day}-${context.minuteOfDay}-${state.seed.toString(36)}`
 
+  const choices = makeChoices(context.productName, context.price, state)
   return {
     seed: state.seed,
     situation: {
       id,
       title: `${need.title}: ${name}`,
-      description: `${name}, ${role}, gh? qua ${location} ${moment}. H? ${need.detail} ${twist}`,
+      description: `${name}, ${role}, ghé qua ${location} ${moment}. Họ ${need.detail} ${twist}`,
       character: name,
       role,
       location,
       icon,
-      choices: makeChoices(context.productName, context.price, state),
+      choices,
     },
   }
 }

@@ -51,3 +51,11 @@ Quyết định cũ bị thay thế nếu có:
 ```
 
 Không ghi một quyết định là “được chốt” chỉ vì AI thấy hợp lý.
+
+## Quyết định implementation trong Street Edition
+
+- Nhân vật chọn nam/nữ; vị trí đi lại lưu normalized trên vỉa hè. Chạm để đi, phím mũi tên hỗ trợ desktop; chưa pathfinding toàn bản đồ.
+- Giao diện portrait giới hạn 560px trên desktop để giữ cảm giác mobile; vẫn resize theo chiều cao.
+- Tạm giữ thời gian khi chưa hoàn tất tạo nhân vật; pause theo lựa chọn người chơi được giữ khi tải save.
+- Thông báo hệ thống 1 giây theo yêu cầu mới; bubble NPC 3,4 giây và story chờ xử lý để nội dung đọc được.
+- Built-in image generation tạo raster mới, không lấy hình UI tham chiếu làm nền sao chép.

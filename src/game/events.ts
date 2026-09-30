@@ -8,6 +8,7 @@ export interface SaleVisualEvent {
 type GameEventMap = {
   'simulation:update': GameSnapshot
   'business:selected': undefined
+  'player:focus': undefined
   sale: SaleVisualEvent
   reset: undefined
 }

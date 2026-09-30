@@ -1,77 +1,27 @@
 import { useState } from 'react'
-import { ArrowRight, Banknote, Building2, MapPin, Sparkles } from 'lucide-react'
-import { formatMoney } from '../domain/format'
-import type { AvatarStyle } from '../domain/types'
+import { ArrowRight, Banknote, Sparkles } from 'lucide-react'
+import type { AvatarStyle, Gender } from '../domain/types'
 import { useGameStore } from '../store/gameStore'
-
-const avatars: Array<{ id: AvatarStyle; label: string; color: string }> = [
-  { id: 'green', label: 'Xanh lá', color: '#0d6655' },
-  { id: 'orange', label: 'Cam', color: '#ef6a45' },
-  { id: 'blue', label: 'Xanh dương', color: '#4f8fc0' },
-]
+import { CharacterArt } from './CharacterArt'
 
 export function WelcomeModal() {
   const startJourney = useGameStore((state) => state.startJourney)
   const [name, setName] = useState('Minh')
+  const [gender, setGender] = useState<Gender>('male')
   const [avatar, setAvatar] = useState<AvatarStyle>('green')
-
   return (
-    <div className="modal-backdrop welcome-backdrop" role="dialog" aria-modal="true">
+    <div className="modal-backdrop welcome-backdrop" role="dialog" aria-modal="true" aria-label="Tạo nhân vật">
       <section className="welcome-card">
-        <div className="welcome-brand">
-          <span className="brand-mark">
-            <Building2 size={26} />
-          </span>
-          <span>
-            <small>GAME MÔ PHỎNG KINH DOANH 2D</small>
-            <strong>KHỞI NGHIỆP VIỆT</strong>
-          </span>
+        <div className="welcome-brand"><span className="brand-mark">KN</span><span><small>MỘT KHU PHỐ · NGÀN CƠ HỘI</small><strong>KHỞI NGHIỆP VIỆT</strong></span></div>
+        <div className="welcome-hero-copy"><span className="eyebrow"><Sparkles size={15} /> Câu chuyện của bạn bắt đầu</span><h1>Từ một triệu đồng,<br />đến một ước mơ lớn.</h1><p>18 tuổi, một khu phố thân quen. Mở quầy đầu tiên và xây dựng sự nghiệp của riêng bạn.</p></div>
+        <div className="gender-options" role="radiogroup" aria-label="Giới tính nhân vật">
+          {(['male', 'female'] as Gender[]).map((value) => <button key={value} role="radio" aria-checked={gender === value} className={gender === value ? 'selected' : ''} onClick={() => setGender(value)}><CharacterArt gender={value} /><strong>{value === 'male' ? 'Nam' : 'Nữ'}</strong><small>{gender === value ? 'Đã chọn' : 'Chọn nhân vật'}</small></button>)}
         </div>
-
-        <div className="welcome-hero-copy">
-          <span className="eyebrow"><Sparkles size={15} /> Hành trình của bạn bắt đầu</span>
-          <h1>18 tuổi. 1 triệu đồng.<br />Bạn sẽ làm gì?</h1>
-          <p>
-            Tự tay mở quầy đầu tiên, đọc nhu cầu khu phố và xây một đế chế kinh doanh
-            trong thế giới Việt Nam thu nhỏ.
-          </p>
-        </div>
-
-        <div className="starting-cards">
-          <div><Banknote size={18} /><span><small>Vốn khởi đầu</small><strong>{formatMoney(1_000_000)}</strong></span></div>
-          <div><MapPin size={18} /><span><small>Địa điểm</small><strong>Khu phố Bình Minh</strong></span></div>
-        </div>
-
-        <label className="field-label" htmlFor="player-name">Tên nhân vật</label>
-        <input
-          id="player-name"
-          className="text-input"
-          value={name}
-          maxLength={24}
-          onChange={(event) => setName(event.target.value)}
-          placeholder="Nhập tên của bạn"
-        />
-
-        <span className="field-label">Chọn màu trang phục</span>
-        <div className="avatar-options" role="radiogroup" aria-label="Màu trang phục">
-          {avatars.map((option) => (
-            <button
-              key={option.id}
-              className={avatar === option.id ? 'is-active' : ''}
-              onClick={() => setAvatar(option.id)}
-              role="radio"
-              aria-checked={avatar === option.id}
-            >
-              <span style={{ background: option.color }}>{name.slice(0, 1).toUpperCase() || 'K'}</span>
-              {option.label}
-            </button>
-          ))}
-        </div>
-
-        <button className="primary-button welcome-cta" onClick={() => startJourney(name, avatar)}>
-          Bắt đầu lập nghiệp <ArrowRight size={18} />
-        </button>
-        <p className="micro-copy">Tiến trình được tự động lưu trên thiết bị này.</p>
+        <label className="field-label" htmlFor="player-name">Tên nhân vật</label><input id="player-name" className="text-input" value={name} maxLength={24} onChange={(event) => setName(event.target.value)} placeholder="Nhập tên của bạn" />
+        <div className="color-choice"><span>Màu hồ sơ</span>{(['green', 'orange', 'blue'] as AvatarStyle[]).map((value) => <button key={value} className={`color-dot ${value} ${avatar === value ? 'selected' : ''}`} onClick={() => setAvatar(value)} aria-label={`Màu hồ sơ ${value === 'green' ? 'xanh lá' : value === 'orange' ? 'cam' : 'xanh dương'}`} aria-pressed={avatar === value} />)}</div>
+        <div className="starting-budget"><Banknote size={18} /><span>Vốn khởi đầu</span><strong>1.000.000 ₫</strong></div>
+        <button className="primary-button welcome-cta" onClick={() => startJourney(name, avatar, gender)}>Bắt đầu lập nghiệp <ArrowRight size={18} /></button>
+        <p className="micro-copy">Chạm vỉa hè để đi lại · Tiến trình tự động lưu</p>
       </section>
     </div>
   )

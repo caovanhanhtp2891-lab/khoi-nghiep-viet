@@ -2,6 +2,15 @@
 
 Ghi thay đổi đáng kể theo ngày và commit/PR khi có. Hiện trạng nằm ở docs/STATUS.md, việc chưa làm nằm ở docs/BACKLOG.md.
 
+## 2026-09-30 — Street Edition
+
+- Thay nền khu phố bằng nhà phố Việt Nam; atlas nhân vật nam/nữ có mặt và frame đi bộ.
+- Thêm chọn giới tính, chạm/phím để đi, NPC bubble và xe máy; chat local có lời đáp và lịch theo giờ game.
+- Thiết kế UI portrait màu giấy, đồng hồ luôn thấy, thông báo 1 giây, story gập/mở.
+- Phục hồi chữ tiếng Việt hỏng; chặn giao dịch story thiếu hàng/tiền và sửa RNG seed.
+- Payload v3 migrate v1/v2, backup/recovery và bảo vệ dữ liệu lỗi; giữ vị trí/gender/chat và pause.
+- 15 unit test, lint và build pass cục bộ; thêm tài liệu art và cập nhật bàn giao.
+
 ## 2026-09-30 — Bộ tài liệu tiếp nhận cho AI
 
 - Thêm AGENTS.md, bản đồ tài liệu, hiện trạng, kiến trúc, backlog, save format, kiểm thử, quyết định, asset và bàn giao.

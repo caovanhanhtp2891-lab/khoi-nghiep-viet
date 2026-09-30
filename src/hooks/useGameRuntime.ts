@@ -3,16 +3,18 @@ import { GAME_MINUTES_PER_TICK, REAL_MS_PER_TICK } from '../domain/types'
 import { loadGame, saveGame } from '../services/saveDb'
 import { snapshotFromStore, useGameStore } from '../store/gameStore'
 
-export type SaveStatus = 'loading' | 'saved' | 'saving' | 'error'
+export type SaveStatus = 'loading' | 'saved' | 'saving' | 'error' | 'blocked'
 
 export function useGameRuntime(): SaveStatus {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('loading')
   const readyRef = useRef(false)
+  const savingRef = useRef(false)
   const accumulatorRef = useRef(0)
   const lastFrameRef = useRef(0)
 
   useEffect(() => {
     let cancelled = false
+    readyRef.current = false
     loadGame()
       .then((snapshot) => {
         if (cancelled) return
@@ -22,9 +24,7 @@ export function useGameRuntime(): SaveStatus {
         setSaveStatus('saved')
       })
       .catch(() => {
-        readyRef.current = true
-        lastFrameRef.current = performance.now()
-        setSaveStatus('error')
+        if (!cancelled) setSaveStatus('blocked')
       })
 
     return () => {
@@ -41,7 +41,7 @@ export function useGameRuntime(): SaveStatus {
       lastFrameRef.current = now
       const state = useGameStore.getState()
 
-      if (state.world.paused) {
+      if (state.world.paused || !state.onboarded) {
         accumulatorRef.current = 0
         return
       }
@@ -60,13 +60,16 @@ export function useGameRuntime(): SaveStatus {
 
   useEffect(() => {
     const persist = async () => {
-      if (!readyRef.current) return
+      if (!readyRef.current || savingRef.current) return
+      savingRef.current = true
       setSaveStatus('saving')
       try {
         await saveGame(snapshotFromStore(useGameStore.getState()))
         setSaveStatus('saved')
       } catch {
         setSaveStatus('error')
+      } finally {
+        savingRef.current = false
       }
     }
 

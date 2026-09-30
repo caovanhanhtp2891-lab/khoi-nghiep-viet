@@ -6,6 +6,7 @@ import {
   RESTOCK_QUANTITY,
   STARTER_STOCK_COST,
   type AvatarStyle,
+  type Gender,
   type GameNotice,
   type GameSnapshot,
   type GameSpeed,
@@ -13,10 +14,14 @@ import {
 } from '../domain/types'
 import { clamp, simulateTick } from '../domain/simulation'
 import { gameEvents } from '../game/events'
+import { migrateSnapshot } from '../domain/migrateSave'
+import { npcChatLine } from '../domain/chat'
 import { createInitialSnapshot } from './initialState'
 
 export interface GameActions {
-  startJourney: (name: string, avatarStyle: AvatarStyle) => void
+  startJourney: (name: string, avatarStyle: AvatarStyle, gender?: Gender) => void
+  movePlayer: (x: number, y: number) => void
+  sendChat: (text: string) => void
   buyFirstBooth: () => void
   toggleBusiness: () => void
   restock: () => void
@@ -72,13 +77,15 @@ export function snapshotFromStore(state: GameStore): GameSnapshot {
     story: state.story,
     noticeSeq: state.noticeSeq,
     notices: state.notices,
+    chat: state.chat,
+    chatSeq: state.chatSeq,
   })
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
   ...createInitialSnapshot(),
 
-  startJourney: (name, avatarStyle) => {
+  startJourney: (name, avatarStyle, gender = 'male') => {
     set((state) => ({
       onboarded: true,
       tutorialStep: 1,
@@ -86,10 +93,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
         ...state.player,
         name: name.trim() || 'Nhà khởi nghiệp',
         avatarStyle,
+        gender,
       },
       ...appendNotice(state, 'Hãy mở quầy xôi đầu tiên trước giờ cao điểm 06:30.', 'info'),
     }))
     gameEvents.emit('simulation:update', snapshotFromStore(get()))
+  },
+
+  movePlayer: (x, y) => {
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return
+    set((state) => ({ player: { ...state.player, position: { x: clamp(x, 0.08, 0.92), y: clamp(y, 0.64, 0.79) } } }))
+  },
+
+  sendChat: (text) => {
+    const state = get()
+    const clean = text.trim().slice(0, 160)
+    if (!clean || !state.onboarded) return
+    const minute = state.world.day * 1440 + state.world.minuteOfDay
+    const id = state.chatSeq + 1
+    const reply = npcChatLine(state.world, state.business, id)
+    set({ chatSeq: id + 1, chat: [...state.chat, { id, name: state.player.name, text: clean, minute, fromPlayer: true }, { id: id + 1, ...reply, minute, fromPlayer: false }].slice(-40) })
   },
 
   buyFirstBooth: () => {
@@ -208,7 +231,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!state.story.activeSituation && next.story.activeSituation) {
       next = {
         ...next,
-        ...appendNotice(next, `T?nh hu?ng m?i: ${next.story.activeSituation.title}`, 'info'),
+        ...appendNotice(next, `Tình huống mới: ${next.story.activeSituation.title}`, 'info'),
       }
     }
 
@@ -238,6 +261,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
     }
 
+    const totalMinute = next.world.day * 1440 + next.world.minuteOfDay
+    if (Math.floor(totalMinute / 30) !== Math.floor((state.world.day * 1440 + state.world.minuteOfDay) / 30)) {
+      const id = next.chatSeq + 1
+      next = { ...next, chatSeq: id, chat: [...next.chat, { id, ...npcChatLine(next.world, next.business, id), minute: totalMinute, fromPlayer: false }].slice(-40) }
+    }
     set(next)
     gameEvents.emit('simulation:update', next)
     if (result.sales > 0) {
@@ -251,6 +279,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!situation || !choice) return
 
     const effect = choice.effect
+    const requested = Math.max(0, -(effect.inventory ?? 0))
+    if (requested > state.business.inventory || (effect.money ?? 0) < -state.player.money) {
+      set(appendNotice(state, requested > state.business.inventory ? 'Không đủ hàng. Hãy nhập thêm hoặc chọn cách hỗ trợ khác.' : 'Bạn chưa đủ tiền cho lựa chọn này.', 'warning'))
+      return
+    }
     const inventoryDelta = effect.inventory ?? 0
     const unitsSold = Math.max(0, -inventoryDelta)
     const revenue = effect.revenue ?? 0
@@ -292,7 +325,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       },
       ...appendNotice(
         state,
-        `${situation.character}: ${choice.label}. Khu ph? ?? ghi nh?n quy?t ??nh c?a b?n.`,
+        `${situation.character}: ${choice.label}. Khu phố đã ghi nhận quyết định của bạn.`,
         choice.tone === 'kind' ? 'success' : 'info',
       ),
     })
@@ -306,19 +339,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set((state) => ({ notices: state.notices.filter((notice) => notice.id !== id) })),
 
   hydrate: (snapshot) => {
-    if (snapshot.version !== 1 && snapshot.version !== 2) return
-    const defaults = createInitialSnapshot()
-    set({
-      ...defaults,
-      ...snapshot,
-      version: 2,
-      player: { ...defaults.player, ...snapshot.player },
-      world: { ...defaults.world, ...snapshot.world, paused: false },
-      business: { ...defaults.business, ...snapshot.business },
-      dayStats: { ...defaults.dayStats, ...snapshot.dayStats },
-      lifetime: { ...defaults.lifetime, ...snapshot.lifetime },
-      story: { ...defaults.story, ...snapshot.story },
-    })
+    const migrated = migrateSnapshot(snapshot)
+    set(migrated)
     gameEvents.emit('simulation:update', snapshotFromStore(get()))
   },
 

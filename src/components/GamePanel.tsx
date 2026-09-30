@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { CharacterArt } from './CharacterArt'
 import {
   BarChart3,
   BriefcaseBusiness,
@@ -249,32 +251,14 @@ function InvestmentPanel() {
 }
 
 function ChatPanel() {
-  const world = useGameStore((state) => state.world)
-  const business = useGameStore((state) => state.business)
-  const dayStats = useGameStore((state) => state.dayStats)
-  const weatherLine = world.weather === 'rain'
-    ? 'Mưa thế này quầy có mái che sẽ lợi thế lắm.'
-    : 'Sáng nay cổng trường đông hơn mọi hôm đó!'
-
-  const messages = [
-    { name: 'Cô Lan · Chủ tạp hóa', time: 'vừa xong', text: weatherLine, color: '#ef6a45' },
-    { name: 'Anh Thịnh · Chủ quán ăn', time: '2 phút', text: business.open ? `${business.name} mở sớm ghê. Khách bắt đầu tới rồi kìa.` : 'Ai bán đồ ăn sáng nhớ mở trước 06:30 nhé.', color: '#0d6655' },
-    { name: 'Báo Kinh Tế', time: '5 phút', text: `Giá nếp hôm nay ổn định. Khu Bình Minh đã phục vụ ${dayStats.customers} lượt khách sáng.`, color: '#4f8fc0' },
-    { name: 'Minh Giao Hàng', time: '8 phút', text: 'Chợ đầu mối đang có gói nguyên liệu giá tốt tới 09:00.', color: '#8b5cf6' },
-  ]
-
-  return (
-    <div className="chat-list">
-      <div className="channel-tabs"><button className="is-active">Khu phố</button><button>Thương mại</button><button>Toàn quốc</button></div>
-      {messages.map((message) => (
-        <article className="chat-message" key={message.name}>
-          <span className="chat-avatar" style={{ background: message.color }}>{message.name.slice(0, 1)}</span>
-          <div><p><strong>{message.name}</strong><time>{message.time}</time></p><span>{message.text}</span></div>
-        </article>
-      ))}
-      <div className="bot-disclosure"><MessageCircle size={15} /> Các đoạn chat hiện tại được tạo bởi nhân vật NPC.</div>
-    </div>
-  )
+  const messages = useGameStore((state) => state.chat)
+  const sendChat = useGameStore((state) => state.sendChat)
+  const [draft, setDraft] = useState('')
+  return <div className="chat-list"><div className="channel-tabs"><button className="is-active">Khu phố Bình Minh</button></div>
+    <div className="chat-history">{messages.length === 0 && <p className="chat-empty">Chào hàng xóm mới! Gửi lời chào để bắt chuyện nhé.</p>}{messages.map((message) => <article className={`chat-message ${message.fromPlayer ? 'from-player' : ''}`} key={message.id}><span className="chat-avatar">{message.fromPlayer ? 'Bạn' : 'NPC'}</span><div><p><strong>{message.name}</strong><time>{String(Math.floor(message.minute % 1440 / 60)).padStart(2, '0')}:{String(message.minute % 60).padStart(2, '0')}</time></p><span>{message.text}</span></div></article>)}</div>
+    <form className="chat-compose" onSubmit={(event) => { event.preventDefault(); sendChat(draft); setDraft('') }}><input aria-label="Tin nhắn khu phố" placeholder="Chào hàng xóm…" value={draft} maxLength={160} onChange={(event) => setDraft(event.target.value)} /><button className="primary-button" disabled={!draft.trim()}>Gửi</button></form>
+    <div className="bot-disclosure"><MessageCircle size={15} /> Hội thoại với NPC trên máy bạn. Chưa kết nối người chơi khác.</div>
+  </div>
 }
 
 function CharacterPanel() {
@@ -292,8 +276,8 @@ function CharacterPanel() {
   return (
     <div className="stack-list">
       <article className="character-hero">
-        <span className={`large-avatar ${player.avatarStyle}`}>{player.name.slice(0, 1).toUpperCase()}</span>
-        <div><span className="eyebrow"><UserRound size={14} /> HỒ SƠ NHÀ SÁNG LẬP</span><h3>{player.name}</h3><p>18 tuổi · Khu phố Bình Minh · Cấp {player.level}</p></div>
+        <span className={`large-avatar ${player.avatarStyle}`}><CharacterArt gender={player.gender} /></span>
+        <div><span className="eyebrow"><UserRound size={14} /> HỒ SƠ NHÀ SÁNG LẬP</span><h3>{player.name}</h3><p>{player.gender === 'female' ? 'Nữ' : 'Nam'} · {player.age} tuổi · Khu phố Bình Minh · Cấp {player.level}</p></div>
       </article>
       <div className="profile-stats">
         <div><BarChart3 size={18} /><small>Doanh thu trọn đời</small><strong>{formatMoney(lifetime.revenue, true)}</strong></div>

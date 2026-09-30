@@ -2,12 +2,14 @@ import type { GameSnapshot } from '../domain/types'
 
 export function createInitialSnapshot(): GameSnapshot {
   return {
-    version: 2,
+    version: 3,
     onboarded: false,
     tutorialStep: 0,
     player: {
       name: 'Nhà khởi nghiệp',
       avatarStyle: 'green',
+      gender: 'male',
+      position: { x: 0.58, y: 0.72 },
       age: 18,
       money: 1_000_000,
       xp: 0,
@@ -58,6 +60,8 @@ export function createInitialSnapshot(): GameSnapshot {
       lastSituationAt: -90,
       resolvedToday: 0,
     },
+    chat: [],
+    chatSeq: 0,
     noticeSeq: 1,
     notices: [
       {

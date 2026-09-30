@@ -2,6 +2,7 @@ import { CloudSun, Pause, Play, Save, WalletCards } from 'lucide-react'
 import { formatGameTime, formatMoney } from '../domain/format'
 import { WEATHER_META, type GameSpeed } from '../domain/types'
 import type { SaveStatus } from '../hooks/useGameRuntime'
+import { CharacterArt } from './CharacterArt'
 import { useGameStore } from '../store/gameStore'
 
 const avatarColors = {
@@ -25,11 +26,11 @@ export function TopHud({ saveStatus }: { saveStatus: SaveStatus }) {
           style={{ background: avatarColors[player.avatarStyle] }}
           aria-hidden="true"
         >
-          {player.name.slice(0, 1).toUpperCase()}
+          <CharacterArt gender={player.gender} />
         </span>
         <span className="player-copy">
           <strong>{player.name}</strong>
-          <small>LV {player.level} · 18 tuổi</small>
+          <small>LV {player.level} · {player.age} tuổi</small>
         </span>
       </div>
 

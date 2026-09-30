@@ -11,6 +11,7 @@ AI mới nên bắt đầu từ [AGENTS.md](../AGENTS.md), rồi đọc [STATUS.
 | [TESTING.md](TESTING.md) | Kiểm thử tự động và chơi thử | Đổi hành vi, bổ sung test |
 | [DECISIONS.md](DECISIONS.md) | Quyết định hiện có và câu hỏi mở | Chốt/đổi quyết định |
 | [ASSETS.md](ASSETS.md) | NPC, đường dẫn và quy tắc hình ảnh | Thêm/đổi asset |
+| [ART_PROMPTS.md](ART_PROMPTS.md) | Prompt hình phố và atlas nhân vật | Khi tạo lại art |
 | [HANDOFF.md](HANDOFF.md) | Điểm tiếp tục cho phiên kế tiếp | Cuối phiên |
 | [CHANGELOG.md](../CHANGELOG.md) | Nhật ký thay đổi đáng kể | Hoàn thành thay đổi |
 | [PLAN.md](../PLAN.md) | Thiết kế và lộ trình tổng thể | Đổi định hướng sản phẩm |

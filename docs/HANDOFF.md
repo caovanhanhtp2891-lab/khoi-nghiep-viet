@@ -1,37 +1,23 @@
-# Bàn giao cho AI phiên tiếp theo
+# Bàn giao Street Edition
 
-## Mốc bắt đầu
+Ngày 30/09/2026. Phát triển từ `90bdd778dcb99117187da7c6eabbf5403c42206f`; commit chứa file này xác định phiên bản hiện hành.
 
-- Kho: `caovanhanhtp2891-lab/khoi-nghiep-viet`, nhánh `main`.
-- Mã runtime đã đọc: `7fed1c563a7e3493b329c51bcbef10b98e595db5`.
-- Ngày: 30/09/2026 (Asia/Saigon).
-- Phiên này: bổ sung tài liệu AI và liên kết README; không sửa logic game.
-- Đọc AGENTS.md → STATUS.md → ARCHITECTURE.md → BACKLOG.md trước khi triển khai.
+Đọc AGENTS.md, STATUS.md, ARCHITECTURE.md, SAVE_FORMAT.md trước khi sửa. Đợt này đã đổi scene, UI, onboarding nam/nữ, auto-hide thông báo, chat offline, migration v3 và bảo vệ save lỗi. Có 15 test và lint/build pass cục bộ.
 
-## Điểm tiếp tục đề xuất
+## File cần biết
 
-Bắt đầu B01, vì save v2 đang bị loader loại bỏ:
+- `MainScene.ts`: nền portrait 1024×1536, texture atlas 4 cột×2 hàng, camera fit; đi trên vỉa hè và tương tác NPC.
+- `CharacterArt.tsx`: dùng cùng atlas trong React; BASE_URL cho đường dẫn public.
+- `migrateSave.ts`: validate và chuyển payload lịch sử về version 3. Đừng xóa tiến độ người chơi để né migration.
+- `saveDb.ts`: autosave/backup trong cùng bảng, load lỗi ném exception; runtime blocked không ghi đè.
+- `NoticeToast.tsx`: timeout 1000ms riêng mỗi thông báo, cleanup khi unmount.
+- `chat.ts`, `gameStore.ts`, `GamePanel.tsx`: hội thoại NPC trên máy; chưa có backend.
 
-1. Đọc `src/services/saveDb.ts`, `src/store/initialState.ts`, `src/store/gameStore.ts`, `src/domain/types.ts` và SAVE_FORMAT.md.
-2. Viết test save/load round-trip v2 và fixture lịch sử v1 thiếu story. Xác nhận test tái hiện lỗi hiện tại.
-3. Sửa loader/migration/validation phối hợp với hydrate; phân biệt save vắng, hỏng và không hỗ trợ. Giữ khả năng khôi phục trước autosave ghi đè.
-4. Chơi thử reload sau autosave, kiểm tra tiền, tồn kho, thời gian, story và seed.
-5. Cập nhật tài liệu với commit và kết quả kiểm tra thực tế; chỉ đánh dấu B01 xong khi đủ nghiệm thu.
+## Công việc tiếp theo
 
-Sau đó xử lý B02 (dấu tiếng Việt), B03 (bán hàng qua story thiếu tồn kho), B04 (seed sinh choices). Đây là đề xuất; ưu tiên yêu cầu mới nhất của chủ dự án.
+1. Xem kết quả kiểm tra live trong STATUS.md và workflow của commit triển khai.
+2. Kiểm tra viewport 320/360/390/430, màn hình ngắn, safe area và thiết bị thật. Cloud browser desktop chưa thay thế được kiểm tra máy thật.
+3. Cải thiện pathfinding tránh vật cản, ngoại hình/animation đa dạng và hiệu năng; hiện camera chỉ một cảnh vỉa hè.
+4. Kiểm thử/cân bằng quyết toán một ngày rồi tách cấu hình nghề mới.
 
-## Giới hạn kiểm chứng
-
-CI mốc runtime báo success, nhưng chưa có test save/story/UI và chưa chơi thử trong phiên tài liệu. Cài dependency cục bộ bị chặn npm; không ghi là đã chạy lint/test/build cục bộ. Nếu mã trên main đã đổi, đọc diff từ mốc trên và cập nhật hiện trạng trước khi sửa.
-
-## Mẫu bàn giao cuối phiên
-
-- Task và phạm vi hoàn thành:
-- Commit/PR và nhánh:
-- File quan trọng đã đổi:
-- Kết quả lệnh/test/chơi thử có bằng chứng:
-- Phần đang dang dở hoặc bị chặn:
-- Thay đổi schema và tương thích save:
-- Việc đầu tiên cho AI tiếp theo + tiêu chí hoàn thành:
-
-Không đưa token, mật khẩu hoặc suy đoán chưa được kiểm chứng vào bàn giao.
+Không nâng dependency ngoài phạm vi; không khẳng định chat online hoặc offline catch-up đã có. Tài sản raster được tạo mới bằng built-in image generation và lưu tại public/assets/art; thông số/prompt ở ASSETS.md và ART_PROMPTS.md.

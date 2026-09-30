@@ -1,63 +1,33 @@
-# Save format và nâng phiên bản
+# Save format version 3
 
-Đối chiếu mã ngày 30/09/2026 tại `7fed1c563a7e3493b329c51bcbef10b98e595db5`.
+Cập nhật 30/09/2026 trong đợt Street Edition. Database Dexie `khoi-nghiep-viet` vẫn version 1, bảng `saves` index `id, savedAt`; envelope schemaVersion vẫn 1. Payload version game mới là 3.
 
-## Vị trí lưu hiện tại
-
-Dexie mở IndexedDB tên `khoi-nghiep-viet`, database version 1, bảng `saves` với index `id, savedAt`. Có một slot `autosave`.
-Dữ liệu gắn với origin và hồ sơ trình duyệt, không phải ID phần cứng. Đổi domain/trình duyệt, xóa dữ liệu website hoặc dùng chế độ riêng tư có thể không truy cập được save cũ. Chưa có cloud sync.
-
-## Ba loại phiên bản độc lập
-
-| Trường | Giá trị hiện tại | Ý nghĩa |
-|---|---|---|
-| Dexie database version | 1 | Cấu trúc bảng/index IndexedDB |
-| `SaveRecord.schemaVersion` | 1 | Envelope lưu |
-| `payload.version` | 2 cho game mới; type nhận 1 hoặc 2 | Cấu trúc snapshot nghiệp vụ |
-
-Không tăng cả ba một cách máy móc. Thay đổi bảng, envelope hoặc payload phải có kế hoạch riêng.
-
-Envelope hiện tại:
-
-```ts
-interface SaveRecord {
-  id: 'autosave'
-  schemaVersion: 1
-  savedAt: string // ISO timestamp thực, không phải game time
-  payload: GameSnapshot
-}
-```
-
-## Snapshot nghiệp vụ
-
-| Nhóm | Nội dung |
+| Slot | Mục đích |
 |---|---|
-| `version`, `onboarded`, `tutorialStep` | Phiên bản và tiến trình mở đầu |
-| `player` | Tên, màu áo, tuổi, tiền, XP, level, kỹ năng, uy tín |
-| `world` | Ngày, phút trong ngày, thời tiết, tốc độ, pause, RNG seed |
-| `business` | Quầy, sở hữu/mở bán, giá, giá vốn, tồn kho, chất lượng, uy tín, nhân viên, marketing |
-| `dayStats`, `lifetime` | Thống kê ngày và trọn đời |
-| `story` | Tình huống đang chờ, history, phút lần trước, số đã xử lý trong ngày |
-| `noticeSeq`, `notices` | Thông báo và bộ đếm ID |
+| autosave | Tiến độ mới nhất |
+| backup | Bản trước lần ghi autosave gần nhất; không phải lưu trữ nhiều phiên lâu dài |
 
-Các trường chính xác nằm ở `src/domain/types.ts`; defaults ở `src/store/initialState.ts`. Không lưu actions, đối tượng Phaser, timer hay event listener. `snapshotFromStore()` clone phần dữ liệu.
+Mỗi record: `{ id, schemaVersion: 1, savedAt: ISO string, payload }`. `payload` được đọc như unknown, validate/migrate trước hydrate. Một transaction ghi backup rồi autosave để không tách giao dịch.
 
-## Luồng hiện tại và lỗi B01
+## Thay đổi payload
 
-`useGameRuntime()` load → `hydrate()` → bật tick/autosave. Autosave mỗi 5 giây, khi visibility hidden và khi cleanup.
+`GameSnapshot` vẫn có player/world/business/dayStats/lifetime/story/tutorial/notices; thêm `player.gender` (male/female), `player.position` ({x,y} chuẩn hóa), `chat` và `chatSeq`.
 
-`hydrate()` nhận version 1/2, merge defaults và đưa về version 2, ép paused=false. Tuy nhiên `loadGame()` hiện chỉ trả payload.version=1. Vì game mới là v2, save mới bị loại trước hydrate. Khi được trả null, runtime coi là game mới và có thể ghi đè slot sau đó. Chưa có migration service, validation đầy đủ hoặc backup.
+- v1: có thể thiếu story; thêm defaults.
+- v2: có story, chưa gender/position/chat; thêm defaults, giữ tiền/tồn kho/thời gian/seed.
+- v3: validate giới tính/vị trí, các nhóm số liệu và story; clamp vị trí trong vỉa hè.
+- Loader không còn loại v2. Hàm `migrateSnapshot()` riêng ở domain.
+- Thông báo transient không được phát lại khi load. Story cũ có title hỏng dấu hỏi bị bỏ tình huống đó; tiến độ kinh tế vẫn giữ.
+- Chat valid tối đa 40 tin, history story tối đa 8. Migration không chạy offline catch-up.
 
-Version 1 thực tế có thể thiếu `story` mặc dù interface hiện tại yêu cầu trường này. Dùng fixture theo cấu trúc lịch sử, không cast tùy tiện dữ liệu v1 thành v2 để coi đã kiểm thử migration.
+Runtime đọc save trước tick/autosave; khi loader thất bại, trạng thái blocked bảo vệ slot hiện có. UI cho tải raw records JSON hoặc khôi phục backup hợp lệ. Không tự xóa/reset dữ liệu lỗi. `restoreBackup()` đưa payload hợp lệ sang autosave; ghi chú slot backup chỉ là lần ghi trước.
 
-## Quy trình cần dùng khi sửa schema
+Autosave mỗi 5 giây, khi tab ẩn và khi runtime cleanup; tránh chạy hai persist đồng thời. Đồng hồ không chạy trước onboarding. Pause giữ qua reload. Vị trí cập nhật khi đến đích hoặc thả phím; autosave khi đang đi có thể giữ vị trí trước hành trình.
 
-1. Ghi cấu trúc cũ/mới và defaults cho từng trường thêm.
-2. Đọc/validate envelope và payload trước khi hydrate; phân biệt không có save với save hỏng/không hỗ trợ.
-3. Giữ bản gốc có thể khôi phục trước khi chuyển đổi hoặc ghi đè.
-4. Migration là hàm dữ liệu riêng; có test bằng fixture v1, v2 và dữ liệu lỗi.
-5. Migration thành công mới cho phép autosave ghi dạng mới. Thiết kế rõ cách xử lý thất bại, không reset âm thầm.
-6. Thêm round-trip test qua Dexie/fake-indexeddb và reload trình duyệt, bao gồm story đang chờ và RNG seed.
-7. Cập nhật tài liệu này, STATUS và changelog.
+## Vị trí lưu và giới hạn
 
-Các mục trên là quy trình đề xuất để triển khai, không phải chức năng đã có. Export/import, backup, recovery, offline catch-up và khóa nhiều tab chưa được triển khai trong mã đối chiếu.
+IndexedDB theo origin/profile trình duyệt; không phải ID phần cứng, không đồng bộ nhiều máy. Đổi domain, xóa dữ liệu website hay chế độ riêng tư ảnh hưởng khả năng tìm save. Chưa có import UI, lịch sử backup nhiều phiên, xử lý xung đột nhiều tab hoặc cloud save.
+
+## Kiểm thử
+
+`saveDb.test.ts` dùng fake-indexeddb: load v2, migrate v1 thiếu story, round-trip v3 nữ/vị trí/chat/tiền/seed/pause, dữ liệu hỏng/phiên bản tương lai giữ nguyên, khôi phục backup. Khi thêm trường/phiên bản mới tiếp tục fixture cũ và thử reload browser, không chỉ test interface.
