@@ -13,20 +13,20 @@ Record `{ id, schemaVersion: 1, savedAt: ISO string, payload }`. Đọc payload 
 
 ## Snapshot
 
-GameSnapshot gồm player/world/business/dayStats/lifetime/story/tutorial/notices/chat/chatSeq và neighborhood. Player có gender male/female, position {x,y} normalized. Chat tối đa 40 tin, npcId tùy chọn để gắn portrait; story history tối đa 8.
+GameSnapshot gồm player/world/business/dayStats/reports/lifetime/story/tutorial/notices/chat/chatSeq và neighborhood. Player có gender male/female, position {x,y} normalized. Chat tối đa 40 tin, npcId tùy chọn để gắn portrait; story history tối đa 8.
 
 Neighborhood gồm:
 
 | Trường | Nội dung |
 |---|---|
 | relationships | NPC id → {bond 0–100, greetedDay, meetings} |
-| activeOrder | null hoặc id/npcId/day/quantity/unitPrice/acceptedAt/dueAt |
+| activeOrder | null hoặc id/npcId/day/careerId/quantity/unitPrice/acceptedAt/dueAt |
 | completedOrders | Tối đa 60 id đơn đã giao gần nhất |
 | deliveries | Tổng đơn hoàn thành |
 | upgrades | canopy/storage/sign, mỗi loại một lần |
 | claimedMilestones | ID milestone đã nhận thưởng một lần |
 
-NPC/milestone/upgrade id được validate bằng catalog. Đơn active phải khớp giá, số lượng, NPC trong dailyOrders(day); dueAt=acceptedAt+120. Đơn cũ hết hạn vẫn load được để người chơi hủy, không được giao sau hạn hoặc khác ngày. Chi tiết rule và đối soát xem [NPC_SYSTEM.md](NPC_SYSTEM.md).
+NPC/milestone/upgrade id được validate bằng catalog. Đơn active phải khớp giá, số lượng, NPC trong dailyOrders(day, careerId); dueAt=acceptedAt+120. Đơn cũ hết hạn vẫn load được để người chơi hủy, không được giao sau hạn hoặc khác ngày. Chi tiết rule và đối soát xem [NPC_SYSTEM.md](NPC_SYSTEM.md).
 
 ## Migration
 
@@ -41,10 +41,12 @@ Autosave mỗi 5 giây, tab ẩn và runtime cleanup; tránh hai persist đồng
 
 ## Kiểm thử và giới hạn
 
-Dexie test fake-indexeddb: v2 load, v1 thiếu story, round-trip nữ/vị trí/chat/quan hệ/upgrade/milestone/tiền/RNG/pause, payload hỏng/tương lai còn nguyên, backup restore. Neighborhood test thêm v3→v4 và đơn/quan hệ sai. Live reload giữ cả tiến độ chính và tiến độ demo mới; chi tiết STATUS.md.
+Dexie test fake-indexeddb: v2 load, v1 thiếu story, round-trip nữ/vị trí/chat/quan hệ/upgrade/milestone/tiền/RNG/pause, payload hỏng/tương lai còn nguyên, backup restore. Neighborhood test thêm v3→v5 và đơn/quan hệ sai. Live reload giữ cả tiến độ chính và tiến độ demo mới; chi tiết STATUS.md.
 
 IndexedDB phụ thuộc origin/profile, không phải ID phần cứng hay đồng bộ nhiều máy. Chưa import UI, backup nhiều phiên, lock/xử lý xung đột nhiều tab hay cloud save. Không mở nhiều tab cùng một hồ sơ để kiểm thử giao dịch; dùng demo riêng với hồ sơ chính.
 
 ## v5 — career và báo cáo
 
 Business thêm careerId (xoi/banhmi/trasua); activeOrder thêm careerId. Snapshot thêm reports tối đa 30 ngày. dayStats/report có cashOpening (nullable), stockPurchases, capitalPurchases, recoveries, communityRewards và careerIds. Reports lưu fee/profit/cashClosing và ngày/weather. v1–v4 thêm xoi, giữ economy/nhân vật/quan hệ, chuyển active order v4 sang xoi. Không dựng số liệu quá khứ: sổ ngày cũ có cashOpening=null và không thêm report giả; ngày sau có đủ. v5 validate nghề/cost/giá, order cùng nghề, sổ và công thức profit trong báo cáo. Xem BUSINESS_SYSTEM.md và careers.test.ts.
+
+Luồng runtime validate hai lần: `loadGame` rồi `hydrate`; kiểm thử regression chạy cả hai, autosave lại và reload. `cashOpening=null` của ngày cũ và báo cáo ngày đó phải hợp lệ ở mọi bước; ngày tiếp theo có số dư đầu ngày cụ thể.

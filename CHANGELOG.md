@@ -34,4 +34,6 @@ Không tái dựng lịch sử cũ bằng suy đoán; xem git log cho các commi
 - Chọn nghề/đổi nghề có quote thu hồi; giữ nhân viên và nâng cấp, chặn việc đang chờ.
 - Đơn cư dân theo sản phẩm, 30 báo cáo lời lỗ/dòng tiền, kết thúc ngày sớm.
 - Payload v5 tương thích v1–v4; quầy/đồ bán/upgrade thay hình theo state.
-- 41 test/6 file +check 100 SVG; lint/build pass cục bộ.
+- 42 test/6 file +check 100 SVG; lint/build pass cục bộ.
+- Sửa load/hydrate lần thứ hai với `cashOpening=null` từ save lịch sử; regression test chạy toàn luồng Dexie và báo cáo ngày cũ.
+- Khóa Phaser pointer khi bảng quản lý hoặc onboarding đang mở để thao tác UI không chọn NPC phía sau.

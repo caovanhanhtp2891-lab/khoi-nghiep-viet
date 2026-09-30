@@ -19,7 +19,7 @@ CI hiện chạy lint/test/build trước deploy Pages trên push main hoặc wo
 ## Phạm vi tự động đang có
 
 `src/domain/simulation.test.ts` có 4 test: cùng seed/state cho cùng kết quả; giới hạn tồn kho/công suất; mưa giảm nhu cầu; RNG nhất quán.
-`vite.config.ts` chạy test `src/**/*.test.ts` trong môi trường `node`. Đợt Street Edition thêm test Dexie round-trip/migration/backup, store giao dịch story, gender/vị trí/chat và seed story; đợt đó có 15 test trong 4 file; bản 100 cư dân hiện có 25 test/5 file. Chưa có test React hoặc E2E browser. `saveDb.test.ts` dùng fake-indexeddb/auto.
+`vite.config.ts` chạy test `src/**/*.test.ts` trong môi trường `node`. Đợt Street Edition thêm test Dexie round-trip/migration/backup, store giao dịch story, gender/vị trí/chat và seed story; đợt đó có 15 test trong 4 file; bản 100 cư dân có 25 test/5 file; bản ba nghề hiện có 42 test/6 file. Chưa có test React hoặc E2E browser. `saveDb.test.ts` dùng fake-indexeddb/auto.
 
 Kết quả test mô phỏng thành công không chứng minh save/load hoặc UI chạy đúng. Khi sửa nghiệp vụ hãy test hành vi và các ranh giới; không test chỉ để lặp lại cấu trúc implementation.
 
@@ -30,13 +30,13 @@ Dùng profile/dữ liệu thử; giữ bản sao save cần bảo toàn. B01 đ�
 | Kịch bản | Kết quả cần kiểm tra |
 |---|---|
 | Lần vào đầu | Loading kết thúc; nhập tên và chọn màu; tuổi 18/vốn 1 triệu |
-| Mở quầy | Trừ 480.000 VNĐ, nhận 20 phần; không mua hai lần |
+| Mở quầy | Xôi 480.000/bánh mì 600.000/trà sữa 800.000; nhận 20 sản phẩm; không mua hai lần |
 | Mở bán trong ca | Tồn kho giảm và tiền tăng theo tick; không cần nút bán cộng tiền |
 | Pause/1×/2×/4× | Pause dừng nghiệp vụ; 1× khoảng 2 giây/5 phút khi tab active; đổi tốc độ không sinh tick trùng |
 | Giá/marketing | Hệ số nhu cầu thay đổi; tiền marketing trừ đúng |
 | Hết hàng/nhập hàng | Không tồn kho âm; nhập tối đa 20 hoặc phần chỗ còn trống; số dư đủ cho cả lượng nhập |
-| Thuê nhân viên | Phí 70.000 một lần; công suất 5/tick; lương 120.000/ngày theo quyết toán |
-| Cuối ca/ngày mới | 10:00 tự đóng; quyết toán tiền thuê/lương, thống kê ngày mới |
+| Thuê nhân viên | Phí 70.000 một lần; công suất xôi/trà sữa 5, bánh mì 7/tick; lương 120.000/ngày theo quyết toán |
+| Cuối ca/ngày mới | Xôi 10:00, bánh mì 14:00, trà sữa 22:00 tự đóng; quyết toán tiền thuê/lương, thống kê ngày mới |
 | Tình huống | Lựa chọn áp dụng một lần; không bán quá hàng, không dùng tiền thiếu; lịch sử giữ tối đa 8 |
 | Reload | Sau autosave giữ tên, tiền, hàng, thời gian, seed và story; so sánh dữ liệu trước và sau tải lại |
 | Chat/đầu tư | Nhận diện chat NPC local và đầu tư khóa; không tuyên bố chức năng chưa có đã chạy |
@@ -79,4 +79,6 @@ Kịch bản live bổ sung: filter theo nghề/tuổi, gặp NPC → hồ sơ, 
 
 ## Ba nghề và quyết toán
 
-41 test/6 file. careers.test.ts bao phủ ca/thời tiết theo nghề, chuyển nghề và hoàn vốn, chặn active order/trading, milk tea order, full ca xôi đối soát dòng tiền, phí một lần, finishDay giữ pause, report 30 ngày, v4 thật →v5, round-trip Dexie và payload hỏng. Live thử đổi nghề, nhân viên/nâng cấp giữ, quầy đổi hình, bán theo tick, kết thúc ngày, report và reload; xem STATUS.md.
+42 test/6 file. careers.test.ts bao phủ ca/thời tiết theo nghề, chuyển nghề và hoàn vốn, chặn active order/trading, milk tea order, full ca xôi đối soát dòng tiền, phí một lần, finishDay giữ pause, report 30 ngày, v4 thật →v5, round-trip Dexie và payload hỏng. Live thử đổi nghề, nhân viên/nâng cấp giữ, quầy đổi hình, bán theo tick, kết thúc ngày, report và reload; xem STATUS.md.
+
+Regression live: bản v4 phải đi qua load/hydrate rồi lưu v5 và reload mà không bị recovery. Khi bảng mở, Phaser pointer phải bị khóa; chọn nghề/đóng bảng không mở hồ sơ NPC phía sau.
