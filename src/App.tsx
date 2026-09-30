@@ -56,7 +56,7 @@ function App() {
       <TopHud saveStatus={saveStatus} />
 
       <section className="game-stage">
-        <GameCanvas />
+        <GameCanvas inputBlocked={Boolean(panel) || !onboarded} />
         <div className="street-caption"><span>KHU PHỐ BÌNH MINH</span><strong>Mỗi ngày, một bước tiến.</strong></div>
         <button className="locate-player" aria-label="Tìm nhân vật" onClick={() => gameEvents.emit('player:focus', undefined)}><Navigation size={18} /></button>
         <div className="movement-hint">Chạm vỉa hè để đi · Chạm người để trò chuyện</div>

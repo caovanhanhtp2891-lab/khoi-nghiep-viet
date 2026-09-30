@@ -1,8 +1,15 @@
 import { useEffect, useRef } from 'react'
 import type { Game } from 'phaser'
 
-export function GameCanvas() {
+export function GameCanvas({ inputBlocked = false }: { inputBlocked?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const gameRef = useRef<Game | undefined>(undefined)
+  const blockedRef = useRef(inputBlocked)
+
+  useEffect(() => {
+    blockedRef.current = inputBlocked
+    if (gameRef.current) gameRef.current.input.enabled = !inputBlocked
+  }, [inputBlocked])
 
   useEffect(() => {
     let cancelled = false
@@ -37,6 +44,8 @@ export function GameCanvas() {
           activePointers: 3,
         },
       })
+      gameRef.current = game
+      game.input.enabled = !blockedRef.current
     }
 
     void bootGame()
@@ -44,6 +53,7 @@ export function GameCanvas() {
     return () => {
       cancelled = true
       game?.destroy(true)
+      gameRef.current = undefined
     }
   }, [])
 
