@@ -80,8 +80,13 @@ function scenesFor(npc: NpcProfile,world:WorldState,topic:string): Scene[] {
  const theme=topic==='greet' ? world.weather==='rain'?'rain':world.weather==='hot'?'hot':world.minuteOfDay>=1140?'night':npc.group==='school'?'school':npc.group==='health'?'health':'neighborhood' : topic
  return DIALOGUE_SCENES.filter(s=>s.theme===theme)
 }
-export function dialogueExchange(npc:NpcProfile,world:WorldState,sequence:number,topic='greet') {
- const scenes=scenesFor(npc,world,topic)
+export function chatSceneIds(input:string):string[]|undefined {
+ const t=input.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replaceAll('đ','d')
+ const numbers=/loi nhuan|co lai|tinh lai|gia von|so sach/.test(t)?[1,10,11]:/gia|giam gia|tang gia/.test(t)?[6,7]:/nhap|nguyen lieu|ton kho|mua hang/.test(t)?[3,4,16]:/nhan vien|tuyen|luong|cong suat/.test(t)?[5]:/thi dua|doi thu/.test(t)?[14,17,18]:/von|du phong|dung cu/.test(t)?[2,9]:/to roi|bien hieu|marketing/.test(t)?[8,19]:/don dat|giao don/.test(t)?[13]:undefined
+ return numbers?.map(n=>`scene-${String(n).padStart(2,'0')}`)
+}
+export function dialogueExchange(npc:NpcProfile,world:WorldState,sequence:number,topic='greet',sceneIds?:string[]) {
+ const scenes=sceneIds ? DIALOGUE_SCENES.filter(s=>sceneIds.includes(s.id)) : scenesFor(npc,world,topic)
  const index=Math.abs(world.day*11+Math.floor(world.minuteOfDay/60)*7+npc.variant+sequence)
  const scene=scenes[index%scenes.length]!
  const variation=Math.floor(index/scenes.length)%10
