@@ -19,7 +19,7 @@ CI hiện chạy lint/test/build trước deploy Pages trên push main hoặc wo
 ## Phạm vi tự động đang có
 
 `src/domain/simulation.test.ts` có 4 test: cùng seed/state cho cùng kết quả; giới hạn tồn kho/công suất; mưa giảm nhu cầu; RNG nhất quán.
-`vite.config.ts` chạy test `src/**/*.test.ts` trong môi trường `node`. Đợt Street Edition thêm test Dexie round-trip/migration/backup, store giao dịch story, gender/vị trí/chat và seed story; tổng 15 test trong 4 file. Chưa có test React hoặc E2E browser. `saveDb.test.ts` dùng fake-indexeddb/auto.
+`vite.config.ts` chạy test `src/**/*.test.ts` trong môi trường `node`. Đợt Street Edition thêm test Dexie round-trip/migration/backup, store giao dịch story, gender/vị trí/chat và seed story; đợt đó có 15 test trong 4 file; bản 100 cư dân hiện có 25 test/5 file. Chưa có test React hoặc E2E browser. `saveDb.test.ts` dùng fake-indexeddb/auto.
 
 Kết quả test mô phỏng thành công không chứng minh save/load hoặc UI chạy đúng. Khi sửa nghiệp vụ hãy test hành vi và các ranh giới; không test chỉ để lặp lại cấu trúc implementation.
 
@@ -39,8 +39,8 @@ Dùng profile/dữ liệu thử; giữ bản sao save cần bảo toàn. B01 đ�
 | Cuối ca/ngày mới | 10:00 tự đóng; quyết toán tiền thuê/lương, thống kê ngày mới |
 | Tình huống | Lựa chọn áp dụng một lần; không bán quá hàng, không dùng tiền thiếu; lịch sử giữ tối đa 8 |
 | Reload | Sau autosave giữ tên, tiền, hàng, thời gian, seed và story; so sánh dữ liệu trước và sau tải lại |
-| Chat/đầu tư | Nhận diện phần mẫu/khóa; không tuyên bố chức năng chưa có đã chạy |
-| PNG và Phaser | 12 asset không 404; chạm quầy mở bảng; resize không nhân đôi listener/NPC timer |
+| Chat/đầu tư | Nhận diện chat NPC local và đầu tư khóa; không tuyên bố chức năng chưa có đã chạy |
+| Asset và Phaser | Nền/atlas và 100 SVG NPC không 404; chạm quầy mở bảng; resize không nhân đôi listener/NPC timer |
 | Mobile | Rộng 320/360/390/430 px; màn hình ngắn; bàn phím nhập tên; safe area; bảng cuộn nội bộ |
 | Lifecycle | Chuyển tab, quay lại, unmount/remount; không crash hoặc tăng tiền hai lần |
 

@@ -35,7 +35,7 @@ Chi tiết thiết kế và lộ trình dài hạn nằm trong [PLAN.md](./PLAN.
 
 Bắt đầu từ [AGENTS.md](AGENTS.md), sau đó đọc [hiện trạng](docs/STATUS.md), [kiến trúc](docs/ARCHITECTURE.md) và [bàn giao](docs/HANDOFF.md). Danh sách đầy đủ nằm ở [docs/README.md](docs/README.md).
 
-[PLAN.md](PLAN.md) mô tả thiết kế và lộ trình dài hạn; trạng thái đã triển khai thực tế nằm ở [STATUS.md](docs/STATUS.md). Street Edition đã sửa loader v2 và chuyển payload mới sang v3. Xem [hiện trạng](docs/STATUS.md) để biết kết quả kiểm tra và phần còn thiếu.
+[PLAN.md](PLAN.md) mô tả thiết kế và lộ trình dài hạn; trạng thái đã triển khai thực tế nằm ở [STATUS.md](docs/STATUS.md). Street Edition sửa loader v2; bản 100 cư dân dùng payload v4 tương thích v1–v3. Xem [hiện trạng](docs/STATUS.md) để biết kết quả kiểm tra và phần còn thiếu.
 
 ## Street Edition
 

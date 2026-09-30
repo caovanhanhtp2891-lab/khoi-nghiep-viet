@@ -1,29 +1,27 @@
-# Bàn giao Street Edition
+# Bàn giao bản 100 cư dân
 
-Ngày 30/09/2026. Phát triển từ `90bdd778dcb99117187da7c6eabbf5403c42206f`; commit chứa file này xác định phiên bản hiện hành.
+Ngày 30/09/2026. Mã cuối kiểm tra `d131043b17d7842ea171da06c8fde0523182d2bb`, triển khai Pages thành công. Đọc AGENTS.md → STATUS.md → ARCHITECTURE.md → NPC_SYSTEM.md/SAVE_FORMAT.md trước khi sửa. Có 25 test/5 file + check 100 SVG; lint/build pass cục bộ và CI.
 
-Đọc AGENTS.md, STATUS.md, ARCHITECTURE.md, SAVE_FORMAT.md trước khi sửa. Đợt này đã đổi scene, UI, onboarding nam/nữ, auto-hide thông báo, chat offline, migration v3 và bảo vệ save lỗi. Có 15 test và lint/build pass cục bộ.
+## Những file cần biết
 
-## File cần biết
+- `MainScene.ts`: world 1024×1536, background portrait, atlas người chơi nam/nữ; 100 texture NPC riêng nhưng tối đa 10 actor; roster nghề trộn, chạm NPC phát npc:selected. Bubble giới hạn 3; route chạm tránh xe xôi; không phải bản đồ rộng.
+- `npcCatalog.ts`: 100 tên/tuổi/giới tính/nghề, advice và roster. `npcArt.ts`: renderer SVG 4 frame/sheet; `pnpm assets:npcs` tái tạo. `pnpm test` kiểm tra cả 100 asset khớp source.
+- `neighborhood.ts`: schema, quan hệ, 3 đơn/ngày, 8 milestone và 3 upgrade. `gameStore.ts` thực hiện giao dịch, không để scene tự tạo tiền.
+- `NeighborhoodPanel.tsx`, `NpcPortrait.tsx`: sổ/filter/hồ sơ/đơn/nhiệm vụ, dùng BASE_URL. Bảng mở bằng fade để mục tiêu chạm không trượt trong animation.
+- `migrateSave.ts`: validate unknown và migrate v1–v4. Không reset dữ liệu để né migration. `snapshotFromStore` có neighborhood.
+- `saveDb.ts`: autosave + backup lần ghi trước, `?demo=1` dùng DB riêng. Runtime blocked khi load lỗi, không ghi đè payload lỗi. Chưa khóa nhiều tab.
+- `NoticeToast.tsx`: timeout 1000ms độc lập, cleanup; bubble/story có tuổi thọ khác.
 
-- `MainScene.ts`: nền portrait 1024×1536, texture atlas 4 cột×2 hàng, camera fit; đi trên vỉa hè và tương tác NPC.
-- `CharacterArt.tsx`: dùng cùng atlas trong React; BASE_URL cho đường dẫn public.
-- `migrateSave.ts`: validate và chuyển payload lịch sử về version 3. Đừng xóa tiến độ người chơi để né migration.
-- `saveDb.ts`: autosave/backup trong cùng bảng, load lỗi ném exception; runtime blocked không ghi đè.
-- `NoticeToast.tsx`: timeout 1000ms riêng mỗi thông báo, cleanup khi unmount.
-- `chat.ts`, `gameStore.ts`, `GamePanel.tsx`: hội thoại NPC trên máy; chưa có backend.
+## Điểm đã kiểm tra thực tế
 
-## Công việc tiếp theo
+Main giữ Minh/715.000/ngày8/pause. Demo nữ giữ quan hệ, thưởng đã nhận, đơn đã giao, tủ đã lắp và 475.000/16 trên 90 hàng qua reload. Viewport CSS 320/360/390/430 không tràn cả trang; bảng cuộn riêng. Chi tiết giao dịch/CI/ảnh trong STATUS.md. Không đặt lại dữ liệu chính trong kiểm thử.
 
-1. Xem kết quả kiểm tra live trong STATUS.md và workflow của commit triển khai.
-2. Kiểm tra viewport 320/360/390/430, màn hình ngắn, safe area và thiết bị thật. Cloud browser desktop chưa thay thế được kiểm tra máy thật.
-3. Cải thiện pathfinding tránh vật cản, ngoại hình/animation đa dạng và hiệu năng; hiện camera chỉ một cảnh vỉa hè.
-4. Kiểm thử/cân bằng quyết toán một ngày rồi tách cấu hình nghề mới.
+## Việc tiếp theo cụ thể
 
-Không nâng dependency ngoài phạm vi; không khẳng định chat online hoặc offline catch-up đã có. Tài sản raster được tạo mới bằng built-in image generation và lưu tại public/assets/art; thông số/prompt ở ASSETS.md và ART_PROMPTS.md.
+1. Đo preload/RAM/FPS trên Android/iOS thật, có cân nhắc lazy texture/atlas tổng nếu số liệu yêu cầu; không tuyên bố benchmark từ iframe.
+2. Kiểm tra một ca và quyết toán ngày đầy đủ; test deadline qua nửa đêm, thay đổi speed/pause và tương tác tình huống khi nhận đơn.
+3. Thêm visual upgrade; lịch từng cư dân/đối thoại phân nhánh, hoặc đường đi giao hàng nếu chủ dự án ưu tiên.
+4. Tách cấu hình nghề bán hàng trước thêm nghề thứ hai; 50 nghề NPC không phải 50 nghề economy có thể chơi.
+5. Thêm lock nhiều tab và backup nhiều phiên/import có validate trước cloud save/online.
 
-## Cập nhật 100 cư dân
-
-Đọc thêm NPC_SYSTEM.md. Current payload là v4; cập nhật mới giữ save v1–v3. Renderer NPC là vector riêng (npcArt.ts), generator/check và 100 SVG trong public/assets/npcs-v2. Có 25 test/5 file, lint/build pass cục bộ. Xem STATUS.md cho kết quả live mới nhất.
-
-Ưu tiên tiếp: đo preload SVG/RAM/FPS trên máy thật, upgrade visual, kiểm tra quyết toán ngày mới và deadline qua nửa đêm, thêm lịch NPC cá nhân, nhiều nghề bằng dữ liệu. Không nhầm 100 NPC trong catalog với 100 người vẽ đồng thời (tối đa 10).
+Không nâng dependency ngoài phạm vi. Giữ UTF-8, seed economy và save compatibility. Nguồn raster/prompt ở ASSETS.md/ART_PROMPTS.md; NPC vector là mã gốc trong kho.

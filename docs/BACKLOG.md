@@ -1,16 +1,16 @@
 # Backlog có thể bàn giao
 
-Đối chiếu: 30/09/2026, mã `7fed1c563a7e3493b329c51bcbef10b98e595db5`.
-Cập nhật Street Edition: B01–B04 đã có sửa mã và regression test; cần xem STATUS.md cho bằng chứng live. B05 chưa đối soát đầy đủ cả ngày; B06 cần hoàn tất kiểm tra mobile. F02 có chạm/phím di chuyển giới hạn vỉa hè, chưa pathfinding hoàn chỉnh; F04 có chat theo lịch/ngữ cảnh trên máy. Những phần mở rộng khác chưa làm. Ưu tiên là đề xuất từ hiện trạng, không phải xác nhận của chủ dự án về lịch phát triển.
+Đối chiếu: 30/09/2026, mã `d131043b17d7842ea171da06c8fde0523182d2bb`.
+Cập nhật Street Edition: B01–B04 đã có sửa mã và regression test; cần xem STATUS.md cho bằng chứng live. B05 chưa đối soát đầy đủ cả ngày; B06 đã kiểm tra viewport CSS 320/360/390/430, còn thiết bị thật/lifecycle đầy đủ. F02 có chạm/phím di chuyển giới hạn vỉa hè, chưa pathfinding hoàn chỉnh; F04 có chat theo lịch/ngữ cảnh trên máy. Những phần mở rộng khác chưa làm. Ưu tiên là đề xuất từ hiện trạng, không phải xác nhận của chủ dự án về lịch phát triển.
 
 ## Sửa nền tảng trước
 
 | ID | Việc | File bắt đầu | Tiêu chí nghiệm thu |
 |---|---|---|---|
-| B01 / P0 | Sửa tải snapshot v2 và tương thích v1 | `saveDb.ts`, `gameStore.ts`, `types.ts` | Save v2 → load giữ nguyên dữ liệu; fixture v1 thật được chuyển sang v2 có story mặc định; bản hỏng/không hỗ trợ không bị ghi đè âm thầm; có test round-trip và reload browser |
+| B01 / P0 | Sửa tải snapshot v2 và tương thích v1 | `saveDb.ts`, `gameStore.ts`, `types.ts` | Save v2 → load giữ nguyên dữ liệu; fixture v1 được chuyển sang v4 có story mặc định; bản hỏng/không hỗ trợ không bị ghi đè âm thầm; có test round-trip và reload browser |
 | B02 / P1 | Phục hồi dấu tiếng Việt của story | `situations.ts`, `gameStore.ts` | Nội dung, tên, lựa chọn và icon không còn dấu hỏi thay chữ; UTF-8 trên GitHub và điện thoại; rà soát cả thông báo |
 | B03 / P1 | Chặn bán thiếu hàng trong lựa chọn NPC | `gameStore.ts`, `situations.ts` | Test tồn kho 0, nhỏ hơn, bằng, lớn hơn đơn đặt; tiền/doanh thu/giá vốn/khách khớp số hàng thực; bấm lặp không nhận tiền lần hai |
-| B04 / P1 | Kiểm tra đúng seed trả về sau sinh choices | `situations.ts` | Seed trả về phản ánh trạng thái RNG sau mọi lần rút số; cùng seed/context cho cùng kết quả; tick tiếp nối có test. Hiện seed kết quả được đọc trước `makeChoices()` còn tiếp tục đổi seed |
+| B04 / P1 | Kiểm tra đúng seed trả về sau sinh choices | `situations.ts` | Seed trả về phản ánh trạng thái RNG sau mọi lần rút số; cùng seed/context cho cùng kết quả; tick tiếp nối có test. Lỗi lịch sử đọc seed trước `makeChoices()` đã sửa, regression test thành công |
 | B05 / P1 | Kiểm tra luồng một ca bán | domain/store/UI | Đối soát tiền đầu–cuối, nhập hàng, marketing, tuyển dụng, chi phí sang ngày; pause/speed không nhân đôi giao dịch; có bằng chứng test và chơi thử |
 | B06 / P1 | Kiểm tra mobile và lifecycle | `App.css`, `GameCanvas.tsx`, `MainScene.ts` | 320/360/390/430 px dùng được; không cuộn cả trang; bảng cuộn nội bộ; resize không nhân đôi timer/event; PNG load đúng trên đường dẫn GitHub Pages |
 
@@ -40,8 +40,8 @@ Cập nhật Street Edition: B01–B04 đã có sửa mã và regression test; c
 
 ## Ưu tiên sau Street Edition
 
-- Kiểm tra live và mobile thực tế; bổ sung E2E khi có hạ tầng browser test.
-- Pathfinding quanh xe xôi, đa dạng sprite nghề/tuổi và animation hướng đi.
+- Kiểm tra thiết bị mobile thật; bổ sung E2E khi có hạ tầng browser test.
+- Đã tránh xe xôi cho chạm để đi và có 100 NPC nghề/tuổi; tiếp tục pathfinding rộng và animation hướng đi.
 - Backup nhiều phiên/import, khóa save giữa nhiều tab.
 - Tách cấu hình nghề và cân bằng quyết toán trước thêm ngành.
 - Bundle Phaser hiện lớn; đo tải, FPS và bộ nhớ trên điện thoại.

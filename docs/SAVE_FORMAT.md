@@ -1,39 +1,46 @@
-# Save format version 3
+# Save format version 4
 
-Cập nhật 30/09/2026 trong đợt Street Edition. Database Dexie `khoi-nghiep-viet` vẫn version 1, bảng `saves` index `id, savedAt`; envelope schemaVersion vẫn 1. Payload version game mới là 3.
+Cập nhật 30/09/2026. Database Dexie `khoi-nghiep-viet` vẫn version 1, bảng `saves` index `id, savedAt`; envelope schemaVersion vẫn 1. Payload game hiện version **4**. `?demo=1` dùng database `khoi-nghiep-viet-demo` riêng.
+
+## Slot và envelope
 
 | Slot | Mục đích |
 |---|---|
 | autosave | Tiến độ mới nhất |
-| backup | Bản trước lần ghi autosave gần nhất; không phải lưu trữ nhiều phiên lâu dài |
+| backup | Bản trước lần ghi autosave gần nhất, không phải lịch sử nhiều phiên |
 
-Mỗi record: `{ id, schemaVersion: 1, savedAt: ISO string, payload }`. `payload` được đọc như unknown, validate/migrate trước hydrate. Một transaction ghi backup rồi autosave để không tách giao dịch.
+Record `{ id, schemaVersion: 1, savedAt: ISO string, payload }`. Đọc payload unknown, validate/migrate trước hydrate. Transaction ghi backup rồi autosave. Loader không tự xóa dữ liệu hỏng; runtime blocked chặn tick/persist. UI cho export raw records hoặc restore backup đã validate.
 
-## Thay đổi payload
+## Snapshot
 
-`GameSnapshot` vẫn có player/world/business/dayStats/lifetime/story/tutorial/notices; thêm `player.gender` (male/female), `player.position` ({x,y} chuẩn hóa), `chat` và `chatSeq`.
+GameSnapshot gồm player/world/business/dayStats/lifetime/story/tutorial/notices/chat/chatSeq và neighborhood. Player có gender male/female, position {x,y} normalized. Chat tối đa 40 tin, npcId tùy chọn để gắn portrait; story history tối đa 8.
 
-- v1: có thể thiếu story; thêm defaults.
-- v2: có story, chưa gender/position/chat; thêm defaults, giữ tiền/tồn kho/thời gian/seed.
-- v3: validate giới tính/vị trí, các nhóm số liệu và story; clamp vị trí trong vỉa hè.
-- Loader không còn loại v2. Hàm `migrateSnapshot()` riêng ở domain.
-- Thông báo transient không được phát lại khi load. Story cũ có title hỏng dấu hỏi bị bỏ tình huống đó; tiến độ kinh tế vẫn giữ.
-- Chat valid tối đa 40 tin, history story tối đa 8. Migration không chạy offline catch-up.
+Neighborhood gồm:
 
-Runtime đọc save trước tick/autosave; khi loader thất bại, trạng thái blocked bảo vệ slot hiện có. UI cho tải raw records JSON hoặc khôi phục backup hợp lệ. Không tự xóa/reset dữ liệu lỗi. `restoreBackup()` đưa payload hợp lệ sang autosave; ghi chú slot backup chỉ là lần ghi trước.
+| Trường | Nội dung |
+|---|---|
+| relationships | NPC id → {bond 0–100, greetedDay, meetings} |
+| activeOrder | null hoặc id/npcId/day/quantity/unitPrice/acceptedAt/dueAt |
+| completedOrders | Tối đa 60 id đơn đã giao gần nhất |
+| deliveries | Tổng đơn hoàn thành |
+| upgrades | canopy/storage/sign, mỗi loại một lần |
+| claimedMilestones | ID milestone đã nhận thưởng một lần |
 
-Autosave mỗi 5 giây, khi tab ẩn và khi runtime cleanup; tránh chạy hai persist đồng thời. Đồng hồ không chạy trước onboarding. Pause giữ qua reload. Vị trí cập nhật khi đến đích hoặc thả phím; autosave khi đang đi có thể giữ vị trí trước hành trình.
+NPC/milestone/upgrade id được validate bằng catalog. Đơn active phải khớp giá, số lượng, NPC trong dailyOrders(day); dueAt=acceptedAt+120. Đơn cũ hết hạn vẫn load được để người chơi hủy, không được giao sau hạn hoặc khác ngày. Chi tiết rule và đối soát xem [NPC_SYSTEM.md](NPC_SYSTEM.md).
 
-## Vị trí lưu và giới hạn
+## Migration
 
-IndexedDB theo origin/profile trình duyệt; không phải ID phần cứng, không đồng bộ nhiều máy. Đổi domain, xóa dữ liệu website hay chế độ riêng tư ảnh hưởng khả năng tìm save. Chưa có import UI, lịch sử backup nhiều phiên, xử lý xung đột nhiều tab hoặc cloud save.
+- v1: có thể thiếu story; thêm defaults. Player chưa có gender/position.
+- v2: có story, chưa gender/position; thêm mặc định, giữ tiền/tồn kho/thời gian/seed.
+- v3: giữ giới tính/vị trí/chat, thêm neighborhood mặc định.
+- v4: validate nhóm mới cùng dữ liệu cũ. Phiên bản tương lai chưa hỗ trợ → exception và blocked.
+- Migrate về v4, clamp vị trí x 0,08–0,92/y 0,64–0,79; notices transient không phát lại. Story cũ có title hỏng dấu hỏi được bỏ tình huống đó, giữ economy.
+- Không chạy offline catch-up, không tự đổi pause sang false. Snapshot phải gồm neighborhood khi autosave; không serialize function actions.
 
-## Kiểm thử
+Autosave mỗi 5 giây, tab ẩn và runtime cleanup; tránh hai persist đồng thời trong một instance. Vị trí cập nhật khi đến đích/thả phím; save đang đi có thể giữ điểm trước hành trình.
 
-`saveDb.test.ts` dùng fake-indexeddb: load v2, migrate v1 thiếu story, round-trip v3 nữ/vị trí/chat/tiền/seed/pause, dữ liệu hỏng/phiên bản tương lai giữ nguyên, khôi phục backup. Khi thêm trường/phiên bản mới tiếp tục fixture cũ và thử reload browser, không chỉ test interface.
+## Kiểm thử và giới hạn
 
-`?demo=1` dùng database `khoi-nghiep-viet-demo` riêng, giữ nguyên database hồ sơ chính. Đây là chế độ test để tạo nhân vật/chơi thử mà không đặt lại tiến độ chính.
+Dexie test fake-indexeddb: v2 load, v1 thiếu story, round-trip nữ/vị trí/chat/quan hệ/upgrade/milestone/tiền/RNG/pause, payload hỏng/tương lai còn nguyên, backup restore. Neighborhood test thêm v3→v4 và đơn/quan hệ sai. Live reload giữ cả tiến độ chính và tiến độ demo mới; chi tiết STATUS.md.
 
-## Version 4 — cư dân
-
-Payload mới là **v4**; database/envelope/slots giữ nguyên. v1/v2/v3 nâng lên v4, thêm `neighborhood` mặc định. Giữ tiền, hàng, đồng hồ, seed, giới tính/vị trí/chat từ v3. Schema và quy tắc nhóm neighborhood xem [NPC_SYSTEM.md](NPC_SYSTEM.md). `migrateSnapshot` validate nhóm mới, không chấp nhận giá đơn bị sửa, NPC id lạ hoặc bond ngoài 0–100. Test Dexie round-trip đã thêm quan hệ, upgrade và milestone.
+IndexedDB phụ thuộc origin/profile, không phải ID phần cứng hay đồng bộ nhiều máy. Chưa import UI, backup nhiều phiên, lock/xử lý xung đột nhiều tab hay cloud save. Không mở nhiều tab cùng một hồ sơ để kiểm thử giao dịch; dùng demo riêng với hồ sơ chính.
