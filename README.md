@@ -42,3 +42,11 @@ Bắt đầu từ [AGENTS.md](AGENTS.md), sau đó đọc [hiện trạng](docs/
 Chọn nhân vật nam/nữ, chạm vỉa hè để đi (máy tính dùng phím mũi tên), chạm quầy để quản lý và chạm NPC để nghe lời thoại. Chat khu phố hiện là hội thoại local với NPC, chưa có người chơi online. Thông báo tự ẩn sau 1 giây; tình huống lựa chọn được giữ tới khi xử lý.
 
 Để thử tạo nhân vật mới mà giữ tiến độ chính, thêm `?demo=1` vào URL game. Hồ sơ chơi thử được lưu riêng.
+
+## Khu phố 100 cư dân
+
+Sổ **Cư dân** có 100 NPC hư cấu, 50 nghề/vai trò, độ tuổi 7–82. Mỗi người có sprite SVG riêng gồm 4 frame đi bộ; không dùng sprite người chơi. Chạm NPC hoặc mở sổ để xem hồ sơ, chào hỏi, hỏi chuyện nghề và tăng tình thân một lần/ngày.
+
+Trong Cư dân có **Đơn đặt** (3 đề nghị/ngày, một đơn đang nhận, hạn 120 phút game) và **Nhiệm vụ** (8 mốc thưởng một lần). Quản lý **Kinh doanh** có 3 nâng cấp: mái che, tủ nguyên liệu và biển hiệu. Tất cả tiến độ mới được lưu trong payload v4, giữ tiến độ v1–v3.
+
+Chỉnh dữ liệu/ngoại hình NPC tại `src/domain/npcCatalog.ts` và `src/domain/npcArt.ts`, rồi chạy `pnpm assets:npcs`. `pnpm test` kiểm tra cả 100 asset khớp generator trước khi chạy unit test. Chi tiết xem [NPC_SYSTEM.md](docs/NPC_SYSTEM.md).

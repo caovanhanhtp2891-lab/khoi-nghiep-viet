@@ -1,3 +1,5 @@
+import { getNpc } from './npcCatalog'
+import { MILESTONES, UPGRADES, dailyOrders } from './neighborhood'
 import { createInitialSnapshot } from '../store/initialState'
 import type { GameSnapshot } from './types'
 
@@ -11,13 +13,13 @@ function validSituation(value: unknown): boolean {
 
 /** Validate unknown historical payloads before allowing autosave to replace them. */
 export function migrateSnapshot(raw: unknown): GameSnapshot {
-  if (!record(raw) || !(typeof raw.version === 'number' && [1, 2, 3].includes(raw.version))) throw new Error('Phiên bản dữ liệu không được hỗ trợ')
+  if (!record(raw) || !(typeof raw.version === 'number' && [1, 2, 3, 4].includes(raw.version))) throw new Error('Phiên bản dữ liệu không được hỗ trợ')
   const defaults = createInitialSnapshot()
   for (const group of ['player', 'world', 'business', 'dayStats', 'lifetime'] as const) {
     const source = raw[group]
     if (!record(source)) throw new Error(`Dữ liệu ${group} không hợp lệ`)
     for (const [key, value] of Object.entries(defaults[group])) {
-      if (group === 'player' && ['gender', 'position'].includes(key) && raw.version !== 3) continue
+      if (group === 'player' && ['gender', 'position'].includes(key) && Number(raw.version) < 3) continue
       const actual = source[key]
       if (typeof value === 'number' && (typeof actual !== 'number' || !Number.isFinite(actual))) throw new Error(`Số liệu ${group}.${key} không hợp lệ`)
       if (typeof value === 'string' && typeof actual !== 'string') throw new Error(`Nội dung ${group}.${key} không hợp lệ`)
@@ -31,9 +33,9 @@ export function migrateSnapshot(raw: unknown): GameSnapshot {
   if (Number(world.minuteOfDay) < 0 || Number(world.minuteOfDay) >= 1440 || Number(world.day) < 1 || Number(business.inventory) < 0 || Number(business.inventory) > Number(business.maxInventory)) throw new Error('Trạng thái game ngoài giới hạn')
   if (typeof raw.onboarded !== 'boolean' || typeof raw.tutorialStep !== 'number' || !Number.isFinite(raw.tutorialStep)) throw new Error('Tiến trình mở đầu không hợp lệ')
   if (raw.version !== 1 && (!record(raw.story) || !Array.isArray(raw.story.history) || ![raw.story.lastSituationAt, raw.story.resolvedToday].every((v) => typeof v === 'number' && Number.isFinite(v)) || !(raw.story.activeSituation === null || validSituation(raw.story.activeSituation)) || !raw.story.history.every(validSituation))) throw new Error('Dữ liệu tình huống không hợp lệ')
-  if (raw.version === 3 && (!['male', 'female'].includes(String(player.gender)) || !record(player.position) || ![player.position.x, player.position.y].every((v) => typeof v === 'number' && Number.isFinite(v)))) throw new Error('Nhân vật không hợp lệ')
+  if (Number(raw.version) >= 3 && (!['male', 'female'].includes(String(player.gender)) || !record(player.position) || ![player.position.x, player.position.y].every((v) => typeof v === 'number' && Number.isFinite(v)))) throw new Error('Nhân vật không hợp lệ')
   const result = {
-    ...defaults, ...raw, version: 3,
+    ...defaults, ...raw, version: 4,
     player: { ...defaults.player, ...player },
     world: { ...defaults.world, ...world },
     story: { ...defaults.story, ...(record(raw.story) ? raw.story : {}) },
@@ -41,6 +43,23 @@ export function migrateSnapshot(raw: unknown): GameSnapshot {
     chatSeq: typeof raw.chatSeq === 'number' && Number.isFinite(raw.chatSeq) ? raw.chatSeq : 0,
     notices: [], noticeSeq: typeof raw.noticeSeq === 'number' && Number.isFinite(raw.noticeSeq) ? raw.noticeSeq : 0,
   } as GameSnapshot
+  if (raw.version === 4) {
+    const n = raw.neighborhood
+    if (!record(n) || !record(n.relationships) || !Array.isArray(n.completedOrders) || !Array.isArray(n.upgrades) || !Array.isArray(n.claimedMilestones) || typeof n.deliveries !== 'number' || !Number.isSafeInteger(n.deliveries) || n.deliveries < 0) throw new Error('Tiến trình khu phố không hợp lệ')
+    for (const [id, r] of Object.entries(n.relationships)) {
+      if (!getNpc(id) || !record(r) || ![r.bond,r.greetedDay,r.meetings].every(v=>typeof v==='number' && Number.isSafeInteger(v) && v>=0) || Number(r.bond)>100 || Number(r.greetedDay)>Number(world.day)) throw new Error('Quan hệ cư dân không hợp lệ')
+    }
+    if (n.completedOrders.length>60 || !n.completedOrders.every(id=>typeof id==='string' && /^delivery-[1-9]\d*-[0-2]$/.test(id)) || !n.upgrades.every(id=>UPGRADES.some(u=>u.id===id)) || !n.claimedMilestones.every(id=>MILESTONES.some(m=>m.id===id))) throw new Error('Nhiệm vụ khu phố không hợp lệ')
+    if (n.activeOrder !== null) {
+      const order=n.activeOrder
+      if (!record(order) || typeof order.day!=='number' || !Number.isSafeInteger(order.day) || order.day<1 || order.day>Number(world.day)) throw new Error('Đơn cư dân không hợp lệ')
+      const offer=dailyOrders(order.day).find(o=>o.id===order.id)
+      if (!offer || offer.npcId!==order.npcId || offer.quantity!==order.quantity || offer.unitPrice!==order.unitPrice || ![order.acceptedAt,order.dueAt].every(v=>typeof v==='number' && Number.isFinite(v)) || Number(order.dueAt)!==Number(order.acceptedAt)+120 || Number(order.acceptedAt)<order.day*1440 || Number(order.acceptedAt)>order.day*1440+1439 || n.completedOrders.includes(order.id)) throw new Error('Đơn cư dân không hợp lệ')
+    }
+    result.neighborhood = structuredClone(n) as unknown as GameSnapshot['neighborhood']
+    result.neighborhood.upgrades = [...new Set(result.neighborhood.upgrades)]
+    result.neighborhood.claimedMilestones = [...new Set(result.neighborhood.claimedMilestones)]
+  } else result.neighborhood = defaults.neighborhood
   // Old corrupted Vietnamese text cannot be restored by changing its encoding.
   if (result.story.activeSituation?.title.includes('?')) result.story.activeSituation = null
   result.story.history = result.story.history.filter((v) => !v.title.includes('?')).slice(-8)

@@ -16,12 +16,20 @@ import { clamp, simulateTick } from '../domain/simulation'
 import { gameEvents } from '../game/events'
 import { migrateSnapshot } from '../domain/migrateSave'
 import { npcChatLine } from '../domain/chat'
+import { getNpc, npcLine } from '../domain/npcCatalog'
+import { dailyOrders, absoluteMinute, MILESTONES, UPGRADES, type UpgradeId } from '../domain/neighborhood'
 import { createInitialSnapshot } from './initialState'
 
 export interface GameActions {
   startJourney: (name: string, avatarStyle: AvatarStyle, gender?: Gender) => void
   movePlayer: (x: number, y: number) => void
   sendChat: (text: string) => void
+  talkToNpc: (id: string, topic?: 'greet' | 'work') => void
+  acceptOrder: (id: string) => void
+  completeOrder: () => void
+  cancelOrder: () => void
+  buyUpgrade: (id: UpgradeId) => void
+  claimMilestone: (id: string) => void
   buyFirstBooth: () => void
   toggleBusiness: () => void
   restock: () => void
@@ -79,6 +87,7 @@ export function snapshotFromStore(state: GameStore): GameSnapshot {
     notices: state.notices,
     chat: state.chat,
     chatSeq: state.chatSeq,
+    neighborhood: state.neighborhood,
   })
 }
 
@@ -113,6 +122,84 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const id = state.chatSeq + 1
     const reply = npcChatLine(state.world, state.business, id)
     set({ chatSeq: id + 1, chat: [...state.chat, { id, name: state.player.name, text: clean, minute, fromPlayer: true }, { id: id + 1, ...reply, minute, fromPlayer: false }].slice(-40) })
+  },
+
+  talkToNpc: (npcId, topic = 'greet') => {
+    const state = get()
+    const npc = getNpc(npcId)
+    if (!npc || !state.onboarded) return
+    const previous = state.neighborhood.relationships[npcId] ?? { bond: 0, greetedDay: 0, meetings: 0 }
+    const firstToday = previous.greetedDay !== state.world.day
+    const relationship = { bond: clamp(previous.bond + (firstToday ? 3 : 0), 0, 100), greetedDay: state.world.day, meetings: previous.meetings + (firstToday ? 1 : 0) }
+    const xp = state.player.xp + (firstToday ? 3 : 0)
+    const id = state.chatSeq + 1
+    set({
+      neighborhood: { ...state.neighborhood, relationships: { ...state.neighborhood.relationships, [npcId]: relationship } },
+      player: { ...state.player, xp, level: Math.max(state.player.level, 1 + Math.floor(xp / 350)) },
+      chatSeq: id,
+      chat: [...state.chat, { id, npcId, name: `${npc.name} · ${npc.job}`, text: npcLine(npc, state.world, state.business, topic), minute: absoluteMinute(state), fromPlayer: false }].slice(-40),
+    })
+  },
+
+  acceptOrder: (id) => {
+    const state = get()
+    const offer = dailyOrders(state.world.day).find(o => o.id === id)
+    if (!state.onboarded || !state.business.owned || !offer || state.neighborhood.activeOrder || state.neighborhood.completedOrders.includes(id)) return
+    const at = absoluteMinute(state)
+    set({ neighborhood: { ...state.neighborhood, activeOrder: { ...offer, acceptedAt: at, dueAt: at + 120 } }, ...appendNotice(state, 'Đã nhận đơn. Chuẩn bị đủ hàng trong 120 phút game.', 'info') })
+  },
+
+  completeOrder: () => {
+    const state = get()
+    const order = state.neighborhood.activeOrder
+    if (!order || state.neighborhood.completedOrders.includes(order.id)) return
+    if (absoluteMinute(state) > order.dueAt || state.world.day !== order.day) {
+      set(appendNotice(state, 'Đơn đã hết hạn. Hủy đơn để nhận đơn khác.', 'warning')); return
+    }
+    if (state.business.inventory < order.quantity) {
+      set(appendNotice(state, 'Chưa đủ nguyên liệu để giao trọn đơn.', 'warning')); return
+    }
+    const revenue = order.quantity * order.unitPrice
+    const cogs = order.quantity * state.business.unitCost
+    const previous = state.neighborhood.relationships[order.npcId] ?? { bond: 0, greetedDay: 0, meetings: 0 }
+    const xp = state.player.xp + 15
+    set({
+      neighborhood: { ...state.neighborhood, activeOrder: null, deliveries: state.neighborhood.deliveries + 1, completedOrders: [...state.neighborhood.completedOrders, order.id].slice(-60), relationships: { ...state.neighborhood.relationships, [order.npcId]: { ...previous, bond: clamp(previous.bond + 8, 0, 100) } } },
+      business: { ...state.business, inventory: state.business.inventory - order.quantity },
+      player: { ...state.player, money: state.player.money + revenue, xp, level: Math.max(state.player.level, 1 + Math.floor(xp / 350)) },
+      dayStats: { ...state.dayStats, revenue: state.dayStats.revenue + revenue, cogs: state.dayStats.cogs + cogs, customers: state.dayStats.customers + order.quantity },
+      lifetime: { ...state.lifetime, revenue: state.lifetime.revenue + revenue, customers: state.lifetime.customers + order.quantity },
+      ...appendNotice(state, `Đã giao ${order.quantity} phần cho ${getNpc(order.npcId)?.name}. +${revenue.toLocaleString('vi-VN')}đ`, 'success'),
+    })
+    gameEvents.emit('simulation:update', snapshotFromStore(get()))
+    gameEvents.emit('sale', { count: order.quantity, revenue })
+  },
+  cancelOrder: () => set(state => ({ neighborhood: { ...state.neighborhood, activeOrder: null } })),
+
+  buyUpgrade: (id) => {
+    const state = get()
+    const upgrade = UPGRADES.find(u => u.id === id)
+    if (!upgrade || !state.business.owned || state.neighborhood.upgrades.includes(id) || state.player.money < upgrade.cost) return
+    set({
+      neighborhood: { ...state.neighborhood, upgrades: [...state.neighborhood.upgrades, id] },
+      player: { ...state.player, money: state.player.money - upgrade.cost },
+      business: { ...state.business, maxInventory: state.business.maxInventory + (id === 'storage' ? 30 : 0) },
+      dayStats: { ...state.dayStats, expenses: state.dayStats.expenses + upgrade.cost },
+      ...appendNotice(state, `Đã lắp ${upgrade.title.toLocaleLowerCase('vi')}.`, 'success'),
+    })
+    gameEvents.emit('simulation:update', snapshotFromStore(get()))
+  },
+
+  claimMilestone: (id) => {
+    const state = get()
+    const milestone = MILESTONES.find(m => m.id === id)
+    if (!state.onboarded || !milestone || state.neighborhood.claimedMilestones.includes(id) || milestone.progress(state) < milestone.target) return
+    const xp = state.player.xp + milestone.xp
+    set({
+      neighborhood: { ...state.neighborhood, claimedMilestones: [...state.neighborhood.claimedMilestones, id] },
+      player: { ...state.player, money: state.player.money + milestone.money, xp, level: Math.max(state.player.level, 1 + Math.floor(xp / 350)) },
+      ...appendNotice(state, `Hoàn thành “${milestone.title}”: +${milestone.money.toLocaleString('vi-VN')}đ, +${milestone.xp} XP.`, 'success'),
+    })
   },
 
   buyFirstBooth: () => {

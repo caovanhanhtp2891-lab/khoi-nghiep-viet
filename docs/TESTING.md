@@ -70,3 +70,9 @@ Bằng chứng hiện tại và giới hạn của phiên tạo tài liệu nằ
 Street Edition đã chạy thành công lint, 15 unit test và build cục bộ; kiểm tra live và giới hạn thiết bị xem STATUS.md.
 
 Có trang `mobile-preview.html` để đặt iframe game demo ở 320/360/390/430 px và chiều cao 568/640/740/844 px. Đây là kiểm tra viewport CSS trên desktop, không thay cho benchmark thiết bị thật.
+
+## Đợt 100 cư dân
+
+`pnpm test` kiểm tra 100 sheet SVG đúng generator rồi chạy **25 test/5 file**. `neighborhood.test.ts` kiểm tra identity/ngoại hình riêng (bỏ title trước so uniqueness), roster deterministic, chào hỏi không farm XP trong cùng ngày, reward một lần, đơn đủ/thiếu/quá hạn/id sai, nâng cấp chỉ mua một lần, đối soát doanh thu/kho/giá vốn và migration v3/v4. Test Dexie đã thêm quan hệ/upgrade/milestone trong round-trip.
+
+Kịch bản live bổ sung: filter theo nghề/tuổi, gặp NPC → hồ sơ, chào/hỏi nghề → chat/quan hệ, nhận đơn/giao, nhận thưởng, mua nâng cấp; pause và reload giữ tiến độ. Kiểm tra viewport qua mobile-preview là CSS iframe, không phải emulation phần cứng hay benchmark.

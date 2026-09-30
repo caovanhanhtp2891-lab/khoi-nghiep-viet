@@ -17,7 +17,7 @@ describe('save compatibility and recovery', () => {
     ;(old.business as Record<string, unknown>).inventory = 8
     await db.saves.put({ id: 'autosave', schemaVersion: 1, savedAt: '2026-09-30', payload: old })
     const loaded = await loadGame()
-    expect(loaded?.version).toBe(3)
+    expect(loaded?.version).toBe(4)
     expect(loaded?.player.money).toBe(784000)
     expect(loaded?.business.inventory).toBe(8)
     expect(loaded?.player.gender).toBe('male')
@@ -33,6 +33,9 @@ describe('save compatibility and recovery', () => {
     const state = createInitialSnapshot()
     state.player.gender = 'female'; state.player.position = { x: 0.22, y: 0.76 }
     state.player.money = 620000; state.world.rngSeed = 12345; state.world.paused = true
+    state.neighborhood.relationships['npc-002'] = { bond: 27, greetedDay: 1, meetings: 9 }
+    state.neighborhood.upgrades = ['storage']; state.business.maxInventory = 90
+    state.neighborhood.claimedMilestones = ['booth']
     state.chat = [{ id: 1, name: 'Lan', text: 'Chào bạn!', minute: 400, fromPlayer: false }]; state.chatSeq = 1
     await saveGame(state)
     const loaded = await loadGame()

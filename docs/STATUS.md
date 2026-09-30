@@ -33,3 +33,11 @@ Một quầy xôi, một nhân viên; chưa nhiều nghề/chuỗi/công ty, bos
 Hoàn tất kiểm tra hồ sơ demo riêng (`?demo=1`), chọn nữ và di chuyển; chế độ này không thay thế dữ liệu chính. Sau đó cân bằng một ca bán, thêm cấu hình nghề, tối ưu tải Phaser và mở rộng ngoại hình NPC. Không dùng tài liệu kế hoạch để tuyên bố hệ thống chưa có đã hoàn thành.
 
 Hồ sơ demo riêng đã được thêm để kiểm tra onboarding mà không đặt lại dữ liệu chính; `mobile-preview.html` là trang QA thay kích thước iframe. Kiểm tra viewport cần ghi kết quả thực tế sau triển khai.
+
+## Đợt 100 cư dân — 30/09/2026
+
+Mã được phát triển từ main `f276023081d5739d33e70b93d99eee5fb42dc66f`; commit chứa phần bổ sung này xác định bản triển khai. Bộ NPC vector riêng: 100 identity, 50 nghề/vai trò, tuổi 7–82, 400 frame đi bộ. Không dùng art nam/nữ người chơi cho cư dân/xe ôm. Sổ cư dân có tìm kiếm, nhóm nghề/tuổi và hồ sơ; chạm NPC mở hồ sơ. Chat có portrait/id NPC; chào hỏi theo ngày, tình thân; đơn cư dân; milestone và upgrade economy. Payload v4 migrate v1–v3, không đặt lại tiến độ.
+
+Đã chạy cục bộ: lint exit 0; check 100 SVG khớp renderer; 25 test/5 file pass; TypeScript/build exit 0. Phaser bundle vẫn cảnh báo 1.375KB trước gzip; không sửa lockfile/dependency. Kiểm tra live cho đợt này đang thực hiện, sẽ ghi kết quả sau deploy. Đã sửa iframe preview để viewport nội dung khớp số px đã chọn.
+
+Giới hạn: NPC là vector module phối ngoại hình/nghề, chưa có hướng đi 16 chiều hoặc hội thoại AI ngôn ngữ. Đơn giao từ bảng quản lý, chưa có đi giao vật lý. Chưa có backend/online, nhiều quầy/nghề, benchmark điện thoại, lock save nhiều tab. Chi tiết [NPC_SYSTEM.md](NPC_SYSTEM.md).

@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "assets:npcs": "node scripts/generate-npcs.mjs",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "test": "vitest run",
+    "test": "node scripts/generate-npcs.mjs --check && vitest run",
     "test:watch": "vitest",
     "preview": "vite preview"
   },

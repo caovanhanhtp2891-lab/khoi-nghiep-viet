@@ -19,3 +19,5 @@ AI mới nên bắt đầu từ [AGENTS.md](../AGENTS.md), rồi đọc [STATUS.
 ## Quy tắc tránh tài liệu lỗi thời
 
 Mỗi thông tin trạng thái phải có mốc commit hoặc ngày đối chiếu. Liên kết đến mã thay vì sao chép toàn bộ mã. Phân biệt chức năng đang chạy, giao diện mẫu, ý tưởng dài hạn và lỗi đã xác nhận bằng đọc mã hoặc thử thực tế. Khi cập nhật ghi đè phần hiện trạng cũ; lịch sử dài đưa vào changelog.
+
+- [NPC_SYSTEM.md](NPC_SYSTEM.md): 100 cư dân, renderer SVG, quan hệ, đơn đặt, milestone và nâng cấp.

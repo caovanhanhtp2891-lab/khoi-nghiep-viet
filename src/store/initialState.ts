@@ -1,8 +1,9 @@
+import { initialNeighborhood } from '../domain/neighborhood'
 import type { GameSnapshot } from '../domain/types'
 
 export function createInitialSnapshot(): GameSnapshot {
   return {
-    version: 3,
+    version: 4,
     onboarded: false,
     tutorialStep: 0,
     player: {
@@ -60,6 +61,7 @@ export function createInitialSnapshot(): GameSnapshot {
       lastSituationAt: -90,
       resolvedToday: 0,
     },
+    neighborhood: initialNeighborhood(),
     chat: [],
     chatSeq: 0,
     noticeSeq: 1,

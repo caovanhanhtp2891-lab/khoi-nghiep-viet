@@ -1,6 +1,6 @@
 import { BriefcaseBusiness, Map, MessageCircle, TrendingUp, UserRound } from 'lucide-react'
 
-export type PanelName = 'map' | 'business' | 'invest' | 'chat' | 'character'
+export type PanelName = 'map' | 'business' | 'invest' | 'chat' | 'character' | 'neighbors'
 
 const items: Array<{
   id: PanelName
@@ -10,6 +10,7 @@ const items: Array<{
   { id: 'map', label: 'Bản đồ', icon: Map },
   { id: 'business', label: 'Kinh doanh', icon: BriefcaseBusiness },
   { id: 'invest', label: 'Đầu tư', icon: TrendingUp },
+  { id: 'neighbors', label: 'Cư dân', icon: UserRound },
   { id: 'chat', label: 'Chat', icon: MessageCircle },
   { id: 'character', label: 'Nhân vật', icon: UserRound },
 ]

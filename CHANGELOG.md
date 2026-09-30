@@ -19,3 +19,11 @@ Ghi thay đổi đáng kể theo ngày và commit/PR khi có. Hiện trạng n�
 - Đợt thay đổi này chỉ bổ sung tài liệu, chưa sửa các lỗi đã ghi nhận.
 
 Không tái dựng lịch sử cũ bằng suy đoán; xem git log cho các commit trước đợt này.
+
+## 30/09/2026 — 100 cư dân và nhiệm vụ khu phố
+
+- 100 NPC Việt Nam hư cấu, 50 nghề/vai trò, tuổi 7–82, sprite vector riêng 4 frame/nhân vật.
+- Sổ cư dân, tìm kiếm/lọc tuổi/nghề, hồ sơ, chào hỏi/hỏi nghề và quan hệ theo ngày.
+- 3 đơn đề nghị/ngày, deadline, giao dịch tồn kho/tiền/giá vốn; 8 milestone thưởng một lần.
+- 3 nâng cấp quầy tác động nhu cầu/kho/marketing; save v4 tương thích v1–v3.
+- Generator/check asset, 25 unit test; iframe mobile preview dùng đúng viewport nội dung.

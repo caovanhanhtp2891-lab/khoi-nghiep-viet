@@ -9,6 +9,7 @@ type GameEventMap = {
   'simulation:update': GameSnapshot
   'business:selected': undefined
   'player:focus': undefined
+  'npc:selected': string
   sale: SaleVisualEvent
   reset: undefined
 }

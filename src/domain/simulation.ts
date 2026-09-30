@@ -36,11 +36,11 @@ export function getWeatherDemandFactor(weather: Weather): number {
 export function calculateDemand(snapshot: GameSnapshot): DemandBreakdown {
   const { business, world } = snapshot
   const time = getTimeDemandFactor(world.minuteOfDay)
-  const weather = getWeatherDemandFactor(world.weather)
+  const weather = world.weather === 'rain' && snapshot.neighborhood.upgrades.includes('canopy') ? 0.78 : getWeatherDemandFactor(world.weather)
   const price = clamp(1.8 - (business.price / 22_000) * 0.8, 0.35, 1.28)
   const quality = clamp(0.65 + business.quality / 200, 0.65, 1.15)
   const reputation = clamp(0.7 + business.reputation / 200, 0.7, 1.2)
-  const marketing = 1 + (business.marketingScore / 100) * 0.45
+  const marketing = 1 + (business.marketingScore / 100) * 0.45 + (snapshot.neighborhood.upgrades.includes('sign') ? 0.15 : 0)
 
   return {
     time,

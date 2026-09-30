@@ -1,14 +1,14 @@
 import Phaser from 'phaser'
 import type { GameSnapshot, Gender } from '../domain/types'
 import { formatMoney } from '../domain/format'
-import { npcChatLine } from '../domain/chat'
+import { NPC_CATALOG, streetNpc, npcLine, type NpcProfile } from '../domain/npcCatalog'
 import { snapshotFromStore, useGameStore } from '../store/gameStore'
 import { gameEvents } from './events'
 
 const W = 1024
 const H = 1536
 const FONT = 'Arial, "Segoe UI", sans-serif'
-type Actor = { root: Phaser.GameObjects.Container; sprite: Phaser.GameObjects.Sprite; gender: Gender; name: string }
+type Actor = { root: Phaser.GameObjects.Container; sprite: Phaser.GameObjects.Sprite; gender: Gender; name: string; npcId?: string }
 
 export class MainScene extends Phaser.Scene {
   private player?: Actor
@@ -30,6 +30,7 @@ export class MainScene extends Phaser.Scene {
     const base = import.meta.env.BASE_URL
     this.load.image('street', `${base}assets/art/vietnam-street.webp`)
     this.load.image('characters', `${base}assets/art/characters.webp`)
+    for (const npc of NPC_CATALOG) this.load.svg(npc.id, `${base}assets/npcs-v2/${npc.id}.svg`, { width: 480, height: 200 })
   }
   create(): void {
     this.snapshot = snapshotFromStore(useGameStore.getState())
@@ -46,6 +47,12 @@ export class MainScene extends Phaser.Scene {
       }
       const key = row === 0 ? 'male-walk' : 'female-walk'
       if (!this.anims.exists(key)) this.anims.create({ key, frames: [0, 1, 2, 3].map((col) => ({ key: 'characters', frame: `${row}-${col}` })), frameRate: 7, repeat: -1 })
+    }
+    for (const npc of NPC_CATALOG) {
+      if (!this.textures.exists(npc.id)) continue
+      for (let col = 0; col < 4; col++) this.textures.get(npc.id).add(String(col), 0, col * 120, 0, 120, 200)
+      const key = `${npc.id}-walk`
+      if (!this.anims.exists(key)) this.anims.create({ key, frames: [0,1,2,3].map(col => ({ key: npc.id, frame: String(col) })), frameRate: 6, repeat: -1 })
     }
     this.add.image(W / 2, H / 2, 'street').setDisplaySize(W, H)
     this.sign(190, 555, 'TẠP HÓA CÔ LAN', '#fff4cf')
@@ -153,19 +160,36 @@ export class MainScene extends Phaser.Scene {
       useGameStore.getState().movePlayer(this.player.root.x / W, this.player.root.y / H)
     }
   }
+  private npcActor(npc: NpcProfile, x: number, y: number): Actor {
+    const root = this.add.container(x, y).setDepth(13 + y / H)
+    const shadow = this.add.ellipse(0, 0, 66, 16, 0x53412c, 0.16)
+    const sprite = this.add.sprite(0, 0, npc.id, '0').setOrigin(0.5, 0.94).setDisplaySize(130, 217)
+    root.add([shadow, sprite])
+    if (npc.age < 13) root.setScale(0.68)
+    else if (npc.age < 18) root.setScale(0.82)
+    else root.setScale(0.86 + (npc.variant % 3) * 0.04)
+    return { root, sprite, gender: npc.gender, name: npc.name, npcId: npc.id }
+  }
   private spawnPerson(initial = false): void {
     if (this.people.length >= 10) return
     const id = ++this.count
-    const line = npcChatLine(this.snapshot.world, this.snapshot.business, id)
+    let npc = streetNpc(this.snapshot.world, id)
+    for (let offset = 1; this.people.some(p => p.npcId === npc.id) && offset < 100; offset++) npc = streetNpc(this.snapshot.world, id + offset)
+    if (!this.textures.exists(npc.id)) return
+    const line = npcLine(npc, this.snapshot.world, this.snapshot.business)
     const fromLeft = id % 2 === 0
     const y = H * (0.665 + (id % 5) * 0.025)
-    const person = this.actor(id % 3 === 0 ? 'female' : 'male', line.name, initial ? 120 + (id % 5) * 170 : fromLeft ? -80 : W + 80, y)
-    person.root.setScale(0.75 + (id % 3) * 0.08)
-    person.sprite.setFlipX(!fromLeft).play(`${person.gender}-walk`)
+    const person = this.npcActor(npc, initial ? 120 + (id % 5) * 170 : fromLeft ? -80 : W + 80, y)
+    person.sprite.setFlipX(!fromLeft).play(`${npc.id}-walk`)
     this.people.push(person)
-    person.sprite.setInteractive({ useHandCursor: true }).on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => { event.stopPropagation(); this.speak(person, `${person.name.split(' · ')[0]}: ${line.text}`) })
-    this.tweens.add({ targets: person.root, x: fromLeft ? W + 100 : -100, duration: initial ? 14000 + id * 500 : 22000, onComplete: () => { this.people = this.people.filter((p) => p !== person); person.root.destroy() } })
-    if (id % 2 === 0 || initial) this.time.delayedCall(300 + id * 130, () => { if (person.root.active) this.speak(person, line.text) })
+    person.sprite.setInteractive({ useHandCursor: true }).on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+      event.stopPropagation()
+      this.speak(person, `${npc.name}: ${npcLine(npc, this.snapshot.world, this.snapshot.business)}`)
+      gameEvents.emit('npc:selected', npc.id)
+    })
+    const duration = npc.age >= 65 ? 30000 : npc.age < 18 ? 18000 : 22000
+    this.tweens.add({ targets: person.root, x: fromLeft ? W + 100 : -100, duration: initial ? duration * 0.65 : duration, onComplete: () => { this.people = this.people.filter(p => p !== person); person.root.destroy() } })
+    if (id % 3 === 0 || initial) this.time.delayedCall(300 + id * 130, () => { if (person.root.active) this.speak(person, line) })
   }
   private speak(actor: Actor, text: string): void {
     if (!actor.root.active) return
@@ -189,7 +213,9 @@ export class MainScene extends Phaser.Scene {
     g.fillCircle(-52, 20, 25).fillCircle(52, 20, 25)
     g.fillStyle(0xb7503d).fillRoundedRect(-67, -22, 140, 25, 10)
     g.lineStyle(7, 0x51443b).lineBetween(55, 10, 35, -62).lineBetween(35, -62, 13, -62)
-    const rider = this.add.sprite(0, -16, 'characters', '0-0').setOrigin(0.5, 0.9).setDisplaySize(68, 136)
+    const riderNpc = NPC_CATALOG[70 + (this.count % 4)]!
+    if (!this.textures.exists(riderNpc.id)) { root.destroy(); return }
+    const rider = this.add.sprite(0, -16, riderNpc.id, '0').setOrigin(0.5, 0.9).setDisplaySize(80, 134)
     root.add([g, rider])
     this.tweens.add({ targets: root, x: W + 150, duration: 9000, onComplete: () => root.destroy() })
   }

@@ -1,8 +1,9 @@
+import type { NeighborhoodState } from './neighborhood'
 export type Weather = 'sunny' | 'cloudy' | 'rain' | 'hot'
 export type GameSpeed = 1 | 2 | 4
 export type AvatarStyle = 'green' | 'orange' | 'blue'
 export type Gender = 'male' | 'female'
-export interface ChatMessage { id: number; name: string; text: string; minute: number; fromPlayer: boolean }
+export interface ChatMessage { id: number; name: string; text: string; minute: number; fromPlayer: boolean; npcId?: string }
 export type NoticeTone = 'info' | 'success' | 'warning'
 
 export type SituationTone = 'kind' | 'business' | 'careful'
@@ -106,7 +107,7 @@ export interface GameNotice {
 }
 
 export interface GameSnapshot {
-  version: 1 | 2 | 3
+  version: 1 | 2 | 3 | 4
   onboarded: boolean
   tutorialStep: number
   player: PlayerState
@@ -119,6 +120,7 @@ export interface GameSnapshot {
   notices: GameNotice[]
   chat: ChatMessage[]
   chatSeq: number
+  neighborhood: NeighborhoodState
 }
 
 export interface DemandBreakdown {

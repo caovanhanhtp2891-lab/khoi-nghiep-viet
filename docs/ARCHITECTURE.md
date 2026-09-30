@@ -72,3 +72,14 @@ Scene dùng world 1024×1536, background raster, camera cover theo viewport. Nh�
 Chat trong store là lịch sử local; tick thêm tin mỗi 30 phút game và sendChat tạo lời đáp NPC. React render text, không render HTML người chơi. NoticeToast quản lý tuổi thọ 1 giây độc lập; tình huống story dạng gập/mở chờ người chơi.
 
 Load lỗi chuyển blocked, giữ ready=false nên tick/persist không chạy. Xem SAVE_FORMAT.md để sửa dữ liệu an toàn.
+
+## Cư dân (payload v4)
+
+- `domain/npcCatalog.ts`: 100 identity, role advice, roster theo giờ/ngày.
+- `domain/npcArt.ts` + `scripts/generate-npcs.mjs`: renderer SVG + generator/check 100 sheet.
+- `domain/neighborhood.ts`: schema quan hệ/đơn/mốc/nâng cấp và cấu hình economy.
+- `store/gameStore.ts`: chào hỏi, giao đơn, nhận thưởng, mua upgrade trong action giao dịch.
+- `components/NeighborhoodPanel.tsx`, `NpcPortrait.tsx`: sổ/filter/detail/đơn/nhiệm vụ.
+- `game/events.ts`: npc:selected chuyển scene → panel; scene không tự quyết định quan hệ/doanh thu.
+
+Chi tiết và cách thêm cư dân xem [NPC_SYSTEM.md](NPC_SYSTEM.md).

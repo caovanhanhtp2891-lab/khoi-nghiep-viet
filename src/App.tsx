@@ -18,6 +18,7 @@ import { useGameStore } from './store/gameStore'
 function App() {
   const saveStatus = useGameRuntime()
   const [recoveryMessage, setRecoveryMessage] = useState('')
+  const [selectedNpc, setSelectedNpc] = useState<string | null>(null)
   const [panel, setPanel] = useState<PanelName | null>(null)
   const onboarded = useGameStore((state) => state.onboarded)
   const business = useGameStore((state) => state.business)
@@ -30,7 +31,10 @@ function App() {
 
   useEffect(() => gameEvents.on('business:selected', () => setPanel('business')), [])
 
+  useEffect(() => gameEvents.on('npc:selected', (id) => { setSelectedNpc(id); setPanel('neighbors') }), [])
+
   const selectPanel = (next: PanelName) => {
+    setSelectedNpc(null)
     setPanel((current) => (current === next ? null : next))
   }
 
@@ -84,7 +88,7 @@ function App() {
       </section>
 
       <BottomNav active={panel} onSelect={selectPanel} />
-      {panel && <GamePanel panel={panel} onClose={() => setPanel(null)} />}
+      {panel && <GamePanel panel={panel} selectedNpc={selectedNpc} onClose={() => setPanel(null)} />}
       {!onboarded && <WelcomeModal />}
     </main>
   )

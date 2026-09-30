@@ -33,3 +33,7 @@ IndexedDB theo origin/profile trình duyệt; không phải ID phần cứng, kh
 `saveDb.test.ts` dùng fake-indexeddb: load v2, migrate v1 thiếu story, round-trip v3 nữ/vị trí/chat/tiền/seed/pause, dữ liệu hỏng/phiên bản tương lai giữ nguyên, khôi phục backup. Khi thêm trường/phiên bản mới tiếp tục fixture cũ và thử reload browser, không chỉ test interface.
 
 `?demo=1` dùng database `khoi-nghiep-viet-demo` riêng, giữ nguyên database hồ sơ chính. Đây là chế độ test để tạo nhân vật/chơi thử mà không đặt lại tiến độ chính.
+
+## Version 4 — cư dân
+
+Payload mới là **v4**; database/envelope/slots giữ nguyên. v1/v2/v3 nâng lên v4, thêm `neighborhood` mặc định. Giữ tiền, hàng, đồng hồ, seed, giới tính/vị trí/chat từ v3. Schema và quy tắc nhóm neighborhood xem [NPC_SYSTEM.md](NPC_SYSTEM.md). `migrateSnapshot` validate nhóm mới, không chấp nhận giá đơn bị sửa, NPC id lạ hoặc bond ngoài 0–100. Test Dexie round-trip đã thêm quan hệ, upgrade và milestone.

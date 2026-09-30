@@ -21,3 +21,9 @@ Ngày 30/09/2026. Phát triển từ `90bdd778dcb99117187da7c6eabbf5403c42206f`;
 4. Kiểm thử/cân bằng quyết toán một ngày rồi tách cấu hình nghề mới.
 
 Không nâng dependency ngoài phạm vi; không khẳng định chat online hoặc offline catch-up đã có. Tài sản raster được tạo mới bằng built-in image generation và lưu tại public/assets/art; thông số/prompt ở ASSETS.md và ART_PROMPTS.md.
+
+## Cập nhật 100 cư dân
+
+Đọc thêm NPC_SYSTEM.md. Current payload là v4; cập nhật mới giữ save v1–v3. Renderer NPC là vector riêng (npcArt.ts), generator/check và 100 SVG trong public/assets/npcs-v2. Có 25 test/5 file, lint/build pass cục bộ. Xem STATUS.md cho kết quả live mới nhất.
+
+Ưu tiên tiếp: đo preload SVG/RAM/FPS trên máy thật, upgrade visual, kiểm tra quyết toán ngày mới và deadline qua nửa đêm, thêm lịch NPC cá nhân, nhiều nghề bằng dữ liệu. Không nhầm 100 NPC trong catalog với 100 người vẽ đồng thời (tối đa 10).

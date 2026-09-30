@@ -45,3 +45,9 @@ Cập nhật Street Edition: B01–B04 đã có sửa mã và regression test; c
 - Backup nhiều phiên/import, khóa save giữa nhiều tab.
 - Tách cấu hình nghề và cân bằng quyết toán trước thêm ngành.
 - Bundle Phaser hiện lớn; đo tải, FPS và bộ nhớ trên điện thoại.
+
+## 100 cư dân và mở rộng khu phố
+
+- Hoàn thành: 100 NPC riêng/50 nghề hoặc vai trò, sổ cư dân/filter, quan hệ lưu được, 3 đơn đề nghị/ngày, 8 milestone, 3 upgrade quầy; xem NPC_SYSTEM.md.
+- Tiếp theo: hình upgrade xuất hiện trên xe xôi, cây hội thoại và lịch đi làm/đi học theo từng NPC (hiện roster theo ngày/giờ chung), dẫn đường giao đơn, lưu nhiều tab, thêm nghề kinh doanh sau cân bằng một ca/ngày.
+- Đã có tránh xe xôi cho chạm để đi; chưa phải pathfinding bản đồ tổng quát. Không tự đánh dấu F02/B06 hoàn tất cho thiết bị thật.

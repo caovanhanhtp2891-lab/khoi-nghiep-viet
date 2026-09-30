@@ -1,4 +1,8 @@
 import { useState } from 'react'
+import { NeighborhoodPanel } from './NeighborhoodPanel'
+import { UPGRADES } from '../domain/neighborhood'
+import { NpcPortrait } from './NpcPortrait'
+import { getNpc } from '../domain/npcCatalog'
 import { CharacterArt } from './CharacterArt'
 import {
   BarChart3,
@@ -33,6 +37,7 @@ import { snapshotFromStore, useGameStore } from '../store/gameStore'
 import type { PanelName } from './BottomNav'
 
 const panelMeta: Record<PanelName, { title: string; subtitle: string }> = {
+  neighbors: { title: 'Cư dân & nhiệm vụ', subtitle: 'Gặp hàng xóm, nhận đơn và xây tình thân' },
   map: { title: 'Bản đồ khu phố', subtitle: 'Đọc lưu lượng trước khi đặt điểm bán' },
   business: { title: 'Kinh doanh', subtitle: 'Quản lý vận hành và lợi nhuận' },
   invest: { title: 'Đầu tư', subtitle: 'Tăng tài sản bằng quyết định dài hạn' },
@@ -40,7 +45,7 @@ const panelMeta: Record<PanelName, { title: string; subtitle: string }> = {
   character: { title: 'Nhân vật', subtitle: 'Kỹ năng, uy tín và hành trình' },
 }
 
-export function GamePanel({ panel, onClose }: { panel: PanelName; onClose: () => void }) {
+export function GamePanel({ panel, selectedNpc, onClose }: { panel: PanelName; selectedNpc?: string | null; onClose: () => void }) {
   const meta = panelMeta[panel]
 
   return (
@@ -57,6 +62,7 @@ export function GamePanel({ panel, onClose }: { panel: PanelName; onClose: () =>
           </button>
         </header>
         <div className="panel-content">
+          {panel === 'neighbors' && <NeighborhoodPanel selectedNpc={selectedNpc} />}
           {panel === 'map' && <MapPanel />}
           {panel === 'business' && <BusinessPanel />}
           {panel === 'invest' && <InvestmentPanel />}
@@ -193,6 +199,11 @@ function BusinessPanel() {
         </div>
       </section>
 
+      <section className="section-card upgrade-list"><h3>Nâng cấp quầy</h3>{UPGRADES.map(upgrade => {
+        const owned = store.neighborhood.upgrades.includes(upgrade.id)
+        return <article key={upgrade.id}><div><strong>{upgrade.title}</strong><p>{upgrade.description}</p></div><button className="secondary-button" disabled={owned || player.money < upgrade.cost} onClick={() => store.buyUpgrade(upgrade.id)}>{owned ? 'Đã lắp' : formatMoney(upgrade.cost, true)}</button></article>
+      })}</section>
+
       <div className="management-grid">
         <section className="section-card management-card">
           <span className="mini-card-icon"><Users size={18} /></span>
@@ -255,7 +266,7 @@ function ChatPanel() {
   const sendChat = useGameStore((state) => state.sendChat)
   const [draft, setDraft] = useState('')
   return <div className="chat-list"><div className="channel-tabs"><button className="is-active">Khu phố Bình Minh</button></div>
-    <div className="chat-history">{messages.length === 0 && <p className="chat-empty">Chào hàng xóm mới! Gửi lời chào để bắt chuyện nhé.</p>}{messages.map((message) => <article className={`chat-message ${message.fromPlayer ? 'from-player' : ''}`} key={message.id}><span className="chat-avatar">{message.fromPlayer ? 'Bạn' : 'NPC'}</span><div><p><strong>{message.name}</strong><time>{String(Math.floor(message.minute % 1440 / 60)).padStart(2, '0')}:{String(message.minute % 60).padStart(2, '0')}</time></p><span>{message.text}</span></div></article>)}</div>
+    <div className="chat-history">{messages.length === 0 && <p className="chat-empty">Chào hàng xóm mới! Gửi lời chào để bắt chuyện nhé.</p>}{messages.map((message) => <article className={`chat-message ${message.fromPlayer ? 'from-player' : ''}`} key={message.id}><span className="chat-avatar">{message.npcId && getNpc(message.npcId) ? <NpcPortrait npcId={message.npcId} /> : message.fromPlayer ? 'Bạn' : 'NPC'}</span><div><p><strong>{message.name}</strong><time>{String(Math.floor(message.minute % 1440 / 60)).padStart(2, '0')}:{String(message.minute % 60).padStart(2, '0')}</time></p><span>{message.text}</span></div></article>)}</div>
     <form className="chat-compose" onSubmit={(event) => { event.preventDefault(); sendChat(draft); setDraft('') }}><input aria-label="Tin nhắn khu phố" placeholder="Chào hàng xóm…" value={draft} maxLength={160} onChange={(event) => setDraft(event.target.value)} /><button className="primary-button" disabled={!draft.trim()}>Gửi</button></form>
     <div className="bot-disclosure"><MessageCircle size={15} /> Hội thoại với NPC trên máy bạn. Chưa kết nối người chơi khác.</div>
   </div>
