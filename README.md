@@ -30,3 +30,9 @@ pnpm preview
 4. Workflow `.github/workflows/deploy-pages.yml` sẽ tự kiểm thử, build và phát hành game sau mỗi lần push lên `main`.
 
 Chi tiết thiết kế và lộ trình dài hạn nằm trong [PLAN.md](./PLAN.md).
+
+## Tiếp nhận dự án và phát triển bằng AI
+
+Bắt đầu từ [AGENTS.md](AGENTS.md), sau đó đọc [hiện trạng](docs/STATUS.md), [kiến trúc](docs/ARCHITECTURE.md) và [bàn giao](docs/HANDOFF.md). Danh sách đầy đủ nằm ở [docs/README.md](docs/README.md).
+
+[PLAN.md](PLAN.md) mô tả thiết kế và lộ trình dài hạn; trạng thái đã triển khai thực tế nằm ở [STATUS.md](docs/STATUS.md). Bản mã đã đối chiếu hiện có lỗi tải save version 2; xem mục B01 trong [backlog](docs/BACKLOG.md) trước khi mở rộng tính năng.
