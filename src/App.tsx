@@ -4,6 +4,7 @@ import { BottomNav, type PanelName } from './components/BottomNav'
 import { GamePanel } from './components/GamePanel'
 import { TopHud } from './components/TopHud'
 import { TutorialCard } from './components/TutorialCard'
+import { StoryChoiceCard } from './components/StoryChoiceCard'
 import { WelcomeModal } from './components/WelcomeModal'
 import { formatMoney } from './domain/format'
 import { WEATHER_META } from './domain/types'
@@ -21,6 +22,8 @@ function App() {
   const weather = useGameStore((state) => state.world.weather)
   const notices = useGameStore((state) => state.notices)
   const dismissNotice = useGameStore((state) => state.dismissNotice)
+  const activeSituation = useGameStore((state) => state.story.activeSituation)
+  const resolveSituation = useGameStore((state) => state.resolveSituation)
   const profit = dayStats.revenue - dayStats.cogs - dayStats.expenses
 
   useEffect(() => gameEvents.on('business:selected', () => setPanel('business')), [])
@@ -59,6 +62,9 @@ function App() {
             <div><Users size={16} /><span><small>Khách</small><strong>{dayStats.customers}</strong></span></div>
             <div className={profit >= 0 ? 'positive' : 'negative'}><span><small>Lợi nhuận tạm tính</small><strong>{formatMoney(profit, true)}</strong></span></div>
           </div>
+        )}
+        {activeSituation && (
+          <StoryChoiceCard situation={activeSituation} onChoose={resolveSituation} />
         )}
 
         <div className="tutorial-wrap">

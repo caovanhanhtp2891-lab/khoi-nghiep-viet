@@ -31,10 +31,19 @@ export class MainScene extends Phaser.Scene {
   private unsubscribe: Array<() => void> = []
   private rainDrops: Phaser.GameObjects.Rectangle[] = []
   private lastSnapshot = snapshotFromStore(useGameStore.getState())
+  private npcSequence = 0
+  private activeNpcCount = 0
 
   constructor() {
     super('main-scene')
   }
+  preload(): void {
+    for (let index = 1; index <= 12; index += 1) {
+      const suffix = index.toString().padStart(2, '0')
+      this.load.image(`user-npc-${suffix}`, `assets/npcs/user-npc-${suffix}.png`)
+    }
+  }
+
 
   create(): void {
     this.worldLayer = this.add.container(0, 0).setDepth(0)
@@ -90,6 +99,7 @@ export class MainScene extends Phaser.Scene {
     const height = this.scale.height
     this.worldLayer?.removeAll(true)
     this.npcLayer?.removeAll(true)
+    this.activeNpcCount = 0
 
     const graphics = this.add.graphics()
     this.worldLayer?.add(graphics)
@@ -219,6 +229,24 @@ export class MainScene extends Phaser.Scene {
     person.add([shadow, legLeft, legRight, body, head])
     return person
   }
+  private createNpc(index: number, scale = 1): Phaser.GameObjects.Container {
+    const person = this.add.container(0, 0).setScale(scale)
+    const shadow = this.add.ellipse(0, 19, 30, 9, 0x000000, 0.16)
+    const suffix = index.toString().padStart(2, '0')
+    const sprite = this.add.image(0, 2, `user-npc-${suffix}`).setOrigin(0.5, 0.86)
+    sprite.setDisplaySize(48, 62)
+    person.add([shadow, sprite])
+    this.tweens.add({
+      targets: sprite,
+      y: -1,
+      duration: 260 + Math.random() * 180,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    })
+    return person
+  }
+
 
   private getAvatarColor(style: GameSnapshot['player']['avatarStyle']): number {
     return { green: COLORS.green, orange: COLORS.orange, blue: COLORS.blue }[style]
@@ -232,8 +260,9 @@ export class MainScene extends Phaser.Scene {
     const rainFactor = this.lastSnapshot.world.weather === 'rain' ? 0.55 : 1
     if (Math.random() > rainFactor) return
 
-    const colors = [0xe7674c, 0x3b82a0, 0xf0aa36, 0x6656a8, 0x16866f]
-    const person = this.createPerson(colors[Math.floor(Math.random() * colors.length)], 0.75)
+    this.npcSequence = (this.npcSequence % 12) + 1
+    const person = this.createNpc(this.npcSequence, 0.8 + Math.random() * 0.15)
+    this.activeNpcCount += 1
     const y = height * (0.58 + Math.random() * 0.1)
     const leftToRight = Math.random() > 0.5
     person.setPosition(leftToRight ? -30 : width + 30, y)
@@ -245,13 +274,16 @@ export class MainScene extends Phaser.Scene {
       y: y + (Math.random() - 0.5) * 12,
       duration: 6_500 + Math.random() * 3_500,
       ease: 'Linear',
-      onComplete: () => person.destroy(),
+      onComplete: () => {
+        person.destroy()
+        this.activeNpcCount = Math.max(0, this.activeNpcCount - 1)
+      },
     })
   }
 
   private showSale(count: number, revenue: number): void {
     if (!this.booth || !this.npcLayer) return
-    const customer = this.createPerson(COLORS.yellow, 0.76)
+    const customer = this.createNpc(1 + Math.floor(Math.random() * 12), 0.78)
     customer.setPosition(this.booth.x + 70, this.booth.y + 28)
     this.npcLayer.add(customer)
     this.tweens.add({

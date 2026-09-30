@@ -28,6 +28,7 @@ export interface GameActions {
   advanceTick: (minutes?: number) => void
   setTutorialStep: (step: number) => void
   dismissNotice: (id: number) => void
+  resolveSituation: (choiceId: string) => void
   hydrate: (snapshot: GameSnapshot) => void
   resetGame: () => void
 }
@@ -68,6 +69,7 @@ export function snapshotFromStore(state: GameStore): GameSnapshot {
     business: state.business,
     dayStats: state.dayStats,
     lifetime: state.lifetime,
+    story: state.story,
     noticeSeq: state.noticeSeq,
     notices: state.notices,
   })
@@ -203,6 +205,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const previousInventory = state.business.inventory
     const result = simulateTick(snapshotFromStore(state), minutes)
     let next = result.next
+    if (!state.story.activeSituation && next.story.activeSituation) {
+      next = {
+        ...next,
+        ...appendNotice(next, `T?nh hu?ng m?i: ${next.story.activeSituation.title}`, 'info'),
+      }
+    }
+
 
     if (result.autoClosed) {
       next = {
@@ -235,6 +244,61 @@ export const useGameStore = create<GameStore>((set, get) => ({
       gameEvents.emit('sale', { count: result.sales, revenue: result.revenue })
     }
   },
+  resolveSituation: (choiceId) => {
+    const state = get()
+    const situation = state.story.activeSituation
+    const choice = situation?.choices.find((option) => option.id === choiceId)
+    if (!situation || !choice) return
+
+    const effect = choice.effect
+    const inventoryDelta = effect.inventory ?? 0
+    const unitsSold = Math.max(0, -inventoryDelta)
+    const revenue = effect.revenue ?? 0
+    const expense = effect.expense ?? 0
+    const nextXp = state.player.xp + (effect.xp ?? 0)
+
+    set({
+      player: {
+        ...state.player,
+        money: Math.max(0, state.player.money + (effect.money ?? 0)),
+        xp: nextXp,
+        level: Math.max(state.player.level, 1 + Math.floor(nextXp / 350)),
+        reputation: clamp(state.player.reputation + (effect.reputation ?? 0), 0, 100),
+      },
+      business: {
+        ...state.business,
+        inventory: clamp(state.business.inventory + inventoryDelta, 0, state.business.maxInventory),
+        reputation: clamp(state.business.reputation + (effect.businessReputation ?? 0), 0, 100),
+        quality: clamp(state.business.quality + (effect.quality ?? 0), 0, 100),
+        marketingScore: clamp(state.business.marketingScore + (effect.marketing ?? 0), 0, 100),
+      },
+      dayStats: {
+        ...state.dayStats,
+        revenue: state.dayStats.revenue + revenue,
+        cogs: state.dayStats.cogs + unitsSold * state.business.unitCost,
+        expenses: state.dayStats.expenses + expense,
+        customers: state.dayStats.customers + unitsSold,
+      },
+      lifetime: {
+        ...state.lifetime,
+        revenue: state.lifetime.revenue + revenue,
+        customers: state.lifetime.customers + unitsSold,
+      },
+      story: {
+        activeSituation: null,
+        history: [...state.story.history, situation].slice(-8),
+        lastSituationAt: state.story.lastSituationAt,
+        resolvedToday: state.story.resolvedToday + 1,
+      },
+      ...appendNotice(
+        state,
+        `${situation.character}: ${choice.label}. Khu ph? ?? ghi nh?n quy?t ??nh c?a b?n.`,
+        choice.tone === 'kind' ? 'success' : 'info',
+      ),
+    })
+    gameEvents.emit('simulation:update', snapshotFromStore(get()))
+  },
+
 
   setTutorialStep: (tutorialStep) => set({ tutorialStep }),
 
@@ -242,16 +306,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set((state) => ({ notices: state.notices.filter((notice) => notice.id !== id) })),
 
   hydrate: (snapshot) => {
-    if (snapshot.version !== 1) return
+    if (snapshot.version !== 1 && snapshot.version !== 2) return
     const defaults = createInitialSnapshot()
     set({
       ...defaults,
       ...snapshot,
+      version: 2,
       player: { ...defaults.player, ...snapshot.player },
       world: { ...defaults.world, ...snapshot.world, paused: false },
       business: { ...defaults.business, ...snapshot.business },
       dayStats: { ...defaults.dayStats, ...snapshot.dayStats },
       lifetime: { ...defaults.lifetime, ...snapshot.lifetime },
+      story: { ...defaults.story, ...snapshot.story },
     })
     gameEvents.emit('simulation:update', snapshotFromStore(get()))
   },

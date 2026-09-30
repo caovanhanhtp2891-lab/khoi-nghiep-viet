@@ -2,7 +2,7 @@ import type { GameSnapshot } from '../domain/types'
 
 export function createInitialSnapshot(): GameSnapshot {
   return {
-    version: 1,
+    version: 2,
     onboarded: false,
     tutorialStep: 0,
     player: {
@@ -51,6 +51,12 @@ export function createInitialSnapshot(): GameSnapshot {
       profit: 0,
       customers: 0,
       daysCompleted: 0,
+    },
+    story: {
+      activeSituation: null,
+      history: [],
+      lastSituationAt: -90,
+      resolvedToday: 0,
     },
     noticeSeq: 1,
     notices: [

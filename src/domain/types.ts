@@ -3,6 +3,46 @@ export type GameSpeed = 1 | 2 | 4
 export type AvatarStyle = 'green' | 'orange' | 'blue'
 export type NoticeTone = 'info' | 'success' | 'warning'
 
+export type SituationTone = 'kind' | 'business' | 'careful'
+
+export interface SituationEffect {
+  money?: number
+  inventory?: number
+  reputation?: number
+  businessReputation?: number
+  quality?: number
+  marketing?: number
+  xp?: number
+  expense?: number
+  revenue?: number
+}
+
+export interface SituationChoice {
+  id: string
+  label: string
+  description: string
+  tone: SituationTone
+  effect: SituationEffect
+}
+
+export interface LifeSituation {
+  id: string
+  title: string
+  description: string
+  character: string
+  role: string
+  location: string
+  icon: string
+  choices: SituationChoice[]
+}
+
+export interface StoryState {
+  activeSituation: LifeSituation | null
+  history: LifeSituation[]
+  lastSituationAt: number
+  resolvedToday: number
+}
+
 export interface PlayerState {
   name: string
   avatarStyle: AvatarStyle
@@ -62,13 +102,14 @@ export interface GameNotice {
 }
 
 export interface GameSnapshot {
-  version: 1
+  version: 1 | 2
   onboarded: boolean
   tutorialStep: number
   player: PlayerState
   world: WorldState
   business: BusinessState
   dayStats: DayStats
+  story: StoryState
   lifetime: LifetimeStats
   noticeSeq: number
   notices: GameNotice[]

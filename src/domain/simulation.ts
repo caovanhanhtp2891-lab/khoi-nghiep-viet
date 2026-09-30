@@ -1,4 +1,5 @@
 import type { DemandBreakdown, GameSnapshot, TickResult, Weather } from './types'
+import { generateLifeSituation, SITUATION_INTERVAL_MINUTES } from './situations'
 
 const DAY_MINUTES = 1_440
 const OPEN_MINUTE = 5 * 60 + 30
@@ -72,6 +73,7 @@ export function simulateTick(snapshot: GameSnapshot, minutes = 5): TickResult {
   let money = snapshot.player.money
   let dayStats = { ...snapshot.dayStats }
   let lifetime = { ...snapshot.lifetime }
+  let story = { ...snapshot.story, history: snapshot.story.history.slice(-8) }
   let newDay = false
 
   if (minuteOfDay >= DAY_MINUTES) {
@@ -97,6 +99,7 @@ export function simulateTick(snapshot: GameSnapshot, minutes = 5): TickResult {
       customers: 0,
       lostCustomers: 0,
     }
+    story = { ...story, resolvedToday: 0 }
     weather = pickNextWeather(random.value)
   }
 
@@ -108,7 +111,7 @@ export function simulateTick(snapshot: GameSnapshot, minutes = 5): TickResult {
     minuteOfDay >= OPEN_MINUTE &&
     minuteOfDay < CLOSE_MINUTE
 
-  const baseSnapshot: GameSnapshot = {
+  let baseSnapshot: GameSnapshot = {
     ...snapshot,
     world: {
       ...snapshot.world,
@@ -124,7 +127,30 @@ export function simulateTick(snapshot: GameSnapshot, minutes = 5): TickResult {
       marketingScore: clamp(snapshot.business.marketingScore - 0.08, 0, 100),
     },
     dayStats,
+    story,
     lifetime,
+  }
+
+  const absoluteMinute = day * DAY_MINUTES + minuteOfDay
+  if (
+    isTrading &&
+    !baseSnapshot.story.activeSituation &&
+    absoluteMinute - baseSnapshot.story.lastSituationAt >= SITUATION_INTERVAL_MINUTES
+  ) {
+    const generated = generateLifeSituation(baseSnapshot.world.rngSeed, {
+      ...baseSnapshot.world,
+      productName: baseSnapshot.business.productName,
+      price: baseSnapshot.business.price,
+    })
+    baseSnapshot = {
+      ...baseSnapshot,
+      world: { ...baseSnapshot.world, rngSeed: generated.seed },
+      story: {
+        ...baseSnapshot.story,
+        activeSituation: generated.situation,
+        lastSituationAt: absoluteMinute,
+      },
+    }
   }
 
   const demand = calculateDemand(baseSnapshot)
