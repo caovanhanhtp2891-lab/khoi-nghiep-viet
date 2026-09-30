@@ -10,12 +10,13 @@ interface SaveRecord {
 }
 class GameDatabase extends Dexie {
   saves!: EntityTable<SaveRecord, 'id'>
-  constructor() {
-    super('khoi-nghiep-viet')
+  constructor(name = 'khoi-nghiep-viet') {
+    super(name)
     this.version(1).stores({ saves: 'id, savedAt' })
   }
 }
-export const db = new GameDatabase()
+export const isDemoProfile = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('demo') === '1'
+export const db = new GameDatabase(isDemoProfile ? 'khoi-nghiep-viet-demo' : 'khoi-nghiep-viet')
 
 export async function saveGame(snapshot: GameSnapshot): Promise<void> {
   migrateSnapshot(snapshot)

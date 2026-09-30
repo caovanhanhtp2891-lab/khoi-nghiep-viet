@@ -6,7 +6,7 @@ import { TopHud } from './components/TopHud'
 import { TutorialCard } from './components/TutorialCard'
 import { StoryChoiceCard } from './components/StoryChoiceCard'
 import { NoticeToast } from './components/NoticeToast'
-import { exportSavedGame, restoreBackup } from './services/saveDb'
+import { exportSavedGame, restoreBackup, isDemoProfile } from './services/saveDb'
 import { WelcomeModal } from './components/WelcomeModal'
 import { formatMoney } from './domain/format'
 import { WEATHER_META } from './domain/types'
@@ -57,7 +57,7 @@ function App() {
         <button className="locate-player" aria-label="Tìm nhân vật" onClick={() => gameEvents.emit('player:focus', undefined)}><Navigation size={18} /></button>
         <div className="movement-hint">Chạm vỉa hè để đi · Chạm người để trò chuyện</div>
 
-        <div className="location-pill"><MapPin size={14} /> Khu phố Bình Minh</div>
+        <div className="location-pill"><MapPin size={14} /> {isDemoProfile ? 'Hồ sơ chơi thử riêng' : 'Khu phố Bình Minh'}</div>
         <div className="weather-pill">
           <span>{WEATHER_META[weather].icon}</span>
           <div><small>Thời tiết hôm nay</small><strong>{WEATHER_META[weather].label}</strong></div>

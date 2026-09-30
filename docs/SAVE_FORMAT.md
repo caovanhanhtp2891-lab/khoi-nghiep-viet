@@ -31,3 +31,5 @@ IndexedDB theo origin/profile trình duyệt; không phải ID phần cứng, kh
 ## Kiểm thử
 
 `saveDb.test.ts` dùng fake-indexeddb: load v2, migrate v1 thiếu story, round-trip v3 nữ/vị trí/chat/tiền/seed/pause, dữ liệu hỏng/phiên bản tương lai giữ nguyên, khôi phục backup. Khi thêm trường/phiên bản mới tiếp tục fixture cũ và thử reload browser, không chỉ test interface.
+
+`?demo=1` dùng database `khoi-nghiep-viet-demo` riêng, giữ nguyên database hồ sơ chính. Đây là chế độ test để tạo nhân vật/chơi thử mà không đặt lại tiến độ chính.

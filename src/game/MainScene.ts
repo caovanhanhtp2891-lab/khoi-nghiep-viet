@@ -125,7 +125,14 @@ export class MainScene extends Phaser.Scene {
     if (Math.abs(x - 350) < 135 && Math.abs(y - 1030) < 60) y = 1140
     this.moveTween?.stop()
     player.sprite.setFlipX(x < player.root.x).play(`${player.gender}-walk`, true)
-    this.moveTween = this.tweens.add({ targets: player.root, x, y, duration: Math.max(200, Phaser.Math.Distance.Between(player.root.x, player.root.y, x, y) * 5), onUpdate: () => player.root.setDepth(13 + player.root.y / H), onComplete: () => { player.sprite.stop().setFrame(player.gender === 'female' ? '1-0' : '0-0'); useGameStore.getState().movePlayer(x / W, y / H) } })
+    const crossesCart = Math.min(player.root.x, x) < 480 && Math.max(player.root.x, x) > 215 && Math.min(player.root.y, y) < 1090 && Math.max(player.root.y, y) > 970
+    const points = crossesCart ? [{ x: player.root.x, y: 1140 }, { x, y: 1140 }, { x, y }] : [{ x, y }]
+    const step = () => {
+      const point = points.shift()
+      if (!point) { player.sprite.stop().setFrame(player.gender === 'female' ? '1-0' : '0-0'); useGameStore.getState().movePlayer(x / W, y / H); return }
+      this.moveTween = this.tweens.add({ targets: player.root, x: point.x, y: point.y, duration: Math.max(100, Phaser.Math.Distance.Between(player.root.x, player.root.y, point.x, point.y) * 5), onUpdate: () => player.root.setDepth(13 + player.root.y / H), onComplete: step })
+    }
+    step()
   }
   update(_time: number, delta: number): void {
     if (!this.player || !this.cursors || !this.snapshot.onboarded) return

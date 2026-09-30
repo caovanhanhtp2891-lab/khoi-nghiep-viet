@@ -1467,3 +1467,5 @@
 .recovery-screen button { display: block; padding: 12px 16px; margin: 15px 0; border: 1px solid #bba16f; border-radius: 12px; background: #eee4cf; cursor: pointer; }
 @media (max-width: 350px) { .top-hud { padding-inline: 8px; gap: 4px 6px; }.player-copy strong { max-width: 105px; }.money-metric { padding-inline: 7px; }.money-metric svg { display: none; }.tutorial-card { grid-template-columns: 1fr auto; }.tutorial-icon { display: none; }.welcome-card { padding: 16px; }.welcome-hero-copy h1 { font-size: 25px; }.weather-pill div { display: none; }.time-metric small { max-width: 65px; } }
 @media (max-height: 680px) { .app-shell { grid-template-rows: 88px minmax(0, 1fr) 62px; }.top-hud { padding-block: 4px; }.gender-options .character-art { width: 56px; height: 112px; }.welcome-brand { margin-bottom: 10px; }.welcome-card { padding: 16px; }.welcome-hero-copy h1 { font-size: 24px; }.street-caption { display: none; }.live-business-stats { top: 54px; }.story-choice-card { bottom: 86px; } }
+
+.street-caption { background: #fff6e8e0; border-left: 3px solid #7c9560; border-radius: 2px 10px 10px 2px; padding: 6px 9px; max-width: calc(100% - 30px); text-shadow: none; }

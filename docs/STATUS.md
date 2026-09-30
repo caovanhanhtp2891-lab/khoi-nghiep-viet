@@ -21,7 +21,8 @@ Cập nhật 30/09/2026 (Asia/Saigon). Đợt Street Edition phát triển từ 
 - Bản cũ trên URL Pages đã được chơi thử: bắt đầu, mua/mở quầy, có doanh thu, thấy story hỏng dấu; reload làm quay về 1 triệu và onboarding. Lỗi save được tái hiện qua trình duyệt.
 - Bản mới: `pnpm lint`, `pnpm test` (15 test / 4 file), `pnpm build` đều thành công cục bộ.
 - Build còn cảnh báo bundle Phaser lớn hơn 500KB; engine được import động, chưa benchmark thiết bị thật.
-- Trình duyệt cloud không mở được địa chỉ dev nội bộ; kiểm tra UI bản mới sẽ thực hiện trên Pages sau khi workflow triển khai. Không coi build/unit test là bằng chứng UI mobile.
+- Workflow Street Edition `fa5ac4be8bdb8144417d93e4949cfc9e5c3f3954` đã success. Live Pages đã tải đúng nền/atlas; gửi tin và có NPC trả lời; reload giữ 715.000 VNĐ, ngày 8 13:20 và pause.
+- Dev nội bộ không mở được từ cloud; kiểm tra trực tiếp trên Pages. Chưa benchmark mobile thật.
 
 ## Phạm vi chưa có
 
@@ -29,4 +30,4 @@ Một quầy xôi, một nhân viên; chưa nhiều nghề/chuỗi/công ty, bos
 
 ## Việc tiếp theo
 
-Kiểm tra bản Pages mới bằng trình duyệt, bao gồm chọn nữ, chat, di chuyển và reload; ghi kết quả vào đây. Sau đó cân bằng một ca bán, thêm cấu hình nghề, tối ưu tải Phaser và mở rộng ngoại hình NPC. Không dùng tài liệu kế hoạch để tuyên bố hệ thống chưa có đã hoàn thành.
+Hoàn tất kiểm tra hồ sơ demo riêng (`?demo=1`), chọn nữ và di chuyển; chế độ này không thay thế dữ liệu chính. Sau đó cân bằng một ca bán, thêm cấu hình nghề, tối ưu tải Phaser và mở rộng ngoại hình NPC. Không dùng tài liệu kế hoạch để tuyên bố hệ thống chưa có đã hoàn thành.

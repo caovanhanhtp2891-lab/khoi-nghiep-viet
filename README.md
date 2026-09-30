@@ -40,3 +40,5 @@ Bắt đầu từ [AGENTS.md](AGENTS.md), sau đó đọc [hiện trạng](docs/
 ## Street Edition
 
 Chọn nhân vật nam/nữ, chạm vỉa hè để đi (máy tính dùng phím mũi tên), chạm quầy để quản lý và chạm NPC để nghe lời thoại. Chat khu phố hiện là hội thoại local với NPC, chưa có người chơi online. Thông báo tự ẩn sau 1 giây; tình huống lựa chọn được giữ tới khi xử lý.
+
+Để thử tạo nhân vật mới mà giữ tiến độ chính, thêm `?demo=1` vào URL game. Hồ sơ chơi thử được lưu riêng.
